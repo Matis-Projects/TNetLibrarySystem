@@ -1,0 +1,13 @@
+{
+  "name": "fr.tismatis.tnetlibrarysystem",
+  "displayName": "TNetLibrarySystem",
+  "version": "0.0.1",
+  "author": {
+    "name": "tismatis",
+    "url": "https://github.com/GameursProduction"
+  },
+  "description": "This is a new Networking Library System for Udon.",
+  "vpmDependencies": {
+    "com.vrchat.udonsharp": "1.x.x"
+  }
+}

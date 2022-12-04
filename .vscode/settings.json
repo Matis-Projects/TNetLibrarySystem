@@ -1,0 +1,20 @@
+// Workspace settings
+{
+    // The following will hide the js and map files in the editor
+    "files.exclude": {
+        "**/*.meta": true,
+        "**/*.asset": true
+    },
+    "vscord.status.buttons.button2.git.idle.enabled": true,
+    "vscord.status.buttons.button2.git.active.enabled": true,
+    "vscord.status.buttons.button1.git.idle.enabled": true,
+    "vscord.status.buttons.button1.git.active.enabled": true,
+    "vscord.status.buttons.button1.enabled": true,
+    "vscord.status.buttons.button2.git.idle.url": "https://github.com/GameursProduction",
+    "vscord.status.buttons.button2.git.active.url": "https://github.com/GameursProduction",
+    "vscord.status.buttons.button1.git.idle.url": "{git_url}",
+    "vscord.status.buttons.button1.git.active.url": "{git_url}",
+    "vscord.status.buttons.button2.enabled": true,
+    "vscord.status.buttons.button2.git.active.label": "View Github Page",
+    "vscord.status.buttons.button2.git.idle.label": "Check My Github Page"
+}
