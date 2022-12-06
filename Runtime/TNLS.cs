@@ -3,6 +3,7 @@ using System;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
+using VRC.Udon.Common;
 
 namespace Tismatis.TNetLibrarySystem
 {
@@ -15,8 +16,6 @@ namespace Tismatis.TNetLibrarySystem
         [NonSerialized] private UdonSharpBehaviour[] AllDeclaredNetworkingScript = new UdonSharpBehaviour[500];
         [SerializeField, UdonSynced] private string methodEncoded = "";
         [SerializeField] private string local_mE = "";
-        [SerializeField] private int nope_mE = 0; 
-        [SerializeField] private int mnope_mE = 0;
         [SerializeField] private string tmp_mE = "";
         [SerializeField] private object[] Parameters = null;
         [SerializeField] private bool Debug_Mode = true;
@@ -76,10 +75,6 @@ namespace Tismatis.TNetLibrarySystem
             }else{
                 Parameters = StrToParameters(mttable[2]);
                 network.SendCustomEvent(mttable[0]);
-                if(mttable[3] == "All")
-                {
-                    SendCustomNetworkEvent(VRC.Udon.Common.Interfaces.NetworkEventTarget.Owner, "MKE");
-                }
                 DebugL($"Triggered the network {mttable[0]} in the script id {mttable[1]} with args '{mttable[2]}'");
             }
         }
@@ -117,9 +112,8 @@ namespace Tismatis.TNetLibrarySystem
             if (methodEncoded != "")
             {
                 DebugL($"Executing the method {methodEncoded}");
-                local_mE = methodEncoded;
-                Receive(local_mE);
-                local_mE = "";
+                Receive(methodEncoded);
+                methodEncoded = "";
             }
         }
 
@@ -155,17 +149,16 @@ namespace Tismatis.TNetLibrarySystem
                     DebugL("Change networked one");
                     NeedUpdate = false;
                     DebugL("NeedUpdate = false");
-                    OnDeserialization();
+                    Receive(methodEncoded);
                 }else if(tmp_mE != "")
                 {
                     DebugL("Change local one");
                     NeedUpdate = false;
                     DebugL("NeedUpdate = false");
                     methodEncoded = tmp_mE;
-                    local_mE = tmp_mE;
                     tmp_mE = "";
+                    Receive(methodEncoded);
                     RequestSerialization();
-                    OnDeserialization();
                 }
             }
         }
@@ -176,15 +169,9 @@ namespace Tismatis.TNetLibrarySystem
             NeedUpdate = true;
         }
 
-        public void MKE()
+        public override void OnPostSerialization(SerializationResult result)
         {
-            mnope_mE = VRCPlayerApi.GetPlayerCount();
-            nope_mE += 1;
-            if(nope_mE == mnope_mE)
-            {
-                methodEncoded = "";
-                RequestSerialization();
-            }
+            methodEncoded = "";
         }
         #endregion
 
@@ -206,6 +193,8 @@ namespace Tismatis.TNetLibrarySystem
 
                     k++;
                     int g = k - 1;
+                    string tma = "";
+                    bool t = false;
                     switch (type)
                     {
                         case "System.String":
@@ -215,52 +204,52 @@ namespace Tismatis.TNetLibrarySystem
                             tp = $"I16┬{objs[g]}";
                             break;
                         case "System.Int16[]":
-                            string tmp = "";
-                            foreach(Int16 nbr in objs[g])
+                            tmp = "";
+                            foreach(Int16 nbr in (Int16[])objs[g])
                             {
-                                if(tmp == "")
+                                if(tma == "")
                                 {
-                                    tmp = $"{nbr}";
+                                    tma = $"{nbr}";
                                 }else{
-                                    tmp = $"{nbr}┴";
+                                    tma = $"{nbr}┴";
                                 }
                             }
-                            tp = $"I16┬{tmp}";
+                            tp = $"I16┬{tma}";
                             break;
                         case "System.Int32":
                             tp = $"aI32┬{objs[g]}";
                             break;
                         case "System.Int32[]":
-                            string tmp = "";
-                            foreach(Int32 nbr in objs[g])
+                            tmp = "";
+                            foreach(Int32 nbr in (Int32[])objs[g])
                             {
-                                if(tmp == "")
+                                if(tma == "")
                                 {
-                                    tmp = $"{nbr}";
+                                    tma = $"{nbr}";
                                 }else{
-                                    tmp = $"{nbr}┴";
+                                    tma = $"{nbr}┴";
                                 }
                             }
-                            tp = $"I32┬{tmp}";
+                            tp = $"I32┬{tma}";
                             break;
                         case "System.Int64":
                             tp = $"I64┬{objs[g]}";
                             break;
                         case "System.Int64[]":
-                            string tmp = "";
-                            foreach(Int64 nbr in objs[g])
+                            tmp = "";
+                            foreach(Int64 nbr in (Int64[])objs[g])
                             {
-                                if(tmp == "")
+                                if(tma == "")
                                 {
-                                    tmp = $"{nbr}";
+                                    tma = $"{nbr}";
                                 }else{
-                                    tmp = $"{nbr}┴";
+                                    tma = $"{nbr}┴";
                                 }
                             }
-                            tp = $"aI64┬{tmp}";
+                            tp = $"aI64┬{tma}";
                             break;
-                        case "System.Bool":
-                            bool t = (bool)objs[g];
+                        case "System.Boolean":
+                            t = (bool)objs[g];
                             if (t)
                             {
                                 tp = "BOOL┬T";
@@ -270,12 +259,11 @@ namespace Tismatis.TNetLibrarySystem
                                 tp = "BOOL┬F";
                             }
                             break;
-                        case "System.Bool[]":
-                            string tmp = "";
-                            foreach(bool item in objs[g])
+                        case "System.Boolean[]":
+                            foreach(bool item in (bool[])objs[g])
                             {
                                 string tm = "";
-                                bool t = (bool)item;
+                                t = (bool)item;
                                 if (t)
                                 {
                                     tm = "T";
@@ -285,30 +273,29 @@ namespace Tismatis.TNetLibrarySystem
                                     tm = "F";
                                 }
 
-                                if(tmp == "")
+                                if(tma == "")
                                 {
-                                    tmp = $"{nbr}";
+                                    tma = $"{tm}";
                                 }else{
-                                    tmp = $"{nbr}┴";
+                                    tma = $"{tm}┴";
                                 }
                             }
-                            tp = $"aBOOL┬{tmp}";
+                            tp = $"aBOOL┬{tma}";
                             break;
                         case "System.Byte":
                             tp = $"BYTE┬{objs[g]}";
                             break;
                         case "System.Byte[]":
-                            string tmp = "";
-                            foreach(Byte nbr in objs[g])
+                            foreach(Byte nbr in (Byte[])objs[g])
                             {
-                                if(tmp == "")
+                                if(tma == "")
                                 {
-                                    tmp = $"{nbr}";
+                                    tma = $"{nbr}";
                                 }else{
-                                    tmp = $"{nbr}┴";
+                                    tma = $"{nbr}┴";
                                 }
                             }
-                            tp = $"aBYTE┬{tmp}";
+                            tp = $"aBYTE┬{tma}";
                             break;
                         case "VRC.SDKBase.VRCPlayerApi":
                             VRCPlayerApi player = (VRCPlayerApi)objs[g];
