@@ -292,39 +292,82 @@ namespace Tismatis.TNetLibrarySystem
 
                     k++;
                     int g = k - 1;
-                    switch (type[0])
+                    int kt = 0;
+                    if(type[0] == "STR")
                     {
-                        case "STR":
-                            VarsParams[g] = Convert.ToString(type[1]);
-                            break;
-                        case "I16":
-                            VarsParams[g] = Convert.ToInt16(type[1]);
-                            break;
-                        case "I32":
-                            VarsParams[g] = Convert.ToInt32(type[1]);
-                            break;
-                        case "I64":
-                            VarsParams[g] = Convert.ToInt64(type[1]);
-                            break;
-                        case "BOOL":
+                        VarsParams[g] = Convert.ToString(type[1]);
+                    }else if(type[0] == "I16") {
+                        VarsParams[g] = Convert.ToInt16(type[1]);
+                    }else if(type[0] == "aI16") {
+                        string[] resultat = Convert.ToString(type[1]).Split('┴');
+                        Int16[] tmpa = new Int16[resultat.Length];
+                        kt = 0;
+                        foreach(string tmp in resultat)
+                        {
+                            tmpa[k] = Convert.ToInt16(tmp);
+                            kt++;
+                        }
+                        VarsParams[g] = tmpa;
+                    }else if(type[0] == "I32") {
+                        VarsParams[g] = Convert.ToInt32(type[1]);
+                    }else if(type[0] == "aI32") {
+                        string[] resultat = Convert.ToString(type[1]).Split('┴');
+                        Int32[] tmpa = new Int32[resultat.Length];
+                        kt = 0;
+                        foreach(string tmp in resultat)
+                        {
+                            tmpa[k] = Convert.ToInt32(tmp);
+                            kt++;
+                        }
+                        VarsParams[g] = tmpa;
+                    }else if(type[0] == "I64") {
+                        VarsParams[g] = Convert.ToInt64(type[1]);
+                    }else if(type[0] == "aI64") {
+                        string[] resultat = Convert.ToString(type[1]).Split('┴');
+                        Int64[] tmpa = new Int64[resultat.Length];
+                        kt = 0;
+                        foreach(string tmp in resultat)
+                        {
+                            tmpa[k] = Convert.ToInt64(tmp);
+                            kt++;
+                        }
+                        VarsParams[g] = tmpa;
+                    }else if(type[0] == "BOOL") {
+                        bool booly = false;
+                        if (type[1] == "T") { booly = true; }
+                        VarsParams[g] = booly;
+                    }else if(type[0] == "aBOOL") {
+                        string[] resultat = Convert.ToString(type[1]).Split('┴');
+                        bool[] tmpa = new bool[resultat.Length];
+                        kt = 0;
+                        foreach(string tmp in resultat)
+                        {
                             bool booly = false;
-                            if (type[1] == "T") { booly = true; }
-                            VarsParams[g] = booly;
-                            break;
-                        case "BYTE":
-                            VarsParams[g] = Convert.ToByte(type[1]);
-                            break;
-                        case "VRCPA":
-                            VarsParams[g] = VRCPlayerApi.GetPlayerById(Convert.ToInt32(type[1]));
-                            break;
-                        default:
-                            DebugLE($"Can't currently use the type {type[0]} with params!");
-                            k--;
-                            break;
+                            if (tmp == "T") { booly = true; }
+                            tmpa[k] = booly;
+                            kt++;
+                        }
+                        VarsParams[g] = tmpa;
+                    }else if(type[0] == "BYTE") {
+                        VarsParams[g] = Convert.ToByte(type[1]);
+                    }else if(type[0] == "aBYTE") {
+                        string[] resultat = Convert.ToString(type[1]).Split('┴');
+                        Byte[] tmpa = new Byte[resultat.Length];
+                        kt = 0;
+                        foreach(string tmp in resultat)
+                        {
+                            tmpa[k] = Convert.ToByte(tmp);
+                            kt++;
+                        }
+                        VarsParams[g] = tmpa;
+                    }else if(type[0] == "VRCPA") {
+                        VarsParams[g] = VRCPlayerApi.GetPlayerById(Convert.ToInt32(type[1]));
+                    }else{
+                        DebugLE($"Can't currently use the type {type[0]} with params!");
+                        k--;
                     }
                 }
             }
-
             return VarsParams;
         }
 
