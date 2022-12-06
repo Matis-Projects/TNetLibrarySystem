@@ -15,11 +15,8 @@ namespace Tismatis.TNetLibrarySystem
     {
         [NonSerialized] private UdonSharpBehaviour[] AllDeclaredNetworkingScript = new UdonSharpBehaviour[500];
         [SerializeField, UdonSynced] private string methodEncoded = "";
-        [SerializeField] private string local_mE = "";
-        [SerializeField] private string tmp_mE = "";
         [SerializeField] private object[] Parameters = null;
         [SerializeField] private bool Debug_Mode = true;
-        [SerializeField] private bool NeedUpdate = false;
 
         #region ReceiverManagement
         /// <summary>
@@ -84,20 +81,20 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public void SendNetwork(string Target, string NetworkName, int ScriptId, object[] args)
         {
+            string tmp = $"{NetworkName}█{ScriptId}█{ParametersToStr(args)}█Target";
             if (Target != "Local")
             {
-                string tmp = $"{NetworkName}█{ScriptId}█{ParametersToStr(args)}█Target";
-
                 DebugL($"Want transport: '{tmp}'");
                 DebugL($"Transferring to us.");
-                tmp_mE = tmp;
+                //tmp_mE = tmp;
                 CAAOwner();
-                //RequestSerialization();
+                methodEncoded = tmp;
+                Receive(tmp);
+                RequestSerialization();
                 //OnDeserialization();
             }
             else
             {
-                string tmp = $"{NetworkName}█{ScriptId}█{ParametersToStr(args)}█Target";
                 Receive(tmp);
             }
         }
@@ -133,40 +130,6 @@ namespace Tismatis.TNetLibrarySystem
         public override void OnOwnershipTransferred(VRCPlayerApi player)
         {
             DebugL("We got the OnOwnershipTransferred!");
-            if(tmp_mE != "")
-            {
-                DebugL($"We have {tmp_mE}");
-            }
-            ReSync();
-        }
-
-        public void Update()
-        {
-            if(NeedUpdate)
-            {
-                if(methodEncoded != "")
-                {
-                    DebugL("Change networked one");
-                    NeedUpdate = false;
-                    DebugL("NeedUpdate = false");
-                    Receive(methodEncoded);
-                }else if(tmp_mE != "")
-                {
-                    DebugL("Change local one");
-                    NeedUpdate = false;
-                    DebugL("NeedUpdate = false");
-                    methodEncoded = tmp_mE;
-                    tmp_mE = "";
-                    Receive(methodEncoded);
-                    RequestSerialization();
-                }
-            }
-        }
-
-        public void ReSync()
-        {
-            DebugL("NeedUpdate = true");
-            NeedUpdate = true;
         }
 
         public override void OnPostSerialization(SerializationResult result)
@@ -396,10 +359,8 @@ namespace Tismatis.TNetLibrarySystem
                 DebugL("Transfered the owning to LP!");
                 Networking.SetOwner(Networking.LocalPlayer, gameObject);
                 DebugL($"Transfered the owner to us.");
-                //OnOwnershipRequest(Networking.LocalPlayer, Networking.LocalPlayer);
             }else{
                 DebugL("Why transferring the owning to the LP when LP = Owner?");
-                SendCustomNetworkEvent(VRC.Udon.Common.Interfaces.NetworkEventTarget.All, "ReSync");
             }
         }
 
