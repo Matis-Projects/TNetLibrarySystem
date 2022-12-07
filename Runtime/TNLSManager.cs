@@ -66,6 +66,15 @@ namespace Tismatis.TNetLibrarySystem
                 TNLS.SendNetwork(Target, NetworkName, ScriptId, args);
             }
         }
+
+        /// <summary>
+        ///     <strong>ALIAS</strong>
+        ///     <para>Return the parameters collections.</para>
+        /// </summary>
+        public object[] GetParameters()
+        {
+            return TNLS.GetParameters();
+        }
         #endregion
 
         #region Initialization

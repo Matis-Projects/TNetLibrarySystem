@@ -7,10 +7,6 @@ using VRC.Udon;
 
 namespace Tismatis.TNetLibrarySystem
 {
-    /*
-        TODO: Use enum for types
-    */
-
     /// <summary>
     ///     <para>The Serialization system to support new variables.</para>
     ///     <para>There are some method to manage all parameters types</para>
@@ -20,6 +16,7 @@ namespace Tismatis.TNetLibrarySystem
     {
         [SerializeField] private TNLSManager TNLSManager;
 
+        #region TransfertHimSelf
         /// <summary>
         ///     <para>Transform all Parameters into a String.</para>
         /// </summary>
@@ -238,5 +235,6 @@ namespace Tismatis.TNetLibrarySystem
             }
             return VarsParams;
         }
+        #endregion
     }
 }
