@@ -76,11 +76,4 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
 > 1. In the Unity toolbar, select `Window` > `Package Manager` > `[+]` > `Add package from git URL...` 
 > 2. Paste the following link: `https://github.com/Matis-Projects/TNetLibrarySystem.git`
 
-</details><details><summary>
-
-### Import from [Unitypackage](https://docs.unity3d.com/2019.4/Documentation/Manual/AssetPackagesImport.html):</summary>
-
-> 1. Download latest `TNetLibrarySystem` from [here](https://github.com/Matis-Projects/TNetLibrarySystem/releases/latest)
-> 2. Import the downloaded .unitypackage into your Unity project
-
 </details>
