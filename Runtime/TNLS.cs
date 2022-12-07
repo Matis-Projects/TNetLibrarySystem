@@ -125,13 +125,17 @@ namespace Tismatis.TNetLibrarySystem
 
         /// <summary>
         ///     <para>Called when the ownership change</para>
-        ///     <para>Here we execute the method and send it to all players</para>
+        ///     <para>Here a debug endpoint</para>
         /// </summary>
         public override void OnOwnershipTransferred(VRCPlayerApi player)
         {
             DebugL("We got the OnOwnershipTransferred!");
         }
 
+        /// <summary>
+        ///     <para>Called after the serialization has been called</para>
+        ///     <para>Here we reset methodEncoded</para>
+        /// </summary>
         public override void OnPostSerialization(SerializationResult result)
         {
             methodEncoded = "";
