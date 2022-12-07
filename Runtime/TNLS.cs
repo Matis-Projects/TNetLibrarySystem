@@ -8,15 +8,15 @@ using VRC.Udon.Common;
 namespace Tismatis.TNetLibrarySystem
 {
     /// <summary>
-    /// The Main Class of the Networking system
+    /// The Networking Class of the Networking system
     /// </summary>
-    /// [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
+    [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class TNLS : UdonSharpBehaviour
     {
-        [NonSerialized] private UdonSharpBehaviour[] AllDeclaredNetworkingScript = new UdonSharpBehaviour[500];
+        [SerializeField] private TNLSManager TNLSManager;
+        [NonSerialized] private UdonSharpBehaviour[] AllDeclaredNetworkingScript = null;
         [SerializeField, UdonSynced] private string methodEncoded = "";
         [SerializeField] private object[] Parameters = null;
-        [SerializeField] private bool Debug_Mode = true;
 
         #region ReceiverManagement
         /// <summary>
@@ -26,18 +26,19 @@ namespace Tismatis.TNetLibrarySystem
         {
             int tmp = GRCoS();
             AllDeclaredNetworkingScript[tmp] = NewScript;
-            DebugL($"Declared a new NetworkingScript! ({tmp})");
+            TNLSManager.TNLSLoggingSystem.InfoMessage($"Declared a new NetworkingScript! ({tmp})");
             return tmp;
         }
 
         /// <summary>
         ///     Report to the Networking system to add you in the list of NET-scripts.
         /// </summary>
+        [Obsolete("If you put random ScriptId and the DeclareNewDynamicNetworkingScript get the same number, he will erase the value.")]
         public int DeclareNewNetworkingScript(UdonSharpBehaviour NewScript, int ScriptId)
         {
             int tmp = ScriptId;
             AllDeclaredNetworkingScript[tmp] = NewScript;
-            DebugL($"Declared a new NetworkingScript! ({tmp})");
+            TNLSManager.TNLSLoggingSystem.InfoMessage($"Declared a new NetworkingScript! ({tmp})");
             return tmp;
         }
 
@@ -68,11 +69,11 @@ namespace Tismatis.TNetLibrarySystem
             UdonSharpBehaviour network = GetScriptById(int.Parse(mttable[1]));
             if(network == null)
             {
-                DebugLE("Can't find the network!");
+                TNLSManager.TNLSLoggingSystem.ErrorMessage($"Can't find the network {mttable[0]} ! ({mE})");
             }else{
                 Parameters = StrToParameters(mttable[2]);
                 network.SendCustomEvent(mttable[0]);
-                DebugL($"Triggered the network {mttable[0]} in the script id {mttable[1]} with args '{mttable[2]}'");
+                TNLSManager.TNLSLoggingSystem.InfoMessage($"Triggered the network {mttable[0]} in the script id {mttable[1]} with args '{mttable[2]}'");
             }
         }
 
@@ -84,8 +85,8 @@ namespace Tismatis.TNetLibrarySystem
             string tmp = $"{NetworkName}█{ScriptId}█{ParametersToStr(args)}█Target";
             if (Target != "Local")
             {
-                DebugL($"Want transport: '{tmp}'");
-                DebugL($"Transferring to us.");
+                TNLSManager.TNLSLoggingSystem.DebugMessage($"Want transport: '{tmp}'");
+                TNLSManager.TNLSLoggingSystem.DebugMessage($"Transferring to us.");
                 //tmp_mE = tmp;
                 CAAOwner();
                 methodEncoded = tmp;
@@ -105,10 +106,10 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public override void OnDeserialization()
         {
-            DebugL("Received a deserialization request");
+            TNLSManager.TNLSLoggingSystem.DebugMessage("Received a deserialization request");
             if (methodEncoded != "")
             {
-                DebugL($"Executing the method {methodEncoded}");
+                TNLSManager.TNLSLoggingSystem.InfoMessage($"Executing the method {methodEncoded}");
                 Receive(methodEncoded);
                 methodEncoded = "";
             }
@@ -129,7 +130,7 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public override void OnOwnershipTransferred(VRCPlayerApi player)
         {
-            DebugL("We got the OnOwnershipTransferred!");
+            TNLSManager.TNLSLoggingSystem.DebugMessage("We got the OnOwnershipTransferred!");
         }
 
         /// <summary>
@@ -269,7 +270,7 @@ namespace Tismatis.TNetLibrarySystem
                             tp = $"VRCPA┬{VRCPlayerApi.GetPlayerId(player)}";
                             break;
                         default:
-                            DebugLE($"Can't use the type {type} with params!");
+                            TNLSManager.TNLSLoggingSystem.ErrorMessage($"Can't use the type {type} with params!");
                             break;
                     }
                     tmp = $"{tp}@";
@@ -367,7 +368,7 @@ namespace Tismatis.TNetLibrarySystem
                     }else if(type[0] == "VRCPA") {
                         VarsParams[g] = VRCPlayerApi.GetPlayerById(Convert.ToInt32(type[1]));
                     }else{
-                        DebugLE($"Can't currently use the type {type[0]} with params!");
+                        TNLSManager.TNLSLoggingSystem.ErrorMessage($"Can't currently use the type {type[0]} with params!");
                         k--;
                     }
                 }
@@ -390,12 +391,19 @@ namespace Tismatis.TNetLibrarySystem
         {
             object[] tmp = Parameters;
             Parameters = null;
-            DebugL($"Parameters has been gived, removed!");
+            TNLSManager.TNLSLoggingSystem.DebugMessage($"Parameters has been gived, removed!");
             return tmp;
         }
         #endregion
 
         #region Others
+        /// <summary>
+        ///     <para>Called when the script is started</para>
+        ///     <para>Reset the list to default.</para>
+        /// </summary>
+        public void Start() {
+            AllDeclaredNetworkingScript = new UdonSharpBehaviour[TNLSManager.MaxNetList];
+        }
         /// <summary>
         ///     Set the User as the Owner
         /// </summary>
@@ -403,11 +411,11 @@ namespace Tismatis.TNetLibrarySystem
         {
             if(!Networking.IsOwner(gameObject))
             {
-                DebugL("Transfered the owning to LP!");
+                TNLSManager.TNLSLoggingSystem.DebugMessage("Transfered the owning to LP!");
                 Networking.SetOwner(Networking.LocalPlayer, gameObject);
-                DebugL($"Transfered the owner to us.");
+                TNLSManager.TNLSLoggingSystem.DebugMessage($"Transfered the owner to us.");
             }else{
-                DebugL("Why transferring the owning to the LP when LP = Owner?");
+                TNLSManager.TNLSLoggingSystem.DebugMessage("Why transferring the owning to the LP when LP = Owner?");
             }
         }
 
@@ -434,25 +442,6 @@ namespace Tismatis.TNetLibrarySystem
                 }
             }
             return network;
-        }
-
-        /// <summary>
-        ///     Send into the log a debug message.
-        /// </summary>
-        public void DebugL(string message)
-        {
-            if (Debug_Mode)
-            {
-                Debug.Log($"[gNet] {message}");
-            }
-        }
-
-        /// <summary>
-        ///     Send into the log a debug message. (ERROR)
-        /// </summary>
-        public void DebugLE(string message)
-        {
-            Debug.LogError($"[gNet-ERRROR] {message}");
         }
         #endregion
     }
