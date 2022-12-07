@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
-  m_Name: TNLSLoggingSystem
+  m_Name: TNLSSerialization
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: db8a9dad6b0170744ae62c6b160f5b90,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: bfc32defbb82a304b99b578ad58647a0,
     type: 2}
   udonAssembly: 
   assemblyError: 
-  sourceCsScript: {fileID: 11500000, guid: a768ab379b8d4dc44ae3e9bd1767b4d4, type: 3}
+  sourceCsScript: {fileID: 11500000, guid: 5bf326e503672114d9e9d9be09208996, type: 3}
   scriptVersion: 2
   compiledVersion: 2
-  behaviourSyncMode: 0
+  behaviourSyncMode: 1
   hasInteractEvent: 0
-  scriptID: 3659499779119201225
+  scriptID: 5514568973317669919
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
