@@ -58,10 +58,10 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public void CallNamedNetworkedScript(string Target, string NetworkName, string ScriptName, object[] args)
         {
-            int ScriptId = TNLSScriptManager.GetScriptIdByName(NetworkName);
+            int ScriptId = TNLSScriptManager.GetScriptIdByName(ScriptName);
             if(ScriptId == -1)
             {
-                TNLSLogingSystem.Equals($"Can't find the Script to call! ({NetworkName})");
+                TNLSLogingSystem.ErrorMessage($"Can't find the Script to call! ({ScriptName})");
             }else{
                 TNLS.SendNetwork(Target, NetworkName, ScriptName, args);
             }
@@ -83,6 +83,7 @@ namespace Tismatis.TNetLibrarySystem
             if(TNLS != null && TNLSLogingSystem != null && TNLSScriptManager && TNLSSerialization != null)
             {
                 HasFullyBoot = true;
+                TNLSScriptManager.ScriptLoaded();
                 Debug.Log($"<color=#5032ff>INFO</color> <color=#3264ff>[TNLS]</color> The system has been started!");
             }else{
                 Debug.LogError($"<color=#ff3232>ERROR</color> <color=#3264ff>[TNLS]</color> The system can't be start! (Check the prefab and check if all is linked)");

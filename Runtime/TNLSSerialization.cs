@@ -44,9 +44,9 @@ namespace Tismatis.TNetLibrarySystem
                         {
                             if(tma == "")
                             {
-                                tma = $"{nbr}";
+                                tma += $"{nbr}";
                             }else{
-                                tma = $"{nbr}┴";
+                                tma += $"┴{nbr}";
                             }
                         }
                         tp = $"I16┬{tma}";
@@ -58,9 +58,9 @@ namespace Tismatis.TNetLibrarySystem
                         {
                             if(tma == "")
                             {
-                                tma = $"{nbr}";
+                                tma += $"{nbr}";
                             }else{
-                                tma = $"{nbr}┴";
+                                tma += $"┴{nbr}";
                             }
                         }
                         tp = $"I32┬{tma}";
@@ -72,9 +72,9 @@ namespace Tismatis.TNetLibrarySystem
                         {
                             if(tma == "")
                             {
-                                tma = $"{nbr}";
+                                tma += $"{nbr}";
                             }else{
-                                tma = $"{nbr}┴";
+                                tma += $"┴{nbr}";
                             }
                         }
                         tp = $"aI64┬{tma}";
@@ -105,9 +105,9 @@ namespace Tismatis.TNetLibrarySystem
 
                             if(tma == "")
                             {
-                                tma = $"{tm}";
+                                tma += $"{tm}";
                             }else{
-                                tma = $"{tm}┴";
+                                tma += $"┴{tm}";
                             }
                         }
                         tp = $"aBOOL┬{tma}";
@@ -119,9 +119,9 @@ namespace Tismatis.TNetLibrarySystem
                         {
                             if(tma == "")
                             {
-                                tma = $"{nbr}";
+                                tma += $"{nbr}";
                             }else{
-                                tma = $"{nbr}┴";
+                                tma += $"┴{nbr}";
                             }
                         }
                         tp = $"aBYTE┬{tma}";

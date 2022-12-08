@@ -18,47 +18,42 @@ namespace Tismatis.TNetLibrarySystem
         [NonSerialized] private UdonSharpBehaviour[] uNetList = null;
         [NonSerialized] private string[] NetList = null;
         [NonSerialized] private int[] iNetList = null;
+        [NonSerialized] private bool IsLoaded = false;
 
         #region Initialization
-        public void Start()
+        public void ScriptLoaded()
         {
-            NetList = new string[TNLSManager.MaxNetList];
-            iNetList = new int[TNLSManager.MaxNetList];
-            uNetList = new UdonSharpBehaviour[TNLSManager.MaxNetList];
+            NetList = new string[0];
+            iNetList = new int[0];
+            uNetList = new UdonSharpBehaviour[0];
+            IsLoaded = true;
+            Debug.Log($"<color=#5032ff>INFO</color> <color=#3264ff>[TNLS]</color> TNLSScriptManager has been started!");
         }
         #endregion
 
         #region AddNetwork
         /// <summary>
         ///     <para>This add a NetworkedScript to the list to listening sended event.</para>
-        ///     <para>With this one, you can call by the selected Name script.</para>
+        ///     <para>With this one, you can add with the selected Name script.</para>
         /// </summary>
         public int AddANetworkedScript(string Name, UdonSharpBehaviour USB)
         {
-            if(NetList.Length + 1 <= TNLSManager.MaxNetList)
+            if(IsLoaded)
             {
-                int id = DeclareNewDynamicNetworkingScript(USB);
-                int k = NetList.Length;
-                NetList[k] = Name;
-                iNetList[k] = id;
-                TNLSManager.TNLSLogingSystem.InfoMessage($"Added {Name} to the NetworkedList with Name");
-                return id;
+                if(NetList.Length + 1 <= TNLSManager.MaxNetList)
+                {
+                    int id = DeclareNewDynamicNetworkingScript(USB);
+                    int k = NetList.Length;
+                    NetList = NetList.Add(Name);
+                    iNetList = iNetList.Add(id);
+                    TNLSManager.TNLSLogingSystem.InfoMessage($"Added {Name} to the NetworkedList with Name");
+                    return id;
+                }else{
+                    TNLSManager.TNLSLogingSystem.ErrorMessage($"Can't add one more NetworkedScript! ({NetList.Length+1}>MaxNetList)");
+                    return -1;
+                }
             }else{
-                TNLSManager.TNLSLogingSystem.ErrorMessage($"Can't add one more NetworkedScript! ({NetList.Length+1}>MaxNetList)");
-                return -1;
-            }
-        }
-
-        /// <summary>
-        ///     <para>This add a NetworkedScript to the list to listening sended event.</para>
-        ///     <para>With this one, you can call by the ScriptId.</para>
-        /// </summary>
-        public int InsertANetworkedScript(UdonSharpBehaviour USB)
-        {
-            if(NetList.Length + 1 <= TNLSManager.MaxNetList)
-            {
-                return DeclareNewDynamicNetworkingScript(USB);
-            }else{
+                Debug.LogError($"<color=#ff3232>ERROR</color> <color=#3264ff>[TNLS]</color> TNLS HASN'T FULLY LOADED! PLEASE CONTACT THE MAPPER TO FIX THAT!");
                 return -1;
             }
         }
@@ -140,7 +135,7 @@ namespace Tismatis.TNetLibrarySystem
         private int DeclareNewDynamicNetworkingScript(UdonSharpBehaviour NewScript)
         {
             int tmp = GRCoS();
-            uNetList[tmp] = NewScript;
+            uNetList = uNetList.Add(NewScript);
             TNLSManager.TNLSLogingSystem.InfoMessage($"Declared a new NetworkingScript! ({tmp})");
             return tmp;
         }

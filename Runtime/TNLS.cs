@@ -19,7 +19,7 @@ namespace Tismatis.TNetLibrarySystem
         [SerializeField] private object[] Parameters = null;
         
         private bool QueueIsRunning = false;
-        private object[][] QueueItems = new object[50][];
+        private object[][] QueueItems = new object[0][];
         private float lastSend = 0f;
 
         #region TheRealMotorOfThatSystem
