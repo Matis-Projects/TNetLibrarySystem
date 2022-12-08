@@ -30,7 +30,7 @@ namespace Tismatis.TNetLibrarySystem
         public void Receive(string mE)
         {
             string[] mttable = mE.Split('█');
-            UdonSharpBehaviour network = TNLSManager.TNLSScriptManager.GetScriptById(int.Parse(mttable[1]));
+            UdonSharpBehaviour network = TNLSManager.TNLSScriptManager.GetScriptByName(mttable[1]);
             if(network == null)
             {
                 TNLSManager.TNLSLogingSystem.ErrorMessage($"Can't find the network {mttable[0]} ! ({mE})");
@@ -45,7 +45,7 @@ namespace Tismatis.TNetLibrarySystem
         ///     <strong>INTERNAL</strong>
         ///     <para>Send to the Networking system a request to execute a new method on the Network.</para>
         /// </summary>
-        public void SendNetwork(string Target, string NetworkName, int ScriptId, object[] args)
+        public void SendNetwork(string Target, string NetworkName, string ScriptId, object[] args)
         {
             string tmp = $"{NetworkName}█{ScriptId}█{TNLSManager.TNLSSerialization.ParametersToStr(args)}█Target";
             

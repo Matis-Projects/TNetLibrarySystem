@@ -29,7 +29,7 @@ namespace Tismatis.TNetLibrarySystem
         ///     <strong>ALIAS</strong>
         ///     <para>With this one, you can call by the selected Name script.</para>
         /// </summary>
-        public int AddANetworkedScript(string Name, UdonSharpBehaviour USB)
+        public int AddANamedNetworkedScript(string Name, UdonSharpBehaviour USB)
         {
             return TNLSScriptManager.AddANetworkedScript(Name, USB);
         }
@@ -38,9 +38,9 @@ namespace Tismatis.TNetLibrarySystem
         ///     <strong>ALIAS</strong>
         ///     <para>With this one, you can call by the ScriptId.</para>
         /// </summary>
-        public int InsertANetworkedScript(UdonSharpBehaviour USB)
+        public int AddAIdNetworkedScript(int ScriptId, UdonSharpBehaviour USB)
         {
-            return TNLSScriptManager.InsertANetworkedScript(USB);
+            return TNLSScriptManager.AddANetworkedScript(ScriptId.ToString(), USB);
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public void CallNetworkedScript(string Target, string NetworkName, int ScriptId, object[] args)
         {
-            TNLS.SendNetwork(Target, NetworkName, ScriptId, args);
+            TNLS.SendNetwork(Target, NetworkName, ScriptId.ToString(), args);
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace Tismatis.TNetLibrarySystem
             {
                 TNLSLogingSystem.Equals($"Can't find the Script to call! ({NetworkName})");
             }else{
-                TNLS.SendNetwork(Target, NetworkName, ScriptId, args);
+                TNLS.SendNetwork(Target, NetworkName, ScriptName, args);
             }
         }
 
