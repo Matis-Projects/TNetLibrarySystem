@@ -7,10 +7,6 @@ using VRC.Udon.Common;
 
 namespace Tismatis.TNetLibrarySystem
 {
-    /*
-        TODO: Add a queue system
-    */
-
     /// <summary>
     ///     <para>The Networking Class of the Networking system</para>
     ///     <para>He will call all events by the ScriptManager</para>
@@ -21,6 +17,10 @@ namespace Tismatis.TNetLibrarySystem
         [SerializeField] private TNLSManager TNLSManager;
         [SerializeField, UdonSynced] private string methodEncoded = "";
         [SerializeField] private object[] Parameters = null;
+        
+        private bool QueueIsRunning = false;
+        private object[][] QueueItems = new object[50][];
+        private float lastSend = 0f;
 
         #region TheRealMotorOfThatSystem
         /// <summary>
@@ -48,18 +48,33 @@ namespace Tismatis.TNetLibrarySystem
         public void SendNetwork(string Target, string NetworkName, int ScriptId, object[] args)
         {
             string tmp = $"{NetworkName}█{ScriptId}█{TNLSManager.TNLSSerialization.ParametersToStr(args)}█Target";
-            if (Target != "Local")
+            
+            bool isLocal = false;
+
+            if (Target == "Local")
             {
-                TNLSManager.TNLSLogingSystem.DebugMessage($"Want transport: '{tmp}'");
-                TNLSManager.TNLSLogingSystem.DebugMessage($"Transferring to us.");
-                CAAOwner();
-                methodEncoded = tmp;
+                isLocal = true;
                 Receive(tmp);
-                RequestSerialization();
             }
-            else
+
+            if (Target != "Others")
             {
                 Receive(tmp);
+            }
+            
+            if(!isLocal)
+            {
+                if(!QueueIsRunning && Time.timeSinceLevelLoad - lastSend > 0.1f)
+                {
+                    lastSend = Time.timeSinceLevelLoad;
+                    TNLSManager.TNLSLogingSystem.DebugMessage($"Want transport: '{tmp}'");
+                    TNLSManager.TNLSLogingSystem.DebugMessage($"Transferring to us.");
+                    CAAOwner();
+                    methodEncoded = tmp;
+                    RequestSerialization();
+                }else{
+                    InsertInTheQueue(tmp);
+                }
             }
         }
 
@@ -119,6 +134,41 @@ namespace Tismatis.TNetLibrarySystem
         }
         #endregion
 
+        #region Queue
+        public void InsertInTheQueue(string mE)
+        {
+            QueueItems = QueueItems.Add(new object[] {mE});
+            TNLSManager.TNLSLogingSystem.InfoMessage($"Queue is on! Passing '{mE}' to the waiting list!");
+            if(!QueueIsRunning)
+            {
+                SendCustomEventDelayedSeconds("UpdateTheQueue", 0.1f);
+                QueueIsRunning = true;
+            }
+        }
+        public void UpdateTheQueue()
+        {
+            if(QueueItems.Length != 0)
+            {
+                var Current = QueueItems[0];
+                QueueItems = QueueItems.Remove(0);
+
+                methodEncoded = (string) Current[0];
+
+                TNLSManager.TNLSLogingSystem.InfoMessage($"QUEUE-NOTIFICATION --> Migration of {methodEncoded}!");
+
+                CAAOwner();
+                RequestSerialization();
+            }
+
+            if(QueueItems.Length != 0)
+            {
+                SendCustomEventDelayedSeconds("UpdateTheQueue", 0.1f);
+            }else{
+                QueueIsRunning = false;
+            }
+        }
+        #endregion
+
         #region Others
         /// <summary>
         ///     Set the User as the Owner
@@ -135,5 +185,26 @@ namespace Tismatis.TNetLibrarySystem
             }
         }
         #endregion
+    }
+}
+
+public static class TNLSArrayDefinitions
+{
+    public static bool Contains<T>(this T[] array, T item) => Array.IndexOf(array, item) != -1;
+
+    public static T[] Add<T>(this T[] array, T item)
+    {
+        T[] newArray = new T[array.Length + 1];
+        Array.Copy(array, newArray, array.Length);
+        newArray[array.Length] = item;
+        return newArray;
+    }
+
+    public static T[] Remove<T>(this T[] array, int index)
+    {
+        T[] newArray = new T[array.Length - 1];
+        Array.Copy(array, newArray, index);
+        Array.Copy(array, index + 1, newArray, index, newArray.Length - index);
+        return newArray;
     }
 }
