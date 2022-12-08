@@ -16,29 +16,33 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
 
 ### Preparation of the world
 
-1. Put the prefabs named `TNetLibrarySystem` in your world
+1. Put the prefabs named `TNLS Manager` in your world
 
 ### Preparation of the script
 
 1. Your script Syncronization Method need to be in MANUAL in **all** your NetworkedScript.
-2. Declare under your `UdonSharpBehaviour` class the TNLS: `[SerializeField] public TNLS TNLS;`
+2. Declare under your `UdonSharpBehaviour` class the TNLS: `[SerializeField] public TNLSManager TNLSManager;`
     * In case you have a script link to all your scripts, you can declare it into the this one and not re-declare it all times.
-3. Declare the ScriptId:
-    *   You can set a custom number the `ScriptId` using `TNLS.DeclareNewNetworkingScript(this, <your number>);` **only when your class is used ONE TIME in your world.**
-    *   In case you don't want that, you can just add this line to your `public void Start()`: `ScriptId = TNLS.DeclareNewDynamicNetworkingScript(this);`
+3. Declare the ScriptName or the ScriptId:
+    1.  You need to set the value when the script Start! 
+        *   You can set to a custom string using `TNLSManager.AddANamedNetworkedScript(<the name>, this);`
+        *   You can set to a custom number using : `TNLSManager.AddAIdNetworkedScript("<the number>", this);`
+    *  ***WARNING** It's one name/id per instance of script.*
 
 ### Call a void
 
-* Use the method `net.SendNetwork("<Your Void Name>", <The ScriptId destination>, <parameters>);`
-    * This can be the same ScriptId if it's for call a 
+*   
+    *   In case of you want use the Id of the script: `TNLSManager.CallNetworkedScript("<Your Void Name>", <The ScriptId destination>, <parameters>);`
+    *   In case of you want use the name of the script: `TNLSManager.CallNamedNetworkedScript("<Your Void Name>", "<The ScriptName destination>", <parameters>);`
+*   **WARNING**
     * Parameters can be `null` or a array of `object[]`!
-     ***WARNING** You have at maximum 25 parameters!*
-     ***WARNING** Some type aren't compatible! Check the list under.*
+    * You have at maximum 25 parameters!
+    * Some type aren't compatible! Check the list.
 
 ### Receive Parameters
 
-* Create a object array and set the value with the method `TNLS.GetParameters()`.
-    `object[] parameters = TNLS.GetParameters();`
+* Create a object array and set the value with the method `TNLSManager.GetParameters()`.
+    * `object[] parameters = TNLSManager.GetParameters();`
 
 ### All types compatibles
 *Some types aren't compatible for now, they will be compatible after.*
