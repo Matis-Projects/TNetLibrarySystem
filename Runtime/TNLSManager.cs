@@ -19,10 +19,24 @@ namespace Tismatis.TNetLibrarySystem
         [SerializeField] public TNLSLogingSystem TNLSLogingSystem;
         [SerializeField] public TNLSSerialization TNLSSerialization;
         [SerializeField] public TNLSScriptManager TNLSScriptManager;
+        [SerializeField] public TNLSQueue TNLSQueue;
         [Header("Settings")]
         [SerializeField] public bool DebugMode;
         [SerializeField] public int MaxNetList = 50;
         [NonSerialized] public bool HasFullyBoot = false; 
+
+        #region Initialization
+        public void Start()
+        {
+            if(TNLS != null && TNLSLogingSystem != null && TNLSScriptManager && TNLSSerialization != null)
+            {
+                HasFullyBoot = true;
+                Debug.Log($"<color=#5032ff>INFO</color> <color=#3264ff>[TNLS]</color> The system has been started!");
+            }else{
+                Debug.LogError($"<color=#ff3232>ERROR</color> <color=#3264ff>[TNLS]</color> The system can't be start! (Check the prefab and check if all is linked)");
+            }
+        }
+        #endregion
         
         #region AliasToCall
         /// <summary>
@@ -74,20 +88,6 @@ namespace Tismatis.TNetLibrarySystem
         public object[] GetParameters()
         {
             return TNLS.GetParameters();
-        }
-        #endregion
-
-        #region Initialization
-        public void Start()
-        {
-            if(TNLS != null && TNLSLogingSystem != null && TNLSScriptManager && TNLSSerialization != null)
-            {
-                HasFullyBoot = true;
-                TNLSScriptManager.ScriptLoaded();
-                Debug.Log($"<color=#5032ff>INFO</color> <color=#3264ff>[TNLS]</color> The system has been started!");
-            }else{
-                Debug.LogError($"<color=#ff3232>ERROR</color> <color=#3264ff>[TNLS]</color> The system can't be start! (Check the prefab and check if all is linked)");
-            }
         }
         #endregion
     }

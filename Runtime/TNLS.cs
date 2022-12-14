@@ -15,12 +15,8 @@ namespace Tismatis.TNetLibrarySystem
     public class TNLS : UdonSharpBehaviour
     {
         [SerializeField] private TNLSManager TNLSManager;
-        [SerializeField, UdonSynced] private string methodEncoded = "";
-        [SerializeField] private object[] Parameters = null;
-        
-        private bool QueueIsRunning = false;
-        private object[][] QueueItems = new object[0][];
-        private float lastSend = 0f;
+        [SerializeField, UdonSynced] public string methodEncoded = "";
+        [SerializeField] public object[] Parameters = null;
 
         #region TheRealMotorOfThatSystem
         /// <summary>
@@ -33,7 +29,7 @@ namespace Tismatis.TNetLibrarySystem
             UdonSharpBehaviour network = TNLSManager.TNLSScriptManager.GetScriptByName(mttable[1]);
             if(network == null)
             {
-                TNLSManager.TNLSLogingSystem.ErrorMessage($"Can't find the network {mttable[0]} ! ({mE})");
+                TNLSManager.TNLSLogingSystem.ErrorMessage($"Can't find the network {mttable[1]} with the func {mttable[0]} ! ({mE})");
             }else{
                 Parameters = TNLSManager.TNLSSerialization.StrToParameters(mttable[2]);
                 network.SendCustomEvent(mttable[0]);
@@ -48,33 +44,23 @@ namespace Tismatis.TNetLibrarySystem
         public void SendNetwork(string Target, string NetworkName, string ScriptId, object[] args)
         {
             string tmp = $"{NetworkName}█{ScriptId}█{TNLSManager.TNLSSerialization.ParametersToStr(args)}█Target";
-            
-            bool isLocal = false;
 
-            if (Target == "Local")
+            if(Target != "Local")
             {
-                isLocal = true;
-                Receive(tmp);
-            }
-
-            if (Target != "Others")
-            {
-                Receive(tmp);
-            }
-            
-            if(!isLocal)
-            {
-                if(!QueueIsRunning && Time.timeSinceLevelLoad - lastSend > 0.1f)
+                if(!TNLSManager.TNLSQueue.QueueIsRunning && Time.timeSinceLevelLoad - TNLSManager.TNLSQueue.lastSend > 0.1f)
                 {
-                    lastSend = Time.timeSinceLevelLoad;
+                    TNLSManager.TNLSQueue.lastSend = Time.timeSinceLevelLoad;
                     TNLSManager.TNLSLogingSystem.DebugMessage($"Want transport: '{tmp}'");
                     TNLSManager.TNLSLogingSystem.DebugMessage($"Transferring to us.");
                     CAAOwner();
                     methodEncoded = tmp;
+                    Receive(tmp);
                     RequestSerialization();
                 }else{
-                    InsertInTheQueue(tmp);
+                    TNLSManager.TNLSQueue.InsertInTheQueue(tmp);
                 }
+            }else{
+                Receive(tmp);
             }
         }
 
@@ -131,41 +117,6 @@ namespace Tismatis.TNetLibrarySystem
         public override void OnPostSerialization(SerializationResult result)
         {
             methodEncoded = "";
-        }
-        #endregion
-
-        #region Queue
-        public void InsertInTheQueue(string mE)
-        {
-            QueueItems = QueueItems.Add(new object[] {mE});
-            TNLSManager.TNLSLogingSystem.InfoMessage($"Queue is on! Passing '{mE}' to the waiting list!");
-            if(!QueueIsRunning)
-            {
-                SendCustomEventDelayedSeconds("UpdateTheQueue", 0.1f);
-                QueueIsRunning = true;
-            }
-        }
-        public void UpdateTheQueue()
-        {
-            if(QueueItems.Length != 0)
-            {
-                var Current = QueueItems[0];
-                QueueItems = QueueItems.Remove(0);
-
-                methodEncoded = (string) Current[0];
-
-                TNLSManager.TNLSLogingSystem.InfoMessage($"QUEUE-NOTIFICATION --> Migration of {methodEncoded}!");
-
-                CAAOwner();
-                RequestSerialization();
-            }
-
-            if(QueueItems.Length != 0)
-            {
-                SendCustomEventDelayedSeconds("UpdateTheQueue", 0.1f);
-            }else{
-                QueueIsRunning = false;
-            }
         }
         #endregion
 

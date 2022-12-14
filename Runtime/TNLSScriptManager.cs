@@ -15,21 +15,9 @@ namespace Tismatis.TNetLibrarySystem
     public class TNLSScriptManager : UdonSharpBehaviour
     {
         [SerializeField] private TNLSManager TNLSManager;
-        [NonSerialized] private UdonSharpBehaviour[] uNetList = null;
-        [NonSerialized] private string[] NetList = null;
-        [NonSerialized] private int[] iNetList = null;
-        [NonSerialized] private bool IsLoaded = false;
-
-        #region Initialization
-        public void ScriptLoaded()
-        {
-            NetList = new string[0];
-            iNetList = new int[0];
-            uNetList = new UdonSharpBehaviour[0];
-            IsLoaded = true;
-            Debug.Log($"<color=#5032ff>INFO</color> <color=#3264ff>[TNLS]</color> TNLSScriptManager has been started!");
-        }
-        #endregion
+        [NonSerialized] private UdonSharpBehaviour[] uNetList = new UdonSharpBehaviour[0];
+        [NonSerialized] private string[] NetList = new string[0];
+        [NonSerialized] private int[] iNetList = new int[0];
 
         #region AddNetwork
         /// <summary>
@@ -38,22 +26,17 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public int AddANetworkedScript(string Name, UdonSharpBehaviour USB)
         {
-            if(IsLoaded)
+            if(NetList.Length + 1 <= TNLSManager.MaxNetList)
             {
-                if(NetList.Length + 1 <= TNLSManager.MaxNetList)
-                {
-                    int id = DeclareNewDynamicNetworkingScript(USB);
-                    int k = NetList.Length;
-                    NetList = NetList.Add(Name);
-                    iNetList = iNetList.Add(id);
-                    TNLSManager.TNLSLogingSystem.InfoMessage($"Added {Name} to the NetworkedList with Name");
-                    return id;
-                }else{
-                    TNLSManager.TNLSLogingSystem.ErrorMessage($"Can't add one more NetworkedScript! ({NetList.Length+1}>MaxNetList)");
-                    return -1;
-                }
+                //int id = DeclareNewDynamicNetworkingScript(USB);
+                int id = uNetList.Length + 1;
+                uNetList = uNetList.Add(USB);
+                NetList = NetList.Add(Name);
+                iNetList = iNetList.Add(id);
+                TNLSManager.TNLSLogingSystem.InfoMessage($"Added {Name} to the NetworkedList with Name");
+                return id;
             }else{
-                Debug.LogError($"<color=#ff3232>ERROR</color> <color=#3264ff>[TNLS]</color> TNLS HASN'T FULLY LOADED! PLEASE CONTACT THE MAPPER TO FIX THAT!");
+                TNLSManager.TNLSLogingSystem.ErrorMessage($"Can't add one more NetworkedScript! ({NetList.Length+1}>MaxNetList)");
                 return -1;
             }
         }

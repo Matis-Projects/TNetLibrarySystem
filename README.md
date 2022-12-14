@@ -17,6 +17,7 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
 ### Preparation of the world
 
 1. Put the prefabs named `TNLS Manager` in your world
+2. **UNPACK THE PREFAB** ! Without unpack, this will just break the system. 
 
 ### Preparation of the script
 
@@ -31,29 +32,35 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
 
 ### Call a void
 
-*   
-    *   In case of you want use the Id of the script: `TNLSManager.CallNetworkedScript("<Your Void Name>", <The ScriptId destination>, <parameters>);`
-    *   In case of you want use the name of the script: `TNLSManager.CallNamedNetworkedScript("<Your Void Name>", "<The ScriptName destination>", <parameters>);`
-*   **WARNING**
-    * Parameters can be `null` or a array of `object[]`!
-    * You have at maximum 25 parameters!
-    * Some type aren't compatible! Check the list.
+*   In case of you want use the Id of the script: `TNLSManager.CallNetworkedScript("<Your Void Name>", <The ScriptId destination>, <parameters>);`
+*   In case of you want use the name of the script: `TNLSManager.CallNamedNetworkedScript("<Your Void Name>", "<The ScriptName destination>", <parameters>);`
 
 ### Receive Parameters
 
 * Create a object array and set the value with the method `TNLSManager.GetParameters()`.
     * `object[] parameters = TNLSManager.GetParameters();`
 
-### All types compatibles
-*Some types aren't compatible for now, they will be compatible after.*
+### Parameters
+*   Limits of the system
+    * Parameters can be `null` or a array of `object[]`!
+    * You have at maximum 25 parameters!
+    * Some type aren't compatible! Check the list.
+*   Supported types
+    *Some types aren't compatible for now, they will be compatible after.*
 
-* ~~String (Don't use any special Ascii character)~~ ***NOT RECOMMENDED** Use it ONLY if it's required!*
-* Int16 with array support.
-* Int32 with array support.
-* Int64 with array support.
-* Bool  with array support.
-* Byte  with array support.
-* VRCPlayerApi
+    * String (Don't use any special Ascii character) ***NOT RECOMMENDED** Use it ONLY if it's required!*
+    * Int16 with array support.
+    * UInt16 with array support.
+    * Int32 with array support.
+    * UInt32 with array support.
+    * Int64 with array support.
+    * UInt64 with array support.
+    * Single with array support.
+    * Double with array support.
+    * Bool  with array support.
+    * Byte  with array support.
+    * SByte  with array support.
+    * VRCPlayerApi
 
 # How to install TNetLibrarySystem
 
