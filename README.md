@@ -12,12 +12,40 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
 
 ---
 
+# How to install TNetLibrarySystem
+
+### Prerequisites:
+
+* [VRCSDK3 - Base](https://vrchat.com/home/download)
+* [VRCSDK3 - UdonSharp](https://vrchat.com/home/download)
+
+<details><summary>
+
+### Import with [VRChat Creator Companion](https://vcc.docs.vrchat.com/vpm/packages#user-packages):</summary>
+
+> 1. Download `fr.tismatis.tnetlibrarysystem.zip` from [here](https://github.com/Matis-Projects/TNetLibrarySystem/releases/latest)
+> 2. Unpack the .zip somewhere
+> 3. In VRChat Creator Companion, navigate to `Settings` > `User Packages` > `Add`
+> 4. Navigate to the unpacked folder, `fr.tismatis.tnetlibrarysystem` and click `Select Folder`
+> 5. `TNetLibrarySystem` should now be visible under `Local User Packages` in the project view in VRChat Creator Companion
+> 6. Click `Add`
+
+</details><details><summary>
+
+### Import with [Unity Package Manager (git)](https://docs.unity3d.com/2019.4/Documentation/Manual/upm-ui-giturl.html):</summary>
+
+> 1. In the Unity toolbar, select `Window` > `Package Manager` > `[+]` > `Add package from git URL...` 
+> 2. Paste the following link: `https://github.com/Matis-Projects/TNetLibrarySystem.git`
+
+</details>
+
+
 # How to use TNetLibrarySystem
 
 ### Preparation of the world
 
 1. Put the prefabs named `TNLS Manager` in your world
-2. **UNPACK THE PREFAB** ! Without unpack, this will just break the system. 
+2. **UNPACK THE PREFAB** ! Without unpack, this will just break the entire system. 
 
 ### Preparation of the script
 
@@ -61,30 +89,3 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
     * Byte  with array support.
     * SByte  with array support.
     * VRCPlayerApi
-
-# How to install TNetLibrarySystem
-
-### Prerequisites:
-
-* [VRCSDK3 - Base](https://vrchat.com/home/download)
-* [VRCSDK3 - UdonSharp](https://vrchat.com/home/download)
-
-<details><summary>
-
-### Import with [VRChat Creator Companion](https://vcc.docs.vrchat.com/vpm/packages#user-packages):</summary>
-
-> 1. Download `fr.tismatis.tnetlibrarysystem.zip` from [here](https://github.com/Matis-Projects/TNetLibrarySystem/releases/latest)
-> 2. Unpack the .zip somewhere
-> 3. In VRChat Creator Companion, navigate to `Settings` > `User Packages` > `Add`
-> 4. Navigate to the unpacked folder, `fr.tismatis.tnetlibrarysystem` and click `Select Folder`
-> 5. `TNetLibrarySystem` should now be visible under `Local User Packages` in the project view in VRChat Creator Companion
-> 6. Click `Add`
-
-</details><details><summary>
-
-### Import with [Unity Package Manager (git)](https://docs.unity3d.com/2019.4/Documentation/Manual/upm-ui-giturl.html):</summary>
-
-> 1. In the Unity toolbar, select `Window` > `Package Manager` > `[+]` > `Add package from git URL...` 
-> 2. Paste the following link: `https://github.com/Matis-Projects/TNetLibrarySystem.git`
-
-</details>
