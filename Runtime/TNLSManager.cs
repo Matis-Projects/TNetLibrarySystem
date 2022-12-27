@@ -23,6 +23,7 @@ namespace Tismatis.TNetLibrarySystem
         [Header("Settings")]
         [SerializeField] public bool DebugMode;
         [SerializeField] public int MaxNetList = 50;
+        [SerializeField] public int MaxParams = 25;
         [NonSerialized] public bool HasFullyBoot = false; 
 
         #region Initialization

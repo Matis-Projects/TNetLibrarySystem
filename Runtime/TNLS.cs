@@ -16,7 +16,8 @@ namespace Tismatis.TNetLibrarySystem
     {
         [SerializeField] private TNLSManager TNLSManager;
         [SerializeField, UdonSynced] public string methodEncoded = "";
-        [SerializeField] public object[] Parameters = null;
+        [SerializeField, UdonSynced] public string[] ListParams = new string[0];
+        [SerializeField, UdonSynced] public string[] ValParams = new string[0];
 
         #region TheRealMotorOfThatSystem
         /// <summary>
@@ -31,9 +32,8 @@ namespace Tismatis.TNetLibrarySystem
             {
                 TNLSManager.TNLSLogingSystem.ErrorMessage($"Can't find the network {mttable[1]} with the func {mttable[0]} ! ({mE})");
             }else{
-                Parameters = TNLSManager.TNLSSerialization.StrToParameters(mttable[2]);
                 network.SendCustomEvent(mttable[0]);
-                TNLSManager.TNLSLogingSystem.InfoMessage($"Triggered the network {mttable[0]} in the script id {mttable[1]} with args '{mttable[2]}'");
+                TNLSManager.TNLSLogingSystem.InfoMessage($"Triggered the network {mttable[0]} in the script id {mttable[1]} !");
             }
         }
 
@@ -43,7 +43,7 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public void SendNetwork(string Target, string NetworkName, string ScriptId, object[] args)
         {
-            string tmp = $"{NetworkName}█{ScriptId}█{TNLSManager.TNLSSerialization.ParametersToStr(args)}█Target";
+            string tmp = $"{NetworkName}█{ScriptId}█{Target}";
 
             if(Target != "Local")
             {
@@ -54,6 +54,11 @@ namespace Tismatis.TNetLibrarySystem
                     TNLSManager.TNLSLogingSystem.DebugMessage($"Transferring to us.");
                     CAAOwner();
                     methodEncoded = tmp;
+                    string[][] newParams = TNLSManager.TNLSSerialization.SetParameters(args);
+                    
+                    ListParams = newParams[0];
+                    ValParams = newParams[1];
+
                     Receive(tmp);
                     RequestSerialization();
                 }else{
@@ -69,9 +74,10 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public object[] GetParameters()
         {
-            object[] tmp = Parameters;
-            Parameters = null;
-            TNLSManager.TNLSLogingSystem.DebugMessage($"Parameters has been gived, removed!");
+            object[] tmp = TNLSManager.TNLSSerialization.GetParameters(ListParams, ValParams);
+            ListParams = new string[0];
+            ValParams = new string[0];
+            TNLSManager.TNLSLogingSystem.DebugMessage($"Parameters has been gived, removed! {ListParams.Length} vs {tmp.Length}");
             return tmp;
         }
         #endregion
@@ -95,9 +101,11 @@ namespace Tismatis.TNetLibrarySystem
         /// <summary>
         ///     <para>Called for check if the player can get the ownership</para>
         ///     <para>For obvious reason, we need to say YES all times</para>
+        ///     <para>Here a debug endpoint</para>
         /// </summary>
         public override bool OnOwnershipRequest(VRCPlayerApi requester, VRCPlayerApi newOwner)
         {
+            TNLSManager.TNLSLogingSystem.DebugMessage("We accept the OwnershipRequest.");
             return true;
         }
 
@@ -113,9 +121,11 @@ namespace Tismatis.TNetLibrarySystem
         /// <summary>
         ///     <para>Called after the serialization has been called</para>
         ///     <para>Here we reset methodEncoded</para>
+        ///     <para>Here a debug endpoint</para>
         /// </summary>
         public override void OnPostSerialization(SerializationResult result)
         {
+            TNLSManager.TNLSLogingSystem.DebugMessage("OnPostSerialization called!");
             methodEncoded = "";
         }
         #endregion
@@ -128,9 +138,9 @@ namespace Tismatis.TNetLibrarySystem
         {
             if(!Networking.IsOwner(gameObject))
             {
-                TNLSManager.TNLSLogingSystem.DebugMessage("Transfered the owning to LP!");
+                TNLSManager.TNLSLogingSystem.DebugMessage("Transfering the owner to us.");
                 Networking.SetOwner(Networking.LocalPlayer, gameObject);
-                TNLSManager.TNLSLogingSystem.DebugMessage($"Transfered the owner to us.");
+                TNLSManager.TNLSLogingSystem.DebugMessage("Transfered the owner to us.");
             }else{
                 TNLSManager.TNLSLogingSystem.DebugMessage("Why transferring the owning to the LP when LP = Owner?");
             }

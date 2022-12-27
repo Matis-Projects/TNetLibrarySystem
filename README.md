@@ -47,18 +47,24 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
 1. Put the prefabs named `TNLS Manager` in your world
 2. **UNPACK THE PREFAB** ! Without unpack, this will just break the entire system. 
 
-### Preparation of the script
+### Preparation of the Networked script
 
-1. Your script Syncronization Method need to be in MANUAL in **all** your NetworkedScript.
-2. Declare under your `UdonSharpBehaviour` class the TNLS: `[SerializeField] public TNLSManager TNLSManager;`
-    * In case you have a script link to all your scripts, you can declare it into the this one and not re-declare it all times.
-3. Declare the ScriptName or the ScriptId:
-    1.  You need to set the value when the script Start! 
-        *   You can set to a custom string using `TNLSManager.AddANamedNetworkedScript(<the name>, this);`
-        *   You can set to a custom number using : `TNLSManager.AddAIdNetworkedScript("<the number>", this);`
-    *  ***WARNING** It's one name/id per instance of script.*
+* Automatic mode
+    1. Add in the same gameobject a `AssignNewScriptToNetwork` component.
+    2. Change the scriptName to what you want.
+    3. Assign the `TNLS Manager` and your Networked script in the new component.
+    3. Change the syncronization method of your script to `Manual`.
+* Legacy mode
+    1. Your script Syncronization Method need to be in MANUAL in **all** your NetworkedScript.
+    2. Declare under your `UdonSharpBehaviour` class the TNLS: `[SerializeField] private TNLSManager TNLSManager;`
+        * In case you have a script link to all your scripts, you can declare it into the this one and not re-declare it all times.
+    3. Declare the ScriptName or the ScriptId:
+        1.  You need to set the value when the script Start! 
+            *   You can set to a custom string using `TNLSManager.AddANamedNetworkedScript(<the name>, this);`
+            *   You can set to a custom number using : `TNLSManager.AddAIdNetworkedScript("<the number>", this);`
+        *  ***WARNING** It's one name/id per instance of script.*
 
-### Call a void
+### Call a method
 
 *   In case of you want use the Id of the script: `TNLSManager.CallNetworkedScript("<Your Void Name>", <The ScriptId destination>, <parameters>);`
 *   In case of you want use the name of the script: `TNLSManager.CallNamedNetworkedScript("<Your Void Name>", "<The ScriptName destination>", <parameters>);`
@@ -71,7 +77,7 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
 ### Parameters
 *   Limits of the system
     * Parameters can be `null` or a array of `object[]`!
-    * You have at maximum 25 parameters!
+    * You have at maximum 25 parameters!* *Can be modified in the `TNLS Manager` but not recommended*
     * Some type aren't compatible! Check the list.
 *   Supported types
     *Some types aren't compatible for now, they will be compatible after.*
@@ -89,3 +95,10 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
     * Byte  with array support.
     * SByte  with array support.
     * VRCPlayerApi
+
+### Debug
+
+* It's very easy to see log of TNLS in-game!
+1. Create a 2D Text
+2. Assign this 2D Text to the `TNLS Logging System`*, a child of `TNLS Manager`.*
+3. Activate debug mode in `TNLS Manager`.

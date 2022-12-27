@@ -16,380 +16,600 @@ namespace Tismatis.TNetLibrarySystem
     {
         [SerializeField] private TNLSManager TNLSManager;
 
-        #region TransfertHimSelf
+        #region Get/Set Parameters
         /// <summary>
-        ///     <para>Transform all Parameters into a String.</para>
+        ///     <para>Return two string[] containing the type and the value of all parameters from a object[].</para>
         /// </summary>
-        public string ParametersToStr(object[] objs)
+        public string[][] SetParameters(object[] objs)
         {
-            string tmp = "";
+            string[][] final = new string[2][];
+            string[] ListParams = new string[0];
+            string[] VarsParams = new string[0];
 
-            if (objs != null)
+            int i = 0;
+            int max = TNLSManager.MaxParams;
+            if(objs.Length <= max)
             {
-                int k = 0;
-                foreach (object obj in objs)
+                max = objs.Length;
+
+                while (i < max)
                 {
-                    var type = objs[k].GetType().ToString();
-                    var tp = "";
+                    object obj = objs[i];
 
-                    k++;
-                    int g = k - 1;
-                    if(type == "System.String") {
-                        tp = $"STR┬{objs[g]}";
-                    } else if(type == "System.Int16") {
-                        tp = $"I16┬{objs[g]}";
-                    } else if(type == "System.Int16[]") {
-                        string tma = "";
-                        foreach(Int16 nbr in (Int16[])objs[g])
-                        {
-                            if(tma == "")
-                            {
-                                tma += $"{nbr}";
-                            }else{
-                                tma += $"┴{nbr}";
-                            }
-                        }
-                        tp = $"aI16┬{tma}";
-                    } else if(type == "System.UInt16") {
-                        tp = $"UI16┬{objs[g]}";
-                    } else if(type == "System.UInt16[]") {
-                        string tma = "";
-                        foreach(UInt16 nbr in (UInt16[])objs[g])
-                        {
-                            if(tma == "")
-                            {
-                                tma += $"{nbr}";
-                            }else{
-                                tma += $"┴{nbr}";
-                            }
-                        }
-                        tp = $"aUI16┬{tma}";
-                    } else if(type == "System.Int32") {
-                        tp = $"I32┬{objs[g]}";
-                    } else if(type == "System.Int32[]") {
-                        string tma = "";
-                        foreach(Int32 nbr in (Int32[])objs[g])
-                        {
-                            if(tma == "")
-                            {
-                                tma += $"{nbr}";
-                            }else{
-                                tma += $"┴{nbr}";
-                            }
-                        }
-                        tp = $"aI32┬{tma}";
-                    } else if(type == "System.UInt32") {
-                        tp = $"UI32┬{objs[g]}";
-                    } else if(type == "System.UInt32[]") {
-                        string tma = "";
-                        foreach(UInt32 nbr in (UInt32[])objs[g])
-                        {
-                            if(tma == "")
-                            {
-                                tma += $"{nbr}";
-                            }else{
-                                tma += $"┴{nbr}";
-                            }
-                        }
-                        tp = $"aUI32┬{tma}";
-                    } else if(type == "System.Int64") {
-                        tp = $"I64┬{objs[g]}";
-                    } else if(type == "System.Int64[]") {
-                        string tma = "";
-                        foreach(Int64 nbr in (Int64[])objs[g])
-                        {
-                            if(tma == "")
-                            {
-                                tma += $"{nbr}";
-                            }else{
-                                tma += $"┴{nbr}";
-                            }
-                        }
-                        tp = $"aI64┬{tma}";
-                    } else if(type == "System.UInt64") {
-                        tp = $"UI64┬{objs[g]}";
-                    } else if(type == "System.UInt64[]") {
-                        string tma = "";
-                        foreach(UInt64 nbr in (UInt64[])objs[g])
-                        {
-                            if(tma == "")
-                            {
-                                tma += $"{nbr}";
-                            }else{
-                                tma += $"┴{nbr}";
-                            }
-                        }
-                        tp = $"aUI64┬{tma}";
-                    } else if(type == "System.Single") {
-                        tp = $"SINGLE┬{objs[g]}";
-                    } else if(type == "System.Single[]") {
-                        string tma = "";
-                        foreach(Single nbr in (Single[])objs[g])
-                        {
-                            if(tma == "")
-                            {
-                                tma += $"{nbr}";
-                            }else{
-                                tma += $"┴{nbr}";
-                            }
-                        }
-                        tp = $"aSINGLE┬{tma}";
-                    } else if(type == "System.Double") {
-                        tp = $"DOUBLE┬{objs[g]}";
-                    } else if(type == "System.Double[]") {
-                        string tma = "";
-                        foreach(Double nbr in (Double[])objs[g])
-                        {
-                            if(tma == "")
-                            {
-                                tma += $"{nbr}";
-                            }else{
-                                tma += $"┴{nbr}";
-                            }
-                        }
-                        tp = $"aDOUBLE┬{tma}";
-                    } else if(type == "System.Boolean") {
-                        bool t = (bool)objs[g];
-                        if (t)
-                        {
-                            tp = "BOOL┬T";
-                        }
-                        else
-                        {
-                            tp = "BOOL┬F";
-                        }
-                    } else if(type == "System.Boolean[]") {
-                        string tma = "";
-                        foreach(bool item in (bool[])objs[g])
-                        {
-                            string tm = "";
-                            bool t = item;
-                            if (t)
-                            {
-                                tm = "T";
-                            }
-                            else
-                            {
-                                tm = "F";
-                            }
-
-                            if(tma == "")
-                            {
-                                tma += $"{tm}";
-                            }else{
-                                tma += $"┴{tm}";
-                            }
-                        }
-                        tp = $"aBOOL┬{tma}";
-                    } else if(type == "System.Byte") {
-                        tp = $"BYTE┬{objs[g]}";
-                    } else if(type == "System.Byte[]") {
-                        string tma = "";
-                        foreach(Byte nbr in (Byte[])objs[g])
-                        {
-                            if(tma == "")
-                            {
-                                tma += $"{nbr}";
-                            }else{
-                                tma += $"┴{nbr}";
-                            }
-                        }
-                        tp = $"aBYTE┬{tma}";
-                    } else if(type == "System.SByte") {
-                        tp = $"SBYTE┬{objs[g]}";
-                    } else if(type == "System.SByte[]") {
-                        string tma = "";
-                        foreach(SByte nbr in (SByte[])objs[g])
-                        {
-                            if(tma == "")
-                            {
-                                tma += $"{nbr}";
-                            }else{
-                                tma += $"┴{nbr}";
-                            }
-                        }
-                        tp = $"aSBYTE┬{tma}";
-                    } else if(type == "VRC.SDKBase.VRCPlayerApi")
+                    string type = SerializeGetType(obj);
+                    if(type != "InvalidType")
                     {
-                        VRCPlayerApi player = (VRCPlayerApi)objs[g];
-                        tp = $"VRCPA┬{VRCPlayerApi.GetPlayerId(player)}";
-                    } else
-                    {
-                        TNLSManager.TNLSLogingSystem.ErrorMessage($"Can't use the type {type} with params!");
+                        ListParams = ListParams.Add(type);
+                        VarsParams = VarsParams.Add(SerializeGetValue(obj, type));
+                    }else{
+                        ListParams = ListParams.Add("InvalidType");
+                        VarsParams = VarsParams.Add("false");
+                        TNLSManager.TNLSLogingSystem.WarnMessage("Don't support this type ! Skipping...");
                     }
-                    tmp = $"{tp}@";
+
+                    i++;
                 }
+            }else{
+                TNLSManager.TNLSLogingSystem.ErrorMessage("Can't set parameters ! You have more parameters than the maximum defined. Check the Manager configuration.");
             }
-            return tmp;
+
+            final[0] = ListParams;
+            final[1] = VarsParams;
+
+            return final;
         }
 
         /// <summary>
-        ///     <para>Transform a String into a object array.</para>
+        ///     <para>Return the parameters collections.</para>
         /// </summary>
-        public object[] StrToParameters(string parameters)
+        public object[] GetParameters(string[] ListParams, string[] VarsParams)
         {
-            object[] VarsParams = new object[25];
+            object[] final = new object[0];
 
-            string[] tmp_PS = parameters.Split('@');
-
-            int k = 0;
-            foreach (string str in tmp_PS)
+            int i = 0;
+            while(i < ListParams.Length)
             {
-                if (str != "")
-                {
-                    string[] type = str.Split('┬');
+                string Obj = VarsParams[i];
+                string type = ListParams[i];
+                
+                final = final.Add(DeserializeObject(type, Obj));
 
-                    k++;
-                    int g = k - 1;
-                    int kt = 0;
-                    if(type[0] == "STR")
+                // Add 1 to Index
+                i++;
+            }
+            return final;
+        }
+        #endregion
+        #region SerializationSystem
+        private string SerializeGetType(object obj)
+        {
+            string final = "InvalidType";
+            string RealType = obj.GetType().ToString();
+
+            switch(RealType)
+            {
+                case "System.Int16":
+                    final = "Int16";
+                    break;
+                case "System.Int16[]":
+                    final = "Int16[]";
+                    break;
+                case "System.UInt16":
+                    final = "UInt16";
+                    break;
+                case "System.UInt16[]":
+                    final = "UInt16[]";
+                    break;
+                case "System.Int32":
+                    final = "Int32";
+                    break;
+                case "System.Int32[]":
+                    final = "Int32[]";
+                    break;
+                case "System.UInt32":
+                    final = "UInt32";
+                    break;
+                case "System.UInt32[]":
+                    final = "UInt32[]";
+                    break;
+                case "System.Int64":
+                    final = "Int64";
+                    break;
+                case "System.Int64[]":
+                    final = "Int64[]";
+                    break;
+                case "System.UInt64":
+                    final = "UInt64";
+                    break;
+                case "System.UInt64[]":
+                    final = "UInt64[]";
+                    break;
+                case "System.Single":
+                    final = "Single";
+                    break;
+                case "System.Single[]":
+                    final = "Single[]";
+                    break;
+                case "System.Double":
+                    final = "Double";
+                    break;
+                case "System.Double[]":
+                    final = "Double[]";
+                    break;
+                case "System.Bool":
+                    final = "Bool";
+                    break;
+                case "System.Bool[]":
+                    final = "Bool[]";
+                    break;
+                case "System.Byte":
+                    final = "Byte";
+                    break;
+                case "System.Byte[]":
+                    final = "Byte[]";
+                    break;
+                case "System.SByte":
+                    final = "SByte";
+                    break;
+                case "System.SByte[]":
+                    final = "SByte[]";
+                    break;
+                case "VRC.SDKBase.VRCPlayerApi":
+                    final = "VRCPlayerApi";
+                    break;
+                default:
+                    final = "InvalidType";
+                    break;
+            }
+
+
+            return final;
+        }
+        private string SerializeGetValue(object obj, string type)
+        {
+            string final = "";
+            switch (type)
+            {
+                case "Initialize !!!!!DONT-TOUCH-OR-TRY-TO-MAKE-IT-WORKING!!!!!":
+                object rObj = null;
+                object rObjA = null;
+
+                string tmp = "";
+
+                break;
+            case "Int16":
+                // Transform value to string
+                rObj = (Int16)obj;
+                final = rObj.ToString();
+                break;
+            case "Int16[]":
+                rObjA = (Int16[])obj;
+
+                foreach (Int16 Value in (Int16[])rObjA)
+                {
+                    // Transform value to string
+                    tmp = Value.ToString();
+
+                    // Add the transformed value into a 'array'
+                    if (final == "")
                     {
-                        VarsParams[g] = Convert.ToString(type[1]);
-                    }else if(type[0] == "I16") {
-                        VarsParams[g] = Convert.ToInt16(type[1]);
-                    }else if(type[0] == "aI16") {
-                        string[] resultat = Convert.ToString(type[1]).Split('┴');
-                        Int16[] tmpa = new Int16[resultat.Length];
-                        kt = 0;
-                        foreach(string tmp in resultat)
-                        {
-                            tmpa[k] = Convert.ToInt16(tmp);
-                            kt++;
-                        }
-                        VarsParams[g] = tmpa;
-                    }else if(type[0] == "UI16") {
-                        VarsParams[g] = Convert.ToUInt16(type[1]);
-                    }else if(type[0] == "aUI16") {
-                        string[] resultat = Convert.ToString(type[1]).Split('┴');
-                        UInt16[] tmpa = new UInt16[resultat.Length];
-                        kt = 0;
-                        foreach(string tmp in resultat)
-                        {
-                            tmpa[k] = Convert.ToUInt16(tmp);
-                            kt++;
-                        }
-                        VarsParams[g] = tmpa;
-                    }else if(type[0] == "I32") {
-                        VarsParams[g] = Convert.ToInt32(type[1]);
-                    }else if(type[0] == "aI32") {
-                        string[] resultat = Convert.ToString(type[1]).Split('┴');
-                        Int32[] tmpa = new Int32[resultat.Length];
-                        kt = 0;
-                        foreach(string tmp in resultat)
-                        {
-                            tmpa[k] = Convert.ToInt32(tmp);
-                            kt++;
-                        }
-                        VarsParams[g] = tmpa;
-                    }else if(type[0] == "UI32") {
-                        VarsParams[g] = Convert.ToUInt32(type[1]);
-                    }else if(type[0] == "aUI32") {
-                        string[] resultat = Convert.ToString(type[1]).Split('┴');
-                        UInt32[] tmpa = new UInt32[resultat.Length];
-                        kt = 0;
-                        foreach(string tmp in resultat)
-                        {
-                            tmpa[k] = Convert.ToUInt32(tmp);
-                            kt++;
-                        }
-                        VarsParams[g] = tmpa;
-                    }else if(type[0] == "I64") {
-                        VarsParams[g] = Convert.ToInt64(type[1]);
-                    }else if(type[0] == "aI64") {
-                        string[] resultat = Convert.ToString(type[1]).Split('┴');
-                        Int64[] tmpa = new Int64[resultat.Length];
-                        kt = 0;
-                        foreach(string tmp in resultat)
-                        {
-                            tmpa[k] = Convert.ToInt64(tmp);
-                            kt++;
-                        }
-                        VarsParams[g] = tmpa;
-                    }else if(type[0] == "UI64") {
-                        VarsParams[g] = Convert.ToUInt64(type[1]);
-                    }else if(type[0] == "aUI64") {
-                        string[] resultat = Convert.ToString(type[1]).Split('┴');
-                        UInt64[] tmpa = new UInt64[resultat.Length];
-                        kt = 0;
-                        foreach(string tmp in resultat)
-                        {
-                            tmpa[k] = Convert.ToUInt64(tmp);
-                            kt++;
-                        }
-                        VarsParams[g] = tmpa;
-                    }else if(type[0] == "SINGLE") {
-                        VarsParams[g] = Convert.ToSingle(type[1]);
-                    }else if(type[0] == "aSINGLE") {
-                        string[] resultat = Convert.ToString(type[1]).Split('┴');
-                        Single[] tmpa = new Single[resultat.Length];
-                        kt = 0;
-                        foreach(string tmp in resultat)
-                        {
-                            tmpa[k] = Convert.ToSingle(tmp);
-                            kt++;
-                        }
-                        VarsParams[g] = tmpa;
-                    }else if(type[0] == "DOUBLE") {
-                        VarsParams[g] = Convert.ToDouble(type[1]);
-                    }else if(type[0] == "aDOUBLE") {
-                        string[] resultat = Convert.ToString(type[1]).Split('┴');
-                        Double[] tmpa = new Double[resultat.Length];
-                        kt = 0;
-                        foreach(string tmp in resultat)
-                        {
-                            tmpa[k] = Convert.ToDouble(tmp);
-                            kt++;
-                        }
-                        VarsParams[g] = tmpa;
-                    }else if(type[0] == "BOOL") {
-                        bool booly = false;
-                        if (type[1] == "T") { booly = true; }
-                        VarsParams[g] = booly;
-                    }else if(type[0] == "aBOOL") {
-                        string[] resultat = Convert.ToString(type[1]).Split('┴');
-                        bool[] tmpa = new bool[resultat.Length];
-                        kt = 0;
-                        foreach(string tmp in resultat)
-                        {
-                            bool booly = false;
-                            if (tmp == "T") { booly = true; }
-                            tmpa[k] = booly;
-                            kt++;
-                        }
-                        VarsParams[g] = tmpa;
-                    }else if(type[0] == "BYTE") {
-                        VarsParams[g] = Convert.ToByte(type[1]);
-                    }else if(type[0] == "aBYTE") {
-                        string[] resultat = Convert.ToString(type[1]).Split('┴');
-                        Byte[] tmpa = new Byte[resultat.Length];
-                        kt = 0;
-                        foreach(string tmp in resultat)
-                        {
-                            tmpa[k] = Convert.ToByte(tmp);
-                            kt++;
-                        }
-                        VarsParams[g] = tmpa;
-                    }else if(type[0] == "SBYTE") {
-                        VarsParams[g] = Convert.ToSByte(type[1]);
-                    }else if(type[0] == "aSBYTE") {
-                        string[] resultat = Convert.ToString(type[1]).Split('┴');
-                        SByte[] tmpa = new SByte[resultat.Length];
-                        kt = 0;
-                        foreach(string tmp in resultat)
-                        {
-                            tmpa[k] = Convert.ToSByte(tmp);
-                            kt++;
-                        }
-                        VarsParams[g] = tmpa;
-                    }else if(type[0] == "VRCPA") {
-                        VarsParams[g] = VRCPlayerApi.GetPlayerById(Convert.ToInt32(type[1]));
-                    }else{
-                        TNLSManager.TNLSLogingSystem.ErrorMessage($"Can't currently use the type {type[0]} with params!");
-                        k--;
+                        final = $"{tmp}";
+                    } else {
+                        final += $"┴{tmp}";
                     }
                 }
+                break;
+            case "UInt16":
+                // Transform value to string
+                rObj = (UInt16)obj;
+                final = rObj.ToString();
+                        break;
+            case "UInt16[]":
+                rObjA = (UInt16[])obj;
+                
+                foreach (UInt16 Value in (UInt16[])rObjA)
+                {
+                    // Transform value to string
+                    tmp = Value.ToString();
+
+                    // Add the transformed value into a 'array'
+                    if (final == "")
+                    {
+                        final = $"{tmp}";
+                    } else {
+                        final += $"┴{tmp}";
+                    }
+                }
+                break;
+            case "Int32":
+                // Transform value to string
+                rObj = (Int32)obj;
+                final = rObj.ToString();
+                break;
+            case "Int32[]":
+                rObjA = (Int32[])obj;
+                foreach (Int32 Value in (Int32[])rObjA)
+                {
+                    // Transform value to string
+                    tmp = Value.ToString();
+
+                    // Add the transformed value into a 'array'
+                    if (final == "")
+                    {
+                        final = $"{tmp}";
+                    } else {
+                        final += $"┴{tmp}";
+                    }
+                }
+                break;
+            case "UInt32":
+                // Transform value to string
+                rObj = (UInt32)obj;
+                final = rObj.ToString();
+                break;
+            case "UInt32[]":
+                rObjA = (UInt32[])obj;
+
+                foreach (UInt32 Value in (UInt32[])rObjA)
+                {
+                    // Transform value to string
+                    tmp = Value.ToString();
+
+                    // Add the transformed value into a 'array'
+                    if (final == "")
+                    {
+                        final = $"{tmp}";
+                    } else {
+                        final += $"┴{tmp}";
+                    }
+                }
+                break;
+            case "Int64":
+                // Transform value to string
+                rObj = (Int64)obj;
+                final = rObj.ToString();
+                        break;
+            case "Int64[]":
+                rObjA = (Int64[])obj;
+
+                foreach (Int64 Value in (Int64[])rObjA)
+                {
+                    // Transform value to string
+                    tmp = Value.ToString();
+
+                    // Add the transformed value into a 'array'
+                    if (final == "")
+                    {
+                        final = $"{tmp}";
+                    } else {
+                        final += $"┴{tmp}";
+                    }
+                }
+                break;
+            case "UInt64":
+                // Transform value to string
+                rObj = (UInt64)obj;
+                final = rObj.ToString();
+                break;
+            case "UInt64[]":
+                rObjA = (UInt64[])obj;
+
+                foreach(UInt64 Value in (UInt64[])rObjA)
+                {
+                    // Transform value to string
+                    tmp = Value.ToString();
+
+                    // Add the transformed value into a 'array'
+                    if (final == "")
+                    {
+                        final = $"{tmp}";
+                    } else {
+                        final += $"┴{tmp}";
+                    }
+                }
+                break;
+            case "Single":
+                // Transform value to string
+                rObj = (Single)obj;
+                final = rObj.ToString();
+                break;
+            case "Single[]":
+                rObjA = (Single[])obj;
+                
+                foreach (Single Value in (Single[])rObjA)
+                {
+                    // Transform value to string
+                    tmp = Value.ToString();
+
+                    // Add the transformed value into a 'array'
+                    if (final == "")
+                    {
+                        final = $"{tmp}";
+                    } else {
+                        final += $"┴{tmp}";
+                    }
+                }
+                break;
+            case "Double":
+                // Transform value to string
+                rObj = (Double)obj;
+                final = rObj.ToString();
+                break;
+            case "Double[]":
+                rObjA = (Double[])obj;
+                
+                foreach (Double Value in (Double[])rObjA)
+                {
+                    // Transform value to string
+                    tmp = Value.ToString();
+
+                    // Add the transformed value into a 'array'
+                    if (final == "")
+                    {
+                        final = $"{tmp}";
+                    } else {
+                        final += $"┴{tmp}";
+                    }
+                }
+                break;
+            case "Bool":
+                // Transform value to string
+                rObj = (bool)obj;
+                if ((bool)rObj)
+                {
+                    final = "true";
+                } else {
+                    final = "false";
+                }
+                break;
+            case "Bool[]":
+                rObjA = (bool[])obj;
+                
+                foreach (bool Value in (bool[])rObjA)
+                {
+                    // Transform value to string
+                    if (Value)
+                    {
+                        tmp = "true";
+                    } else {
+                        tmp = "false";
+                    }
+
+                    // Add the transformed value into a 'array'
+                    if (final == "")
+                    {
+                        final = $"{tmp}";
+                    } else {
+                        final += $"┴{tmp}";
+                    }
+                }
+                break;
+            case "Byte":
+                // Transform value to string
+                rObj = (Byte)obj;
+                final = rObj.ToString();
+                break;
+            case "Byte[]":
+                rObjA = (Byte[])obj;
+
+                foreach (Byte Value in (Byte[])rObjA)
+                {
+                    // Transform value to string
+                    tmp = Value.ToString();
+
+                    // Add the transformed value into a 'array'
+                    if (final == "")
+                    {
+                        final = $"{tmp}";
+                    } else {
+                        final += $"┴{tmp}";
+                    }
+                }
+                break;
+            case "SByte":
+                // Transform value to string
+                rObj = (SByte)obj;
+                final = rObj.ToString();
+                break;
+            case "SByte[]":
+                rObjA = (SByte[])obj;
+
+                foreach (SByte Value in (SByte[])rObjA)
+                {
+                    // Transform value to string
+                    tmp = Value.ToString();
+
+                    // Add the transformed value into a 'array'
+                    if (final == "")
+                    {
+                        final = $"{tmp}";
+                    } else {
+                        final += $"┴{tmp}";
+                    }
+                }
+                break;
+            case "VRCPlayerApi":
+                VRCPlayerApi ply = (VRCPlayerApi)obj;
+                final = VRCPlayerApi.GetPlayerId(ply).ToString();
+                break;
+            default:
+                TNLSManager.TNLSLogingSystem.ErrorMessage($"Can't support that type. '{type}'");
+                    break;
             }
-            return VarsParams;
+
+            return final;
+        }
+        private object DeserializeObject(string type, string strObj)
+        {
+            object final = null;
+            if(type == null || type == "")
+            {
+                final = false;
+            }
+            else if (type == "InvalidType")
+            {
+                final = false;
+            }
+            else if (type.Equals("Int16"))
+            {
+                final = Convert.ToInt16(strObj);
+            }
+            else if (type.Equals("Int16[]"))
+            {
+                Int16[] tmp = new Int16[0];
+                string[] Objs = strObj.Split('┴');
+                foreach (string obj in Objs)
+                {
+                    tmp = tmp.Add(Convert.ToInt16(strObj));
+                }
+                final = tmp;
+            }
+            else if (type.Equals("UInt16"))
+            {
+                final = Convert.ToUInt16(strObj);
+            }
+            else if (type.Equals("UInt16[]"))
+            {
+                UInt16[] tmp = new UInt16[0];
+                string[] Objs = strObj.Split('┴');
+                foreach (string obj in Objs)
+                {
+                    tmp = tmp.Add(Convert.ToUInt16(strObj));
+                }
+                final = tmp;
+            }
+            else if (type.Equals("Int32"))
+            {
+                final = Convert.ToInt32(strObj);
+            }
+            else if (type.Equals("Int32[]"))
+            {
+                Int32[] tmp = new Int32[0];
+                string[] Objs = strObj.Split('┴');
+                foreach (string obj in Objs)
+                {
+                    tmp = tmp.Add(Convert.ToInt32(strObj));
+                }
+                final = tmp;
+            }
+            else if (type.Equals("UInt32"))
+            {
+                final = Convert.ToUInt32(strObj);
+            }
+            else if (type.Equals("UInt32[]"))
+            {
+                UInt32[] tmp = new UInt32[0];
+                string[] Objs = strObj.Split('┴');
+                foreach (string obj in Objs)
+                {
+                    tmp = tmp.Add(Convert.ToUInt32(strObj));
+                }
+                final = tmp;
+            }
+            else if (type.Equals("Int64"))
+            {
+                final = Convert.ToInt64(strObj);
+            }
+            else if (type.Equals("Int64[]"))
+            {
+                Int64[] tmp = new Int64[0];
+                string[] Objs = strObj.Split('┴');
+                foreach (string obj in Objs)
+                {
+                    tmp = tmp.Add(Convert.ToInt64(strObj));
+                }
+                final = tmp;
+            }
+            else if (type.Equals("UInt64"))
+            {
+                final = Convert.ToUInt64(strObj);
+            }
+            else if (type.Equals("UInt64[]"))
+            {
+                UInt64[] tmp = new UInt64[0];
+                string[] Objs = strObj.Split('┴');
+                foreach (string obj in Objs)
+                {
+                    tmp = tmp.Add(Convert.ToUInt64(strObj));
+                }
+                final = tmp;
+            }
+            else if (type.Equals("Single"))
+            {
+                final = Convert.ToSingle(strObj);
+            }
+            else if (type.Equals("Single[]"))
+            {
+                Single[] tmp = new Single[0];
+                string[] Objs = strObj.Split('┴');
+                foreach (string obj in Objs)
+                {
+                    tmp = tmp.Add(Convert.ToSingle(strObj));
+                }
+                final = tmp;
+            }
+            else if (type.Equals("Double"))
+            {
+                final = Convert.ToDouble(strObj);
+            }
+            else if (type.Equals("Double[]"))
+            {
+                Double[] tmp = new Double[0];
+                string[] Objs = strObj.Split('┴');
+                foreach (string obj in Objs)
+                {
+                    tmp = tmp.Add(Convert.ToDouble(strObj));
+                }
+                final = tmp;
+            }
+            else if (type.Equals("Bool"))
+            {
+                final = Convert.ToBoolean(strObj);
+            }
+            else if (type.Equals("Bool[]"))
+            {
+                bool[] tmp = new bool[0];
+                string[] Objs = strObj.Split('┴');
+                foreach (string obj in Objs)
+                {
+                    tmp = tmp.Add(Convert.ToBoolean(strObj));
+                }
+                final = tmp;
+            }
+            else if (type.Equals("Byte"))
+            {
+                final = Convert.ToByte(strObj);
+            }
+            else if (type.Equals("Byte[]"))
+            {
+                Byte[] tmp = new Byte[0];
+                string[] Objs = strObj.Split('┴');
+                foreach (string obj in Objs)
+                {
+                    tmp = tmp.Add(Convert.ToByte(strObj));
+                }
+                final = tmp;
+            }
+            else if (type.Equals("SByte"))
+            {
+                final = Convert.ToSByte(strObj);
+            }
+            else if (type.Equals("SByte[]"))
+            {
+                SByte[] tmp = new SByte[0];
+                string[] Objs = strObj.Split('┴');
+                foreach (string obj in Objs)
+                {
+                    tmp = tmp.Add(Convert.ToSByte(strObj));
+                }
+                final = tmp;
+            }
+            else if (type.Equals("VRCPlayerApi"))
+            {
+                VRCPlayerApi ply = VRCPlayerApi.GetPlayerById(Convert.ToInt32(strObj));
+                final = ply;
+            }
+            return final;
         }
         #endregion
     }

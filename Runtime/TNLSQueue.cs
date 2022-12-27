@@ -16,6 +16,9 @@ namespace Tismatis.TNetLibrarySystem
         public object[][] QueueItems = new object[0][];
         public float lastSend = 0f;
 
+        /// <summary>
+        ///     <para>Insert in the queue a networked method.</para>
+        /// </summary>
         public void InsertInTheQueue(string mE)
         {
             QueueItems = QueueItems.Add(new object[] { mE });
@@ -26,6 +29,10 @@ namespace Tismatis.TNetLibrarySystem
                 QueueIsRunning = true;
             }
         }
+
+        /// <summary>
+        ///     <para>Update the Queue.</para>
+        /// </summary>
         public void UpdateTheQueue()
         {
             if (QueueItems.Length != 0)

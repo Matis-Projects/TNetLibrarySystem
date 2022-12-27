@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: TNLSLogingSystem
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: db8a9dad6b0170744ae62c6b160f5b90,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 769479bc9ae79e24b9a094fa6dde1f1f,
     type: 2}
   udonAssembly: 
   assemblyError: 

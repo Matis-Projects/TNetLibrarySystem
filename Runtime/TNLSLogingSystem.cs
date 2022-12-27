@@ -52,6 +52,16 @@ namespace Tismatis.TNetLibrarySystem
         }
 
         /// <summary>
+        ///     Send into the log a warn message.
+        /// </summary>
+        public void WarnMessage(string message)
+        {
+            string text = $"#<color=#ff9632>WARN</color> <color=#3264ff>[TNLS]</color> {message}";
+            UpdateText(text);
+            Debug.LogWarning(text);
+        }
+
+        /// <summary>
         ///     Send into a text.
         /// </summary>
         public void UpdateText(string line)
