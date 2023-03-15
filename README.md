@@ -44,8 +44,9 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
 
 ### Preparation of the world
 
-1. Put the prefabs named `TNLS Manager` in your world
-2. **UNPACK THE PREFAB** ! Without unpack, this will just break the entire system. 
+1. Put the prefab named `TNLS Manager` in your world
+2. **UNPACK THE PREFAB** ! Without unpack, this will just break the entire system.
+3. Put the prefab at the top of the world. *That can fix a lot of issues.*
 
 ### Preparation of the Networked script
 
@@ -69,12 +70,26 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
 *   In case of you want use the Id of the script: `TNLSManager.CallNetworkedScript("<Your Void Name>", <The ScriptId destination>, <parameters>);`
 *   In case of you want use the name of the script: `TNLSManager.CallNamedNetworkedScript("<Your Void Name>", "<The ScriptName destination>", <parameters>);`
 
+### Call method by UI Button with arguments
+
+* Currently, only the string is supported.
+1. Create your button and select it on Unity.
+2. Add the component `TNLS Custom Button Sender`.
+3. Configuration of the component: 
+    1. Insert your `TNLS Manager`.
+    2. Write your Target.
+    3. Write the original script name.
+    4. Write the original Method name.
+4. Add an action on the button and insert the `TNLS Custom Button Sender` component.
+5. Select the event `UdonBehaviour.SendCustomEvent` and write the event `CallTheCustomEvent`.
+
 ### Receive Parameters
 
 * Create a object array and set the value with the method `TNLSManager.GetParameters()`.
     * `object[] parameters = TNLSManager.GetParameters();`
 
 ### Parameters
+
 *   Limits of the system
     * Parameters can be `null` or a array of `object[]`!
     * You have at maximum 25 parameters!* *Can be modified in the `TNLS Manager` but not recommended*
