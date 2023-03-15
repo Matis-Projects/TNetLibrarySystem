@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: TNLSSerialization
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: b874a0bceb96b5e4fb73b15ad34d4807,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: fc9c99753e49db3458ca31f3d349773f,
     type: 2}
   udonAssembly: 
   assemblyError: 

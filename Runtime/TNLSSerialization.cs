@@ -80,6 +80,36 @@ namespace Tismatis.TNetLibrarySystem
             return final;
         }
         #endregion
+        #region StringTransformation
+        public string StringArrayToString(string[] objs)
+        {
+            string tmp = "";
+            foreach(string str in objs)
+            {
+                if(tmp == "")
+                {
+                    tmp = str;
+                }
+                else
+                {
+                    tmp = $"{tmp}▀{str}";
+                }
+            }
+            return tmp;
+        }
+        public string[] StringToStringArray(string objs)
+        {
+            string[] original = objs.Split('▀');
+            string[] tmp = new string[original.Length];
+            int i = 0;
+            foreach(string obj in tmp)
+            {
+                tmp[i] = original[i];
+                i++;
+            }
+            return tmp;
+        }
+        #endregion
         #region SerializationSystem
         private string SerializeGetType(object obj)
         {
@@ -153,6 +183,9 @@ namespace Tismatis.TNetLibrarySystem
                     break;
                 case "System.SByte[]":
                     final = "SByte[]";
+                    break;
+                case "System.String":
+                    final = "String";
                     break;
                 case "VRC.SDKBase.VRCPlayerApi":
                     final = "VRCPlayerApi";
@@ -428,6 +461,9 @@ namespace Tismatis.TNetLibrarySystem
                     }
                 }
                 break;
+            case "String":
+                final = (string)obj;
+                break;
             case "VRCPlayerApi":
                 VRCPlayerApi ply = (VRCPlayerApi)obj;
                 final = VRCPlayerApi.GetPlayerId(ply).ToString();
@@ -603,6 +639,10 @@ namespace Tismatis.TNetLibrarySystem
                     tmp = tmp.Add(Convert.ToSByte(strObj));
                 }
                 final = tmp;
+            }
+            else if(type.Equals("String"))
+            {
+                final = Convert.ToString(strObj);
             }
             else if (type.Equals("VRCPlayerApi"))
             {

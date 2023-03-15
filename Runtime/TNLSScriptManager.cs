@@ -33,7 +33,7 @@ namespace Tismatis.TNetLibrarySystem
                 uNetList = uNetList.Add(USB);
                 NetList = NetList.Add(Name);
                 iNetList = iNetList.Add(id);
-                TNLSManager.TNLSLogingSystem.InfoMessage($"Added {Name} to the NetworkedList with Name");
+                TNLSManager.TNLSLogingSystem.InfoMessage($"Added '{Name}' to the NetworkedList with Name");
                 return id;
             }else{
                 TNLSManager.TNLSLogingSystem.ErrorMessage($"Can't add one more NetworkedScript! ({NetList.Length+1}>MaxNetList)");
@@ -119,7 +119,7 @@ namespace Tismatis.TNetLibrarySystem
         {
             int tmp = GRCoS();
             uNetList = uNetList.Add(NewScript);
-            TNLSManager.TNLSLogingSystem.InfoMessage($"Declared a new NetworkingScript! ({tmp})");
+            TNLSManager.TNLSLogingSystem.InfoMessage($"Declared a new NetworkingScript! ('{tmp}')");
             return tmp;
         }
         /// <summary>

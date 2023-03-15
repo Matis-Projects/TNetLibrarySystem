@@ -1,7 +1,6 @@
 ﻿
 using UdonSharp;
 using UnityEngine;
-using Tismatis.TNetLibrarySystem;
 using VRC.SDKBase;
 using VRC.Udon;
 
@@ -42,7 +41,7 @@ namespace Tismatis.TNetLibrarySystem
 
                 TNLSManager.TNLS.methodEncoded = (string)Current[0];
 
-                TNLSManager.TNLSLogingSystem.InfoMessage($"QUEUE-NOTIFICATION --> Transport of {TNLSManager.TNLS.methodEncoded} out of the queue!");
+                TNLSManager.TNLSLogingSystem.InfoMessage($"QUEUE-NOTIFICATION --> Transport of '{TNLSManager.TNLS.methodEncoded}' out of the queue!");
 
                 TNLSManager.TNLS.Receive((string)Current[0]);
                 TNLSManager.TNLS.CAAOwner();

@@ -23,13 +23,13 @@ namespace Tismatis.TNetLibrarySystem
                     if(ScriptSelf != null)
                     {
                             ScriptId = TNLSManager.AddANamedNetworkedScript(ScriptName, ScriptSelf);
-                            TNLSManager.TNLSLogingSystem.DebugMessage($"{ScriptName} has been added to the networked script by ANSTN!");
+                            TNLSManager.TNLSLogingSystem.DebugMessage($"'{ScriptName}' has been added to the networked script by ANSTN!");
                     }
                     else{
-                        TNLSManager.TNLSLogingSystem.ErrorMessage($"ScriptSelf not defined for {ScriptName}! Can't continue.");
+                        TNLSManager.TNLSLogingSystem.ErrorMessage($"The script himself is not defined for '{ScriptName}'! Can't continue.");
                     }
                 }else{
-                    TNLSManager.TNLSLogingSystem.ErrorMessage("ScriptName not defined! Can't continue.");
+                    TNLSManager.TNLSLogingSystem.ErrorMessage("The name of the script not defined! Can't continue.");
                 }
             }else{
                 Debug.LogError($"[TNLS-AssignNewScriptToNetwork] TNLSManager isn't set, can't continue.");

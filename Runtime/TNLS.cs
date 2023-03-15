@@ -16,8 +16,8 @@ namespace Tismatis.TNetLibrarySystem
     {
         [SerializeField] private TNLSManager TNLSManager;
         [SerializeField, UdonSynced] public string methodEncoded = "";
-        [SerializeField, UdonSynced] public string[] ListParams = new string[0];
-        [SerializeField, UdonSynced] public string[] ValParams = new string[0];
+        [SerializeField] public string[] ListParams = new string[0];
+        [SerializeField] public string[] ValParams = new string[0];
 
         #region TheRealMotorOfThatSystem
         /// <summary>
@@ -30,10 +30,12 @@ namespace Tismatis.TNetLibrarySystem
             UdonSharpBehaviour network = TNLSManager.TNLSScriptManager.GetScriptByName(mttable[1]);
             if(network == null)
             {
-                TNLSManager.TNLSLogingSystem.ErrorMessage($"Can't find the network {mttable[1]} with the func {mttable[0]} ! ({mE})");
+                TNLSManager.TNLSLogingSystem.ErrorMessage($"Can't find the script id '{mttable[1]}' with the network '{mttable[0]}' ! ({mE})");
             }else{
+                ListParams = TNLSManager.TNLSSerialization.StringToStringArray(mttable[3]);
+                ValParams = TNLSManager.TNLSSerialization.StringToStringArray(mttable[4]);
                 network.SendCustomEvent(mttable[0]);
-                TNLSManager.TNLSLogingSystem.InfoMessage($"Triggered the network {mttable[0]} in the script id {mttable[1]} !");
+                TNLSManager.TNLSLogingSystem.InfoMessage($"Triggered the network '{mttable[0]}' in the script id '{mttable[1]}' !");
             }
         }
 
@@ -43,22 +45,22 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public void SendNetwork(string Target, string NetworkName, string ScriptId, object[] args)
         {
-            string tmp = $"{NetworkName}█{ScriptId}█{Target}";
+            string[][] newParams = TNLSManager.TNLSSerialization.SetParameters(args);
+            string tmp = $"{NetworkName}█{ScriptId}█{Target}█{TNLSManager.TNLSSerialization.StringArrayToString(newParams[0])}█{TNLSManager.TNLSSerialization.StringArrayToString(newParams[1])}";
+
 
             if(Target != "Local")
             {
                 if(!TNLSManager.TNLSQueue.QueueIsRunning && Time.timeSinceLevelLoad - TNLSManager.TNLSQueue.lastSend > 0.1f)
                 {
                     TNLSManager.TNLSQueue.lastSend = Time.timeSinceLevelLoad;
+
                     TNLSManager.TNLSLogingSystem.DebugMessage($"Want transport: '{tmp}'");
-                    TNLSManager.TNLSLogingSystem.DebugMessage($"Transferring to us.");
+                    TNLSManager.TNLSLogingSystem.DebugMessage("Transferring to us.");
                     CAAOwner();
                     methodEncoded = tmp;
-                    string[][] newParams = TNLSManager.TNLSSerialization.SetParameters(args);
-                    
-                    ListParams = newParams[0];
-                    ValParams = newParams[1];
 
+                    TNLSManager.TNLSLogingSystem.DebugMessage("Executing in local the method.");
                     Receive(tmp);
                     RequestSerialization();
                 }else{
@@ -77,7 +79,7 @@ namespace Tismatis.TNetLibrarySystem
             object[] tmp = TNLSManager.TNLSSerialization.GetParameters(ListParams, ValParams);
             ListParams = new string[0];
             ValParams = new string[0];
-            TNLSManager.TNLSLogingSystem.DebugMessage($"Parameters has been gived, removed! {ListParams.Length} vs {tmp.Length}");
+            TNLSManager.TNLSLogingSystem.DebugMessage($"Parameters has been gived, removed! (Source: {ListParams.Length} vs Local: {tmp.Length})");
             return tmp;
         }
         #endregion
@@ -92,7 +94,8 @@ namespace Tismatis.TNetLibrarySystem
             TNLSManager.TNLSLogingSystem.DebugMessage("Received a deserialization request");
             if (methodEncoded != "")
             {
-                TNLSManager.TNLSLogingSystem.InfoMessage($"Executing the method {methodEncoded}");
+                TNLSManager.TNLSLogingSystem.InfoMessage($"Executing the method '{methodEncoded}'");
+
                 Receive(methodEncoded);
                 methodEncoded = "";
             }
