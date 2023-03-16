@@ -15,28 +15,27 @@ namespace Tismatis.TNetLibrarySystem
     public class TNLSScriptManager : UdonSharpBehaviour
     {
         [SerializeField] private TNLSManager TNLSManager;
-        [NonSerialized] private UdonSharpBehaviour[] uNetList = new UdonSharpBehaviour[0];
-        [NonSerialized] private string[] NetList = new string[0];
-        [NonSerialized] private int[] iNetList = new int[0];
+        [NonSerialized] private UdonSharpBehaviour[] scriptList = new UdonSharpBehaviour[0];
+        [NonSerialized] private string[] netList = new string[0];
+        [NonSerialized] private int[] idNetList = new int[0];
 
         #region AddNetwork
         /// <summary>
         ///     <para>This add a NetworkedScript to the list to listening sended event.</para>
         ///     <para>With this one, you can add with the selected Name script.</para>
         /// </summary>
-        public int AddANetworkedScript(string Name, UdonSharpBehaviour USB)
+        public int AddANetworkedScript(string name, UdonSharpBehaviour script)
         {
-            if(NetList.Length + 1 <= TNLSManager.MaxNetList)
+            if(netList.Length + 1 <= TNLSManager.maxNetList)
             {
-                //int id = DeclareNewDynamicNetworkingScript(USB);
-                int id = uNetList.Length + 1;
-                uNetList = uNetList.Add(USB);
-                NetList = NetList.Add(Name);
-                iNetList = iNetList.Add(id);
-                TNLSManager.TNLSLogingSystem.InfoMessage($"Added '{Name}' to the NetworkedList with Name");
-                return id;
+                int scriptId = scriptList.Length + 1;
+                scriptList = scriptList.Add(script);
+                netList = netList.Add(name);
+                idNetList = idNetList.Add(scriptId);
+                TNLSManager.TNLSLogingSystem.InfoMessage($"Added '{name}' to the NetworkedList with Name");
+                return scriptId;
             }else{
-                TNLSManager.TNLSLogingSystem.ErrorMessage($"Can't add one more NetworkedScript! ({NetList.Length+1}>MaxNetList)");
+                TNLSManager.TNLSLogingSystem.ErrorMessage($"Can't add one more NetworkedScript! ({netList.Length+1}>MaxNetList)");
                 return -1;
             }
         }
@@ -47,17 +46,17 @@ namespace Tismatis.TNetLibrarySystem
         ///     <para>Return a UdonSharpBehaviour.</para>
         ///     <para>This one search by the Id of the script.</para>
         /// </summary>
-        public UdonSharpBehaviour GetScriptById(int IdOfScript)
+        public UdonSharpBehaviour GetScriptById(int idOfScript)
         {
-            UdonSharpBehaviour network = null;
+            UdonSharpBehaviour script = null;
             int k = 0;
-            foreach (UdonSharpBehaviour item in uNetList)
+            foreach (UdonSharpBehaviour item in scriptList)
             {
                 if (item != null)
                 {
-                    if (IdOfScript == k)
+                    if (idOfScript == k)
                     {
-                        network = item;
+                        script = item;
                         break;
                     }
                     else
@@ -66,77 +65,47 @@ namespace Tismatis.TNetLibrarySystem
                     }
                 }
             }
-            return network;
+            return script;
         }
 
         /// <summary>
         ///     <para>Return a UdonSharpBehaviour.</para>
         ///     <para>This one search by the Name of the script.</para>
         /// </summary>
-        public UdonSharpBehaviour GetScriptByName(string NameOfScript)
+        public UdonSharpBehaviour GetScriptByName(string nameOfScript)
         {
-            UdonSharpBehaviour network = null;
+            UdonSharpBehaviour script = null;
             int k = 0;
-            foreach(string currentName in NetList)
+            foreach(string currentName in netList)
             {
-                if(currentName == NameOfScript)
+                if(currentName == nameOfScript)
                 {
-                    network = uNetList[k];
+                    script = scriptList[k];
                     break;
                 }
                 k++;
             }
-            return network;
+            return script;
         }
 
         /// <summary>
         ///     <para>Return a ScriptId.</para>
         ///     <para>Need the Name of the script.</para>
         /// </summary>
-        public int GetScriptIdByName(string NameOfScript)
+        public int GetScriptIdByName(string nameOfScript)
         {
-            int ScriptId = -1;
+            int scriptId = -1;
             int k = 0;
-            foreach(string currentName in NetList)
+            foreach(string currentName in netList)
             {
-                if(currentName == NameOfScript)
+                if(currentName == nameOfScript)
                 {
-                    ScriptId = k;
+                    scriptId = k;
                     break;
                 }
                 k++;
             }
-            return ScriptId;
-        }
-        #endregion
-
-        #region Others
-        /// <summary>
-        ///     <strong>INTERNAL</strong>
-        ///     <para>Report to the Networking system to add you in the list of NET-scripts.</para>
-        /// </summary>
-        private int DeclareNewDynamicNetworkingScript(UdonSharpBehaviour NewScript)
-        {
-            int tmp = GRCoS();
-            uNetList = uNetList.Add(NewScript);
-            TNLSManager.TNLSLogingSystem.InfoMessage($"Declared a new NetworkingScript! ('{tmp}')");
-            return tmp;
-        }
-        /// <summary>
-        ///     <strong>INTERNAL</strong>
-        ///     <para>Return the number of scripts already declared to the Networking system.</para>
-        /// </summary>
-        private int GRCoS()
-        {
-            int tmp = 0;
-            foreach (UdonSharpBehaviour obj in uNetList)
-            {
-                if (obj != null)
-                {
-                    tmp++;
-                }
-            }
-            return tmp;
+            return scriptId;
         }
         #endregion
     }

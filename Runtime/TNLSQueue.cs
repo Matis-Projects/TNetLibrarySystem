@@ -11,21 +11,21 @@ namespace Tismatis.TNetLibrarySystem
     {
         [SerializeField] public TNLSManager TNLSManager;
 
-        public bool QueueIsRunning = false;
-        public object[][] QueueItems = new object[0][];
+        public bool queueIsRunning = false;
+        public object[][] queueItems = new object[0][];
         public float lastSend = 0f;
 
         /// <summary>
         ///     <para>Insert in the queue a networked method.</para>
         /// </summary>
-        public void InsertInTheQueue(string mE)
+        public void InsertInTheQueue(string methodEncoded)
         {
-            QueueItems = QueueItems.Add(new object[] { mE });
-            TNLSManager.TNLSLogingSystem.InfoMessage($"Queue is on! Passing '{mE}' to the waiting list!");
-            if (!QueueIsRunning)
+            queueItems = queueItems.Add(new object[] { methodEncoded });
+            TNLSManager.TNLSLogingSystem.InfoMessage($"Queue is on! Passing '{methodEncoded}' to the waiting list!");
+            if (!queueIsRunning)
             {
                 SendCustomEventDelayedSeconds("UpdateTheQueue", 0.1f);
-                QueueIsRunning = true;
+                queueIsRunning = true;
             }
         }
 
@@ -34,27 +34,33 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public void UpdateTheQueue()
         {
-            if (QueueItems.Length != 0)
+            if (queueItems.Length != 0)
             {
-                var Current = QueueItems[0];
-                QueueItems = QueueItems.Remove(0);
+                if(!TNLSManager.TNLS.executingMethod)
+                {
+                    var current = queueItems[0];
+                    queueItems = queueItems.Remove(0);
 
-                TNLSManager.TNLS.methodEncoded = (string)Current[0];
+                    TNLSManager.TNLS.methodEncoded = (string)current[0];
 
-                TNLSManager.TNLSLogingSystem.InfoMessage($"QUEUE-NOTIFICATION --> Transport of '{TNLSManager.TNLS.methodEncoded}' out of the queue!");
+                    TNLSManager.TNLSLogingSystem.InfoMessage($"QUEUE-NOTIFICATION --> Transport of '{TNLSManager.TNLS.methodEncoded}' out of the queue!");
 
-                TNLSManager.TNLS.Receive((string)Current[0]);
-                TNLSManager.TNLS.CAAOwner();
-                TNLSManager.TNLS.RequestSerialization();
+                    TNLSManager.TNLS.executingMethod = true;
+                    TNLSManager.TNLS.Receive((string)current[0]);
+                    TNLSManager.TNLS.CAAOwner();
+                    TNLSManager.TNLS.RequestSerialization();
+                }else{
+                    TNLSManager.TNLSLogingSystem.DebugMessage("QUEUE-NOTIFICATION --> Can't execute now the method because the older one hasn't finished to be executed!");
+                }
             }
 
-            if (QueueItems.Length != 0)
+            if (queueItems.Length != 0)
             {
                 SendCustomEventDelayedSeconds("UpdateTheQueue", 0.1f);
             }
             else
             {
-                QueueIsRunning = false;
+                queueIsRunning = false;
             }
         }
     }

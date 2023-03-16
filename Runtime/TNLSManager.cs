@@ -21,10 +21,10 @@ namespace Tismatis.TNetLibrarySystem
         [SerializeField] public TNLSScriptManager TNLSScriptManager;
         [SerializeField] public TNLSQueue TNLSQueue;
         [Header("Settings")]
-        [SerializeField] public bool DebugMode;
-        [SerializeField] public int MaxNetList = 50;
-        [SerializeField] public int MaxParams = 25;
-        [NonSerialized] public bool HasFullyBoot = false; 
+        [SerializeField] public bool debugMode;
+        [SerializeField] public int maxNetList = 50;
+        [SerializeField] public int maxParams = 25;
+        [NonSerialized] public bool hasFullyBoot = false; 
 
         #region Initialization
         public void Start()
@@ -32,7 +32,7 @@ namespace Tismatis.TNetLibrarySystem
             if(TNLS != null && TNLSLogingSystem != null && TNLSScriptManager && TNLSSerialization != null)
             {
                 TNLSLogingSystem.InfoMessage("The system has been started!");
-                HasFullyBoot = true;
+                hasFullyBoot = true;
             }else{
                 Debug.LogError($"#<color=#ff3232>ERROR</color> <color=#3264ff>[TNLS]</color> The system can't be start! (Check the prefab and check if all is linked)");
             }
@@ -44,41 +44,41 @@ namespace Tismatis.TNetLibrarySystem
         ///     <strong>ALIAS</strong>
         ///     <para>With this one, you can call by the selected Name script.</para>
         /// </summary>
-        public int AddANamedNetworkedScript(string Name, UdonSharpBehaviour USB)
+        public int AddANamedNetworkedScript(string name, UdonSharpBehaviour script)
         {
-            return TNLSScriptManager.AddANetworkedScript(Name, USB);
+            return TNLSScriptManager.AddANetworkedScript(name, script);
         }
 
         /// <summary>
         ///     <strong>ALIAS</strong>
         ///     <para>With this one, you can call by the ScriptId.</para>
         /// </summary>
-        public int AddAIdNetworkedScript(int ScriptId, UdonSharpBehaviour USB)
+        public int AddAIdNetworkedScript(int scriptId, UdonSharpBehaviour script)
         {
-            return TNLSScriptManager.AddANetworkedScript(ScriptId.ToString(), USB);
+            return TNLSScriptManager.AddANetworkedScript(scriptId.ToString(), script);
         }
 
         /// <summary>
         ///     <strong>ALIAS</strong>
         ///     <para>With this one, you call by the ScriptId.</para>
         /// </summary>
-        public void CallNetworkedScript(string Target, string NetworkName, int ScriptId, object[] args)
+        public void CallNetworkedScript(string target, string networkName, int scriptId, object[] args)
         {
-            TNLS.SendNetwork(Target, NetworkName, ScriptId.ToString(), args);
+            TNLS.SendNetwork(target, networkName, scriptId.ToString(), args);
         }
 
         /// <summary>
         ///     <strong>ALIAS</strong>
         ///     <para>With this one, you call by the ScriptName.</para>
         /// </summary>
-        public void CallNamedNetworkedScript(string Target, string NetworkName, string ScriptName, object[] args)
+        public void CallNamedNetworkedScript(string target, string networkName, string scriptName, object[] args)
         {
-            int ScriptId = TNLSScriptManager.GetScriptIdByName(ScriptName);
+            int ScriptId = TNLSScriptManager.GetScriptIdByName(scriptName);
             if(ScriptId == -1)
             {
-                TNLSLogingSystem.ErrorMessage($"Can't find the Script to call! ('{ScriptName}')");
+                TNLSLogingSystem.ErrorMessage($"Can't find the Script to call! ('{scriptName}')");
             }else{
-                TNLS.SendNetwork(Target, NetworkName, ScriptName, args);
+                TNLS.SendNetwork(target, networkName, scriptName, args);
             }
         }
 

@@ -11,14 +11,14 @@ namespace Tismatis.TNetLibrarySystem
     {
         [SerializeField] private TNLSManager TNLSManager;
 
-        [SerializeField] private string Target = "All";
-        [SerializeField] private string ScriptName = "DefaultName";
-        [SerializeField] private string MethodName = "DefaultMethod";
+        [SerializeField] private string target = "All";
+        [SerializeField] private string scriptName = "DefaultName";
+        [SerializeField] private string methodName = "DefaultMethod";
         [SerializeField] private string[] arguments = new string[0];
 
         public void CallTheCustomEvent()
         {
-            TNLSManager.CallNamedNetworkedScript(Target, MethodName, ScriptName, arguments);
+            TNLSManager.CallNamedNetworkedScript(target, methodName, scriptName, arguments);
         }
     }
 }

@@ -16,8 +16,7 @@ namespace Tismatis.TNetLibrarySystem
     {
         [SerializeField] private TNLSManager TNLSManager;
         [SerializeField, UdonSynced] public string methodEncoded = "";
-        [SerializeField] public string[] ListParams = new string[0];
-        [SerializeField] public string[] ValParams = new string[0];
+        [SerializeField] public bool executingMethod = false;
 
         #region TheRealMotorOfThatSystem
         /// <summary>
@@ -26,16 +25,15 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public void Receive(string mE)
         {
-            string[] mttable = mE.Split('█');
-            UdonSharpBehaviour network = TNLSManager.TNLSScriptManager.GetScriptByName(mttable[1]);
+            string[] methodTable = mE.Split('█');
+            UdonSharpBehaviour network = TNLSManager.TNLSScriptManager.GetScriptByName(methodTable[1]);
             if(network == null)
             {
-                TNLSManager.TNLSLogingSystem.ErrorMessage($"Can't find the script id '{mttable[1]}' with the network '{mttable[0]}' ! ({mE})");
+                TNLSManager.TNLSLogingSystem.ErrorMessage($"Can't find the script id '{methodTable[1]}' with the network '{methodTable[0]}' ! ({mE})");
             }else{
-                ListParams = TNLSManager.TNLSSerialization.StringToStringArray(mttable[3]);
-                ValParams = TNLSManager.TNLSSerialization.StringToStringArray(mttable[4]);
-                network.SendCustomEvent(mttable[0]);
-                TNLSManager.TNLSLogingSystem.InfoMessage($"Triggered the network '{mttable[0]}' in the script id '{mttable[1]}' !");
+                network.SendCustomEvent(methodTable[0]);
+                TNLSManager.TNLSLogingSystem.InfoMessage($"Triggered the network '{methodTable[0]}' in the script id '{methodTable[1]}' !");
+                executingMethod = false;
             }
         }
 
@@ -43,31 +41,32 @@ namespace Tismatis.TNetLibrarySystem
         ///     <strong>INTERNAL</strong>
         ///     <para>Send to the Networking system a request to execute a new method on the Network.</para>
         /// </summary>
-        public void SendNetwork(string Target, string NetworkName, string ScriptId, object[] args)
+        public void SendNetwork(string target, string networkName, string scriptId, object[] args)
         {
             string[][] newParams = TNLSManager.TNLSSerialization.SetParameters(args);
-            string tmp = $"{NetworkName}█{ScriptId}█{Target}█{TNLSManager.TNLSSerialization.StringArrayToString(newParams[0])}█{TNLSManager.TNLSSerialization.StringArrayToString(newParams[1])}";
+            string methodPreparation = $"{networkName}█{scriptId}█{target}█{TNLSManager.TNLSSerialization.StringArrayToString(newParams[0])}█{TNLSManager.TNLSSerialization.StringArrayToString(newParams[1])}";
 
 
-            if(Target != "Local")
+            if(target != "Local")
             {
-                if(!TNLSManager.TNLSQueue.QueueIsRunning && Time.timeSinceLevelLoad - TNLSManager.TNLSQueue.lastSend > 0.1f)
+                if(!TNLSManager.TNLSQueue.queueIsRunning && Time.timeSinceLevelLoad - TNLSManager.TNLSQueue.lastSend > 0.1f || !executingMethod)
                 {
                     TNLSManager.TNLSQueue.lastSend = Time.timeSinceLevelLoad;
 
-                    TNLSManager.TNLSLogingSystem.DebugMessage($"Want transport: '{tmp}'");
+                    TNLSManager.TNLSLogingSystem.DebugMessage($"Want transport: '{methodPreparation}'");
                     TNLSManager.TNLSLogingSystem.DebugMessage("Transferring to us.");
                     CAAOwner();
-                    methodEncoded = tmp;
+                    methodEncoded = methodPreparation;
 
                     TNLSManager.TNLSLogingSystem.DebugMessage("Executing in local the method.");
-                    Receive(tmp);
+                    executingMethod = true;
+                    Receive(methodPreparation);
                     RequestSerialization();
                 }else{
-                    TNLSManager.TNLSQueue.InsertInTheQueue(tmp);
+                    TNLSManager.TNLSQueue.InsertInTheQueue(methodPreparation);
                 }
             }else{
-                Receive(tmp);
+                Receive(methodPreparation);
             }
         }
 
@@ -76,11 +75,10 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public object[] GetParameters()
         {
-            object[] tmp = TNLSManager.TNLSSerialization.GetParameters(ListParams, ValParams);
-            ListParams = new string[0];
-            ValParams = new string[0];
-            TNLSManager.TNLSLogingSystem.DebugMessage($"Parameters has been gived, removed! (Source: {ListParams.Length} vs Local: {tmp.Length})");
-            return tmp;
+            string[] methodCut = methodEncoded.Split('█');
+            object[] newParameters = TNLSManager.TNLSSerialization.GetParameters(TNLSManager.TNLSSerialization.StringToStringArray(methodCut[3]), TNLSManager.TNLSSerialization.StringToStringArray(methodCut[4]));
+            TNLSManager.TNLSLogingSystem.DebugMessage($"{newParameters.Length} parameters has been gived!");
+            return newParameters;
         }
         #endregion
 
