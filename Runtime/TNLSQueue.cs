@@ -36,16 +36,22 @@ namespace Tismatis.TNetLibrarySystem
         {
             if (QueueItems.Length != 0)
             {
-                var Current = QueueItems[0];
-                QueueItems = QueueItems.Remove(0);
+                if(!TNLSManager.TNLS.ExecutingMethod)
+                {
+                    var Current = QueueItems[0];
+                    QueueItems = QueueItems.Remove(0);
 
-                TNLSManager.TNLS.methodEncoded = (string)Current[0];
+                    TNLSManager.TNLS.methodEncoded = (string)Current[0];
 
-                TNLSManager.TNLSLogingSystem.InfoMessage($"QUEUE-NOTIFICATION --> Transport of '{TNLSManager.TNLS.methodEncoded}' out of the queue!");
+                    TNLSManager.TNLSLogingSystem.InfoMessage($"QUEUE-NOTIFICATION --> Transport of '{TNLSManager.TNLS.methodEncoded}' out of the queue!");
 
-                TNLSManager.TNLS.Receive((string)Current[0]);
-                TNLSManager.TNLS.CAAOwner();
-                TNLSManager.TNLS.RequestSerialization();
+                    TNLSManager.TNLS.ExecutingMethod = true;
+                    TNLSManager.TNLS.Receive((string)Current[0]);
+                    TNLSManager.TNLS.CAAOwner();
+                    TNLSManager.TNLS.RequestSerialization();
+                }else{
+                    TNLSManager.TNLSLogingSystem.DebugMessage("QUEUE-NOTIFICATION --> Can't execute now the method because the older one hasn't finished to be executed!");
+                }
             }
 
             if (QueueItems.Length != 0)

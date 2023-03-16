@@ -166,11 +166,11 @@ namespace Tismatis.TNetLibrarySystem
                 case "System.Double[]":
                     final = "Double[]";
                     break;
-                case "System.Bool":
-                    final = "Bool";
+                case "System.Boolean":
+                    final = "Boolean";
                     break;
-                case "System.Bool[]":
-                    final = "Bool[]";
+                case "System.Boolean[]":
+                    final = "Boolean[]";
                     break;
                 case "System.Byte":
                     final = "Byte";
@@ -385,7 +385,7 @@ namespace Tismatis.TNetLibrarySystem
                     }
                 }
                 break;
-            case "Bool":
+            case "Boolean":
                 // Transform value to string
                 rObj = (bool)obj;
                 if ((bool)rObj)
@@ -395,7 +395,7 @@ namespace Tismatis.TNetLibrarySystem
                     final = "false";
                 }
                 break;
-            case "Bool[]":
+            case "Boolean[]":
                 rObjA = (bool[])obj;
                 
                 foreach (bool Value in (bool[])rObjA)
@@ -598,11 +598,11 @@ namespace Tismatis.TNetLibrarySystem
                 }
                 final = tmp;
             }
-            else if (type.Equals("Bool"))
+            else if (type.Equals("Boolean"))
             {
                 final = Convert.ToBoolean(strObj);
             }
-            else if (type.Equals("Bool[]"))
+            else if (type.Equals("Boolean[]"))
             {
                 bool[] tmp = new bool[0];
                 string[] Objs = strObj.Split('┴');

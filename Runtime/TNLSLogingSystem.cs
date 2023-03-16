@@ -23,10 +23,10 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public void DebugMessage(string message)
         {
+            string text = $"#<color=#e132ff>DEBUG</color> <color=#3264ff>[TNLS]</color> {message}";
+            UpdateText(text);
             if (TNLSManager.DebugMode)
             {
-                string text = $"#<color=#e132ff>DEBUG</color> <color=#3264ff>[TNLS]</color> {message}";
-                UpdateText(text);
                 Debug.Log(text);
             }
         }
