@@ -9,24 +9,24 @@ namespace Tismatis.TNetLibrarySystem
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class AssignNewScriptToNetwork : UdonSharpBehaviour
     {
-        [SerializeField] private UdonSharpBehaviour ScriptSelf;
-        [SerializeField] private string ScriptName = "DefaultName";
-        [SerializeField] private int ScriptId = 0;
+        [SerializeField] private UdonSharpBehaviour scriptSelf;
+        [SerializeField] private string scriptName = "DefaultName";
+        [SerializeField] private int scriptId = 0;
 
         [SerializeField] private TNLSManager TNLSManager;
         void Start()
         {
             if(TNLSManager != null)
             {
-                if(ScriptName != "")
+                if(scriptName != "")
                 {
-                    if(ScriptSelf != null)
+                    if(scriptSelf != null)
                     {
-                            ScriptId = TNLSManager.AddANamedNetworkedScript(ScriptName, ScriptSelf);
-                            TNLSManager.TNLSLogingSystem.DebugMessage($"'{ScriptName}' has been added to the networked script by ANSTN!");
+                            scriptId = TNLSManager.AddANamedNetworkedScript(scriptName, scriptSelf);
+                            TNLSManager.TNLSLogingSystem.DebugMessage($"'{scriptName}' has been added to the networked script by ANSTN!");
                     }
                     else{
-                        TNLSManager.TNLSLogingSystem.ErrorMessage($"The script himself is not defined for '{ScriptName}'! Can't continue.");
+                        TNLSManager.TNLSLogingSystem.ErrorMessage($"The script himself is not defined for '{scriptName}'! Can't continue.");
                     }
                 }else{
                     TNLSManager.TNLSLogingSystem.ErrorMessage("The name of the script not defined! Can't continue.");

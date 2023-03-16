@@ -23,11 +23,11 @@ namespace Tismatis.TNetLibrarySystem
         public string[][] SetParameters(object[] objs)
         {
             string[][] final = new string[2][];
-            string[] ListParams = new string[0];
-            string[] VarsParams = new string[0];
+            string[] listParams = new string[0];
+            string[] varsParams = new string[0];
 
             int i = 0;
-            int max = TNLSManager.MaxParams;
+            int max = TNLSManager.maxParams;
             if(objs.Length <= max)
             {
                 max = objs.Length;
@@ -39,11 +39,11 @@ namespace Tismatis.TNetLibrarySystem
                     string type = SerializeGetType(obj);
                     if(type != "InvalidType")
                     {
-                        ListParams = ListParams.Add(type);
-                        VarsParams = VarsParams.Add(SerializeGetValue(obj, type));
+                        listParams = listParams.Add(type);
+                        varsParams = varsParams.Add(SerializeGetValue(obj, type));
                     }else{
-                        ListParams = ListParams.Add("InvalidType");
-                        VarsParams = VarsParams.Add("false");
+                        listParams = listParams.Add("InvalidType");
+                        varsParams = varsParams.Add("false");
                         TNLSManager.TNLSLogingSystem.WarnMessage("Don't support this type ! Skipping...");
                     }
 
@@ -53,8 +53,8 @@ namespace Tismatis.TNetLibrarySystem
                 TNLSManager.TNLSLogingSystem.ErrorMessage("Can't set parameters ! You have more parameters than the maximum defined. Check the Manager configuration.");
             }
 
-            final[0] = ListParams;
-            final[1] = VarsParams;
+            final[0] = listParams;
+            final[1] = varsParams;
 
             return final;
         }
@@ -62,17 +62,17 @@ namespace Tismatis.TNetLibrarySystem
         /// <summary>
         ///     <para>Return the parameters collections.</para>
         /// </summary>
-        public object[] GetParameters(string[] ListParams, string[] VarsParams)
+        public object[] GetParameters(string[] listParams, string[] varsParams)
         {
             object[] final = new object[0];
 
             int i = 0;
-            while(i < ListParams.Length)
+            while(i < listParams.Length)
             {
-                string Obj = VarsParams[i];
-                string type = ListParams[i];
+                string obj = varsParams[i];
+                string type = listParams[i];
                 
-                final = final.Add(DeserializeObject(type, Obj));
+                final = final.Add(DeserializeObject(type, obj));
 
                 // Add 1 to Index
                 i++;
@@ -114,9 +114,9 @@ namespace Tismatis.TNetLibrarySystem
         private string SerializeGetType(object obj)
         {
             string final = "InvalidType";
-            string RealType = obj.GetType().ToString();
+            string realType = obj.GetType().ToString();
 
-            switch(RealType)
+            switch(realType)
             {
                 case "System.Int16":
                     final = "Int16";
@@ -166,11 +166,11 @@ namespace Tismatis.TNetLibrarySystem
                 case "System.Double[]":
                     final = "Double[]";
                     break;
-                case "System.Bool":
-                    final = "Bool";
+                case "System.Boolean":
+                    final = "Boolean";
                     break;
-                case "System.Bool[]":
-                    final = "Bool[]";
+                case "System.Boolean[]":
+                    final = "Boolean[]";
                     break;
                 case "System.Byte":
                     final = "Byte";
@@ -385,7 +385,7 @@ namespace Tismatis.TNetLibrarySystem
                     }
                 }
                 break;
-            case "Bool":
+            case "Boolean":
                 // Transform value to string
                 rObj = (bool)obj;
                 if ((bool)rObj)
@@ -395,7 +395,7 @@ namespace Tismatis.TNetLibrarySystem
                     final = "false";
                 }
                 break;
-            case "Bool[]":
+            case "Boolean[]":
                 rObjA = (bool[])obj;
                 
                 foreach (bool Value in (bool[])rObjA)
@@ -598,11 +598,11 @@ namespace Tismatis.TNetLibrarySystem
                 }
                 final = tmp;
             }
-            else if (type.Equals("Bool"))
+            else if (type.Equals("Boolean"))
             {
                 final = Convert.ToBoolean(strObj);
             }
-            else if (type.Equals("Bool[]"))
+            else if (type.Equals("Boolean[]"))
             {
                 bool[] tmp = new bool[0];
                 string[] Objs = strObj.Split('┴');
