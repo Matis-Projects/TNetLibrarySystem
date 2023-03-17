@@ -17,6 +17,10 @@ namespace Tismatis.TNetLibrarySystem
         [SerializeField] private TNLSManager TNLSManager;
         [SerializeField, UdonSynced] public string methodEncoded = "";
         [SerializeField] public bool executingMethod = false;
+        [SerializeField] public bool sendingMethod = false;
+        [SerializeField] public float sendingTimer = 0f;
+        [SerializeField] public bool WaitSerialization = false;
+        [SerializeField] public string lastMethodEncoded = "";
 
         #region TheRealMotorOfThatSystem
         /// <summary>
@@ -27,10 +31,12 @@ namespace Tismatis.TNetLibrarySystem
         {
             string[] methodTable = mE.Split('█');
             UdonSharpBehaviour network = TNLSManager.TNLSScriptManager.GetScriptByName(methodTable[1]);
-            if(network == null)
+            if (network == null)
             {
                 TNLSManager.TNLSLogingSystem.ErrorMessage($"Can't find the script id '{methodTable[1]}' with the network '{methodTable[0]}' ! ({mE})");
-            }else{
+            }
+            else
+            {
                 network.SendCustomEvent(methodTable[0]);
                 TNLSManager.TNLSLogingSystem.InfoMessage($"Triggered the network '{methodTable[0]}' in the script id '{methodTable[1]}' !");
                 executingMethod = false;
@@ -47,25 +53,34 @@ namespace Tismatis.TNetLibrarySystem
             string methodPreparation = $"{networkName}█{scriptId}█{target}█{TNLSManager.TNLSSerialization.StringArrayToString(newParams[0])}█{TNLSManager.TNLSSerialization.StringArrayToString(newParams[1])}";
 
 
-            if(target != "Local")
+            if (target != "Local")
             {
-                if(!TNLSManager.TNLSQueue.queueIsRunning && Time.timeSinceLevelLoad - TNLSManager.TNLSQueue.lastSend > 0.1f || !executingMethod)
+                // Time.timeSinceLevelLoad - TNLSManager.TNLSQueue.lastSend > 0.1f ||
+                /*if (!TNLSManager.TNLSQueue.queueIsRunning && !executingMethod && !sendingMethod)
                 {
-                    TNLSManager.TNLSQueue.lastSend = Time.timeSinceLevelLoad;
+                    //TNLSManager.TNLSQueue.lastSend = Time.timeSinceLevelLoad;
 
                     TNLSManager.TNLSLogingSystem.DebugMessage($"Want transport: '{methodPreparation}'");
                     TNLSManager.TNLSLogingSystem.DebugMessage("Transferring to us.");
                     CAAOwner();
                     methodEncoded = methodPreparation;
 
+                    TNLSManager.TNLSLogingSystem.DebugMessage("Sending to everyone...");
+                    sendingMethod = true;
+                    RequestSerialization();
+
                     TNLSManager.TNLSLogingSystem.DebugMessage("Executing in local the method.");
                     executingMethod = true;
                     Receive(methodPreparation);
-                    RequestSerialization();
-                }else{
-                    TNLSManager.TNLSQueue.InsertInTheQueue(methodPreparation);
                 }
-            }else{
+                else
+                {
+                    TNLSManager.TNLSQueue.InsertInTheQueue(methodPreparation);
+                }*/
+                TNLSManager.TNLSQueue.InsertInTheQueue(methodPreparation);
+            }
+            else
+            {
                 Receive(methodPreparation);
             }
         }
@@ -97,6 +112,7 @@ namespace Tismatis.TNetLibrarySystem
                 Receive(methodEncoded);
                 methodEncoded = "";
             }
+            WaitSerialization = false;
         }
 
         /// <summary>
@@ -106,6 +122,7 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public override bool OnOwnershipRequest(VRCPlayerApi requester, VRCPlayerApi newOwner)
         {
+            WaitSerialization = true;
             TNLSManager.TNLSLogingSystem.DebugMessage("We accept the OwnershipRequest.");
             return true;
         }
@@ -116,6 +133,7 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public override void OnOwnershipTransferred(VRCPlayerApi player)
         {
+            WaitSerialization = true;
             TNLSManager.TNLSLogingSystem.DebugMessage("We got the OnOwnershipTransferred!");
         }
 
@@ -127,7 +145,10 @@ namespace Tismatis.TNetLibrarySystem
         public override void OnPostSerialization(SerializationResult result)
         {
             TNLSManager.TNLSLogingSystem.DebugMessage("OnPostSerialization called!");
+            sendingMethod = false;
+            sendingTimer = Time.timeSinceLevelLoad;
             methodEncoded = "";
+            WaitSerialization = false;
         }
         #endregion
 
@@ -137,12 +158,14 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public void CAAOwner()
         {
-            if(!Networking.IsOwner(gameObject))
+            if (!Networking.IsOwner(gameObject))
             {
                 TNLSManager.TNLSLogingSystem.DebugMessage("Transfering the owner to us.");
                 Networking.SetOwner(Networking.LocalPlayer, gameObject);
                 TNLSManager.TNLSLogingSystem.DebugMessage("Transfered the owner to us.");
-            }else{
+            }
+            else
+            {
                 TNLSManager.TNLSLogingSystem.DebugMessage("Why transferring the owning to the LP when LP = Owner?");
             }
         }

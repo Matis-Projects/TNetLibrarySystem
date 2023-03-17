@@ -19,6 +19,26 @@ namespace Tismatis.TNetLibrarySystem
         [NonSerialized] private string[] netList = new string[0];
         [NonSerialized] private int[] idNetList = new int[0];
 
+        #region GetStats
+        public int GetStats(string name)
+        {
+            if(name == "scriptList")
+            {
+                return scriptList.Length;
+            }else if(name == "netList")
+            {
+                return netList.Length;
+            }else if(name == "idNetList")
+            {
+                return idNetList.Length;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+        #endregion GetStats
+
         #region AddNetwork
         /// <summary>
         ///     <para>This add a NetworkedScript to the list to listening sended event.</para>

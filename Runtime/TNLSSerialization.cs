@@ -496,7 +496,7 @@ namespace Tismatis.TNetLibrarySystem
                 string[] Objs = strObj.Split('┴');
                 foreach (string obj in Objs)
                 {
-                    tmp = tmp.Add(Convert.ToInt16(strObj));
+                    tmp = tmp.Add(Convert.ToInt16(obj));
                 }
                 final = tmp;
             }
@@ -510,7 +510,7 @@ namespace Tismatis.TNetLibrarySystem
                 string[] Objs = strObj.Split('┴');
                 foreach (string obj in Objs)
                 {
-                    tmp = tmp.Add(Convert.ToUInt16(strObj));
+                    tmp = tmp.Add(Convert.ToUInt16(obj));
                 }
                 final = tmp;
             }
@@ -524,7 +524,7 @@ namespace Tismatis.TNetLibrarySystem
                 string[] Objs = strObj.Split('┴');
                 foreach (string obj in Objs)
                 {
-                    tmp = tmp.Add(Convert.ToInt32(strObj));
+                    tmp = tmp.Add(Convert.ToInt32(obj));
                 }
                 final = tmp;
             }
@@ -538,7 +538,7 @@ namespace Tismatis.TNetLibrarySystem
                 string[] Objs = strObj.Split('┴');
                 foreach (string obj in Objs)
                 {
-                    tmp = tmp.Add(Convert.ToUInt32(strObj));
+                    tmp = tmp.Add(Convert.ToUInt32(obj));
                 }
                 final = tmp;
             }
@@ -552,7 +552,7 @@ namespace Tismatis.TNetLibrarySystem
                 string[] Objs = strObj.Split('┴');
                 foreach (string obj in Objs)
                 {
-                    tmp = tmp.Add(Convert.ToInt64(strObj));
+                    tmp = tmp.Add(Convert.ToInt64(obj));
                 }
                 final = tmp;
             }
@@ -566,7 +566,7 @@ namespace Tismatis.TNetLibrarySystem
                 string[] Objs = strObj.Split('┴');
                 foreach (string obj in Objs)
                 {
-                    tmp = tmp.Add(Convert.ToUInt64(strObj));
+                    tmp = tmp.Add(Convert.ToUInt64(obj));
                 }
                 final = tmp;
             }
@@ -580,7 +580,7 @@ namespace Tismatis.TNetLibrarySystem
                 string[] Objs = strObj.Split('┴');
                 foreach (string obj in Objs)
                 {
-                    tmp = tmp.Add(Convert.ToSingle(strObj));
+                    tmp = tmp.Add(Convert.ToSingle(obj));
                 }
                 final = tmp;
             }
@@ -594,7 +594,7 @@ namespace Tismatis.TNetLibrarySystem
                 string[] Objs = strObj.Split('┴');
                 foreach (string obj in Objs)
                 {
-                    tmp = tmp.Add(Convert.ToDouble(strObj));
+                    tmp = tmp.Add(Convert.ToDouble(obj));
                 }
                 final = tmp;
             }
@@ -608,7 +608,7 @@ namespace Tismatis.TNetLibrarySystem
                 string[] Objs = strObj.Split('┴');
                 foreach (string obj in Objs)
                 {
-                    tmp = tmp.Add(Convert.ToBoolean(strObj));
+                    tmp = tmp.Add(Convert.ToBoolean(obj));
                 }
                 final = tmp;
             }
@@ -622,7 +622,7 @@ namespace Tismatis.TNetLibrarySystem
                 string[] Objs = strObj.Split('┴');
                 foreach (string obj in Objs)
                 {
-                    tmp = tmp.Add(Convert.ToByte(strObj));
+                    tmp = tmp.Add(Convert.ToByte(obj));
                 }
                 final = tmp;
             }
@@ -636,7 +636,7 @@ namespace Tismatis.TNetLibrarySystem
                 string[] Objs = strObj.Split('┴');
                 foreach (string obj in Objs)
                 {
-                    tmp = tmp.Add(Convert.ToSByte(strObj));
+                    tmp = tmp.Add(Convert.ToSByte(obj));
                 }
                 final = tmp;
             }
@@ -648,6 +648,10 @@ namespace Tismatis.TNetLibrarySystem
             {
                 VRCPlayerApi ply = VRCPlayerApi.GetPlayerById(Convert.ToInt32(strObj));
                 final = ply;
+            }
+            else
+            {
+                TNLSManager.TNLSLogingSystem.WarnMessage($"Can't transform the type '{type}'!");
             }
             return final;
         }
