@@ -14,23 +14,42 @@ namespace Tismatis.TNetLibrarySystem
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class TNLSManager : UdonSharpBehaviour
     {
-        [Header("Link to others scripts")]
+        [Header("Networking")]
+        [Tooltip("This is the networking part of the system.")]
         [SerializeField] public TNLS TNLS;
+
+        [Header("Loging System")]
+        [Tooltip("This is the log part of the system.")]
         [SerializeField] public TNLSLogingSystem TNLSLogingSystem;
+
+        [Header("Serialization")]
+        [Tooltip("This is the networking part of the system.")]
         [SerializeField] public TNLSSerialization TNLSSerialization;
+
+        [Header("Script Manager")]
+        [Tooltip("This is the script managment of the system.")]
         [SerializeField] public TNLSScriptManager TNLSScriptManager;
-        [SerializeField] public TNLSQueue TNLSQueue;
+
         [Header("Settings")]
-        [SerializeField] public bool debugMode;
-        [SerializeField] public int maxNetList = 50;
-        [SerializeField] public int maxParams = 25;
-        [NonSerialized] public bool hasFullyBoot = false; 
+        [Tooltip("This is all settings of the system.")]
+        [SerializeField] public TNLSSettings TNLSSettings;
+
+        [Header("Queue")]
+        [Tooltip("This is the queue of the system.")]
+        [SerializeField] public TNLSQueue TNLSQueue;
+
+        [NonSerialized] public bool hasFullyBoot = false;
 
         #region Initialization
+        /// <summary>
+        ///     <para>Called when the script has been loaded</para>
+        ///     <para>Here we gonna initialize all script.</para>
+        /// </summary>
         public void Start()
         {
-            if(TNLS != null && TNLSLogingSystem != null && TNLSScriptManager && TNLSSerialization != null)
+            if(TNLSSettings != null && TNLS != null && TNLSLogingSystem != null && TNLSScriptManager && TNLSSerialization != null)
             {
+                TNLSSettings.Initialize();
                 TNLSLogingSystem.InfoMessage("The system has been started!");
                 hasFullyBoot = true;
             }else{

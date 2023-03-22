@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
-  m_Name: TNLS
+  m_Name: TNLSSettings
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: be0a2ebeceea4be418c920feb5727bea,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: f546ae5e97d463045bcc532724814066,
     type: 2}
   udonAssembly: 
   assemblyError: 
-  sourceCsScript: {fileID: 11500000, guid: 1ba7699b00514c244908651adde01a29, type: 3}
+  sourceCsScript: {fileID: 11500000, guid: c665c76fb891c9a40b2df42d7c0420ae, type: 3}
   scriptVersion: 2
   compiledVersion: 2
-  behaviourSyncMode: 4
+  behaviourSyncMode: 1
   hasInteractEvent: 0
-  scriptID: -6365544577512164997
+  scriptID: -8832162859382661682
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
@@ -44,7 +44,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 12
-      Data: 6
+      Data: 8
     - Name: 
       Entry: 7
       Data: 
@@ -134,19 +134,19 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: methodEncoded
+      Data: maxNetList
     - Name: $v
       Entry: 7
       Data: 9|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: methodEncoded
+      Data: maxNetList
     - Name: <UserType>k__BackingField
       Entry: 7
       Data: 10|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: System.String, mscorlib
+      Data: System.Int32, mscorlib
     - Name: 
       Entry: 8
       Data: 
@@ -157,29 +157,45 @@ MonoBehaviour:
       Entry: 7
       Data: System.Nullable`1[[UdonSharp.UdonSyncMode, UdonSharp.Runtime]], mscorlib
     - Name: 
-      Entry: 3
-      Data: 1
+      Entry: 6
+      Data: 
     - Name: 
       Entry: 8
       Data: 
     - Name: <IsSerialized>k__BackingField
       Entry: 5
-      Data: false
+      Data: true
     - Name: _fieldAttributes
       Entry: 7
       Data: 11|System.Collections.Generic.List`1[[System.Attribute, mscorlib]], mscorlib
     - Name: 
       Entry: 12
-      Data: 2
+      Data: 3
     - Name: 
       Entry: 7
-      Data: 12|System.NonSerializedAttribute, mscorlib
+      Data: 12|UnityEngine.HeaderAttribute, UnityEngine.CoreModule
+    - Name: header
+      Entry: 1
+      Data: Script Networked Settings
     - Name: 
       Entry: 8
       Data: 
     - Name: 
       Entry: 7
-      Data: 13|UdonSharp.UdonSyncedAttribute, UdonSharp.Runtime
+      Data: 13|UnityEngine.TooltipAttribute, UnityEngine.CoreModule
+    - Name: tooltip
+      Entry: 1
+      Data: 'This is the limit before we don''t accept new networked script in the
+        list.
+
+
+        For disable that option, put -1.'
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 14|UnityEngine.SerializeField, UnityEngine.CoreModule
     - Name: 
       Entry: 8
       Data: 
@@ -200,16 +216,223 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: executingMethod
+      Data: maxParams
     - Name: $v
       Entry: 7
-      Data: 14|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
+      Data: 15|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: executingMethod
+      Data: maxParams
+    - Name: <UserType>k__BackingField
+      Entry: 9
+      Data: 10
+    - Name: <SystemType>k__BackingField
+      Entry: 9
+      Data: 10
+    - Name: <SyncMode>k__BackingField
+      Entry: 7
+      Data: System.Nullable`1[[UdonSharp.UdonSyncMode, UdonSharp.Runtime]], mscorlib
+    - Name: 
+      Entry: 6
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: <IsSerialized>k__BackingField
+      Entry: 5
+      Data: true
+    - Name: _fieldAttributes
+      Entry: 7
+      Data: 16|System.Collections.Generic.List`1[[System.Attribute, mscorlib]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 2
+    - Name: 
+      Entry: 7
+      Data: 17|UnityEngine.TooltipAttribute, UnityEngine.CoreModule
+    - Name: tooltip
+      Entry: 1
+      Data: 'This is the limit who blocking any request with that number of params.
+
+
+        For
+        disable that option, put -1.'
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 18|UnityEngine.SerializeField, UnityEngine.CoreModule
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: limitBeforeNotAcceptNew
+    - Name: $v
+      Entry: 7
+      Data: 19|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
+    - Name: <Name>k__BackingField
+      Entry: 1
+      Data: limitBeforeNotAcceptNew
+    - Name: <UserType>k__BackingField
+      Entry: 9
+      Data: 10
+    - Name: <SystemType>k__BackingField
+      Entry: 9
+      Data: 10
+    - Name: <SyncMode>k__BackingField
+      Entry: 7
+      Data: System.Nullable`1[[UdonSharp.UdonSyncMode, UdonSharp.Runtime]], mscorlib
+    - Name: 
+      Entry: 6
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: <IsSerialized>k__BackingField
+      Entry: 5
+      Data: true
+    - Name: _fieldAttributes
+      Entry: 7
+      Data: 20|System.Collections.Generic.List`1[[System.Attribute, mscorlib]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 3
+    - Name: 
+      Entry: 7
+      Data: 21|UnityEngine.HeaderAttribute, UnityEngine.CoreModule
+    - Name: header
+      Entry: 1
+      Data: Queue Settings
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 22|UnityEngine.TooltipAttribute, UnityEngine.CoreModule
+    - Name: tooltip
+      Entry: 1
+      Data: 'This is the limit before we don''t accept new item in the queue.
+
+
+        For
+        disable that option, put -1.'
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 23|UnityEngine.SerializeField, UnityEngine.CoreModule
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: numberOfTickPerSecond
+    - Name: $v
+      Entry: 7
+      Data: 24|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
+    - Name: <Name>k__BackingField
+      Entry: 1
+      Data: numberOfTickPerSecond
+    - Name: <UserType>k__BackingField
+      Entry: 9
+      Data: 10
+    - Name: <SystemType>k__BackingField
+      Entry: 9
+      Data: 10
+    - Name: <SyncMode>k__BackingField
+      Entry: 7
+      Data: System.Nullable`1[[UdonSharp.UdonSyncMode, UdonSharp.Runtime]], mscorlib
+    - Name: 
+      Entry: 6
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: <IsSerialized>k__BackingField
+      Entry: 5
+      Data: true
+    - Name: _fieldAttributes
+      Entry: 7
+      Data: 25|System.Collections.Generic.List`1[[System.Attribute, mscorlib]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 2
+    - Name: 
+      Entry: 7
+      Data: 26|UnityEngine.TooltipAttribute, UnityEngine.CoreModule
+    - Name: tooltip
+      Entry: 1
+      Data: This is the number of time per second we will pass one item in the queue.
+        (aka number of networked call will be executed per second.)
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 27|UnityEngine.SerializeField, UnityEngine.CoreModule
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: autorizeDuplicate
+    - Name: $v
+      Entry: 7
+      Data: 28|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
+    - Name: <Name>k__BackingField
+      Entry: 1
+      Data: autorizeDuplicate
     - Name: <UserType>k__BackingField
       Entry: 7
-      Data: 15|System.RuntimeType, mscorlib
+      Data: 29|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
       Data: System.Boolean, mscorlib
@@ -218,7 +441,7 @@ MonoBehaviour:
       Data: 
     - Name: <SystemType>k__BackingField
       Entry: 9
-      Data: 15
+      Data: 29
     - Name: <SyncMode>k__BackingField
       Entry: 7
       Data: System.Nullable`1[[UdonSharp.UdonSyncMode, UdonSharp.Runtime]], mscorlib
@@ -230,16 +453,35 @@ MonoBehaviour:
       Data: 
     - Name: <IsSerialized>k__BackingField
       Entry: 5
-      Data: false
+      Data: true
     - Name: _fieldAttributes
       Entry: 7
-      Data: 16|System.Collections.Generic.List`1[[System.Attribute, mscorlib]], mscorlib
+      Data: 30|System.Collections.Generic.List`1[[System.Attribute, mscorlib]], mscorlib
     - Name: 
       Entry: 12
-      Data: 1
+      Data: 3
     - Name: 
       Entry: 7
-      Data: 17|System.NonSerializedAttribute, mscorlib
+      Data: 31|UnityEngine.HeaderAttribute, UnityEngine.CoreModule
+    - Name: header
+      Entry: 1
+      Data: Request
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 32|UnityEngine.TooltipAttribute, UnityEngine.CoreModule
+    - Name: tooltip
+      Entry: 1
+      Data: If this is turn true, any request following with the same content will
+        not be executed.
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 33|UnityEngine.SerializeField, UnityEngine.CoreModule
     - Name: 
       Entry: 8
       Data: 
@@ -260,19 +502,19 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: sendingMethod
+      Data: debugMode
     - Name: $v
       Entry: 7
-      Data: 18|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
+      Data: 34|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: sendingMethod
+      Data: debugMode
     - Name: <UserType>k__BackingField
       Entry: 9
-      Data: 15
+      Data: 29
     - Name: <SystemType>k__BackingField
       Entry: 9
-      Data: 15
+      Data: 29
     - Name: <SyncMode>k__BackingField
       Entry: 7
       Data: System.Nullable`1[[UdonSharp.UdonSyncMode, UdonSharp.Runtime]], mscorlib
@@ -284,16 +526,34 @@ MonoBehaviour:
       Data: 
     - Name: <IsSerialized>k__BackingField
       Entry: 5
-      Data: false
+      Data: true
     - Name: _fieldAttributes
       Entry: 7
-      Data: 19|System.Collections.Generic.List`1[[System.Attribute, mscorlib]], mscorlib
+      Data: 35|System.Collections.Generic.List`1[[System.Attribute, mscorlib]], mscorlib
     - Name: 
       Entry: 12
-      Data: 1
+      Data: 3
     - Name: 
       Entry: 7
-      Data: 20|System.NonSerializedAttribute, mscorlib
+      Data: 36|UnityEngine.HeaderAttribute, UnityEngine.CoreModule
+    - Name: header
+      Entry: 1
+      Data: Debug Mode
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 37|UnityEngine.TooltipAttribute, UnityEngine.CoreModule
+    - Name: tooltip
+      Entry: 1
+      Data: Turn on the debug mode permit to see every debug's message in the console.
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 38|UnityEngine.SerializeField, UnityEngine.CoreModule
     - Name: 
       Entry: 8
       Data: 
@@ -314,19 +574,25 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: waitSerialization
+      Data: timeBetweenQueueRunning
     - Name: $v
       Entry: 7
-      Data: 21|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
+      Data: 39|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: waitSerialization
+      Data: timeBetweenQueueRunning
     - Name: <UserType>k__BackingField
-      Entry: 9
-      Data: 15
+      Entry: 7
+      Data: 40|System.RuntimeType, mscorlib
+    - Name: 
+      Entry: 1
+      Data: System.Single, mscorlib
+    - Name: 
+      Entry: 8
+      Data: 
     - Name: <SystemType>k__BackingField
       Entry: 9
-      Data: 15
+      Data: 40
     - Name: <SyncMode>k__BackingField
       Entry: 7
       Data: System.Nullable`1[[UdonSharp.UdonSyncMode, UdonSharp.Runtime]], mscorlib
@@ -341,67 +607,13 @@ MonoBehaviour:
       Data: false
     - Name: _fieldAttributes
       Entry: 7
-      Data: 22|System.Collections.Generic.List`1[[System.Attribute, mscorlib]], mscorlib
+      Data: 41|System.Collections.Generic.List`1[[System.Attribute, mscorlib]], mscorlib
     - Name: 
       Entry: 12
       Data: 1
     - Name: 
       Entry: 7
-      Data: 23|System.NonSerializedAttribute, mscorlib
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 1
-      Data: lastMethodEncoded
-    - Name: $v
-      Entry: 7
-      Data: 24|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
-    - Name: <Name>k__BackingField
-      Entry: 1
-      Data: lastMethodEncoded
-    - Name: <UserType>k__BackingField
-      Entry: 9
-      Data: 10
-    - Name: <SystemType>k__BackingField
-      Entry: 9
-      Data: 10
-    - Name: <SyncMode>k__BackingField
-      Entry: 7
-      Data: System.Nullable`1[[UdonSharp.UdonSyncMode, UdonSharp.Runtime]], mscorlib
-    - Name: 
-      Entry: 6
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: <IsSerialized>k__BackingField
-      Entry: 5
-      Data: false
-    - Name: _fieldAttributes
-      Entry: 7
-      Data: 25|System.Collections.Generic.List`1[[System.Attribute, mscorlib]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 1
-    - Name: 
-      Entry: 7
-      Data: 26|System.NonSerializedAttribute, mscorlib
+      Data: 42|System.NonSerializedAttribute, mscorlib
     - Name: 
       Entry: 8
       Data: 

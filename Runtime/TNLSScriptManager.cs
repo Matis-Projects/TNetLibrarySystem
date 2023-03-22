@@ -14,12 +14,19 @@ namespace Tismatis.TNetLibrarySystem
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class TNLSScriptManager : UdonSharpBehaviour
     {
+        [Header("Manager")]
+        [Tooltip("This is the TNLS Manager, he is required for make this library working.")]
         [SerializeField] private TNLSManager TNLSManager;
+
         [NonSerialized] private UdonSharpBehaviour[] scriptList = new UdonSharpBehaviour[0];
         [NonSerialized] private string[] netList = new string[0];
         [NonSerialized] private int[] idNetList = new int[0];
 
         #region GetStats
+        /// <summary>
+        ///     <para>This is a function who return the current value of private vars here.</para>
+        ///     <para>You can choice 'scriptList', 'netList' or 'idNetList'.</para>
+        /// </summary>
         public int GetStats(string name)
         {
             if(name == "scriptList")
@@ -46,7 +53,7 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public int AddANetworkedScript(string name, UdonSharpBehaviour script)
         {
-            if(netList.Length + 1 <= TNLSManager.maxNetList)
+            if(netList.Length + 1 <= TNLSManager.TNLSSettings.maxNetList)
             {
                 int scriptId = scriptList.Length + 1;
                 scriptList = scriptList.Add(script);

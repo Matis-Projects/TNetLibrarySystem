@@ -15,7 +15,11 @@ namespace Tismatis.TNetLibrarySystem
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class TNLSLogingSystem : UdonSharpBehaviour
     {
+        [Header("Manager")]
+        [Tooltip("This is the TNLS Manager, he is required for make this library working.")]
         [SerializeField] private TNLSManager TNLSManager;
+
+        [Tooltip("If you want a debug text, put here your UnityEngine.Text .")]
         [SerializeField] private Text text;
 
         /// <summary>
@@ -25,7 +29,7 @@ namespace Tismatis.TNetLibrarySystem
         {
             string text = $"#<color=#e132ff>DEBUG</color> <color=#3264ff>[TNLS]</color> {message}";
             UpdateText(text);
-            if (TNLSManager.debugMode)
+            if (TNLSManager.TNLSSettings.debugMode)
             {
                 Debug.Log(text);
             }

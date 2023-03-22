@@ -14,6 +14,8 @@ namespace Tismatis.TNetLibrarySystem
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class TNLSSerialization : UdonSharpBehaviour
     {
+        [Header("Manager")]
+        [Tooltip("This is the TNLS Manager, he is required for make this library working.")]
         [SerializeField] private TNLSManager TNLSManager;
 
         #region Get/Set Parameters
@@ -27,7 +29,7 @@ namespace Tismatis.TNetLibrarySystem
             string[] varsParams = new string[0];
 
             int i = 0;
-            int max = TNLSManager.maxParams;
+            int max = TNLSManager.TNLSSettings.maxParams;
             if(objs.Length <= max)
             {
                 max = objs.Length;
