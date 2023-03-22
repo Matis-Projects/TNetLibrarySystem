@@ -40,6 +40,23 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
 </details>
 
 
+# Why use TNetLibrarySystem
+
+|Fonctionnality|UNet|NetworkedEventCaller|T.N.L.S
+|--------------|-------|-|-|
+|Can call method with arguments|<center>✔️</center>|<center>✔️</center>|<center>✔️</center>
+|Complex target (All/Only Master/Local)|<center>✔️</center>|<center>✔️</center>|<center>✔️</center>
+|Support all basics types of c# *(string,ushort,byte)*|<center>⚠️¹</center>|<center>✔️</center>|<center>✔️</center>
+|Support all basics types of Unity *(Quaternion/Vector)*|<center>⚠️¹</center>|<center>⚠️²</center>|<center>✔️</center>
+|Support more types|<center>✔️</center>|<center>❌</center>|<center>⏲️³</center>
+|De-centralized networked script file|<center>❌</center>|<center>❌</center>|<center>✔️</center>
+|Easy to setup & use|<center>❌</center>|<center>✔️</center>|<center>✔️</center>
+|With a queue system|<center>❌</center>|<center>✔️</center>|<center>✔️</center>
+
+* *¹ → you need to transform it before send it by the network*
+* *² → not every Vector*
+* *³ → coming soon*
+
 # How to use TNetLibrarySystem
 
 ### Preparation of the world
@@ -47,28 +64,18 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
 1. Put the prefab named `TNLS Manager` in your world
 2. **UNPACK THE PREFAB** ! Without unpack, this will just break the entire system.
 3. Put the prefab at the top of the world. *That can fix a lot of issues.*
+4. All settings are in the `TNLS Settings`*, a child of `TNLS Manager`*.
 
 ### Preparation of the Networked script
 
-* Automatic mode
-    1. Add in the same gameobject a `AssignNewScriptToNetwork` component.
-    2. Change the scriptName to what you want.
-    3. Assign the `TNLS Manager` and your Networked script in the new component.
-    3. Change the syncronization method of your script to `Manual`.
-* Legacy mode
-    1. Your script Syncronization Method need to be in MANUAL in **all** your NetworkedScript.
-    2. Declare under your `UdonSharpBehaviour` class the TNLS: `[SerializeField] private TNLSManager TNLSManager;`
-        * In case you have a script link to all your scripts, you can declare it into the this one and not re-declare it all times.
-    3. Declare the ScriptName or the ScriptId:
-        1.  You need to set the value when the script Start! 
-            *   You can set to a custom string using `TNLSManager.AddANamedNetworkedScript(<the name>, this);`
-            *   You can set to a custom number using : `TNLSManager.AddAIdNetworkedScript("<the number>", this);`
-        *  ***WARNING** It's one name/id per instance of script.*
+1. Add in the same gameobject a `AssignNewScriptToNetwork` component.
+2. Change the scriptName to what you want.
+3. Assign the `TNLS Manager` and your Networked script in the new component.
+3. Change the syncronization method of your script to `Manual`.
 
 ### Call a method
 
-*   In case of you want use the Id of the script: `TNLSManager.CallNetworkedScript("<Your Void Name>", <The ScriptId destination>, <parameters>);`
-*   In case of you want use the name of the script: `TNLSManager.CallNamedNetworkedScript("<Your Void Name>", "<The ScriptName destination>", <parameters>);`
+*   In case of you want use the name of the script: `TNLSManager.CallNamedNetworkedScript("All/Local", "<Your Void Name>", "<The ScriptName destination>", <parameters>);`
 
 ### Call method by UI Button with arguments
 
@@ -78,8 +85,8 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
 3. Configuration of the component: 
     1. Insert your `TNLS Manager`.
     2. Write your Target.
-    3. Write the original script name.
-    4. Write the original Method name.
+    3. Write the original ScriptName.
+    4. Write the original MethodName.
 4. Add an action on the button and insert the `TNLS Custom Button Sender` component.
 5. Select the event `UdonBehaviour.SendCustomEvent` and write the event `CallTheCustomEvent`.
 
@@ -92,28 +99,42 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
 
 *   Limits of the system
     * Parameters can be `null` or a array of `object[]`!
-    * You have at maximum 25 parameters!* *Can be modified in the `TNLS Manager` but not recommended*
-    * Some type aren't compatible! Check the list.
+    * You have at maximum 25 parameters!* *Can be modified in the `TNLS Settings` but not recommended*
 *   Supported types
     *Some types aren't compatible for now, they will be compatible after.*
+    - If you get any error from one type listed, please create a issue for report it.
 
-    * String (Don't use any special Ascii character) ***NOT RECOMMENDED** Use it ONLY if it's required!*
-    * Int16 with array support.
-    * UInt16 with array support.
-    * Int32 with array support.
-    * UInt32 with array support.
-    * Int64 with array support.
-    * UInt64 with array support.
-    * Single with array support.
-    * Double with array support.
-    * Bool  with array support.
-    * Byte  with array support.
-    * SByte  with array support.
-    * VRCPlayerApi
+    |Keyword|Aliased Type|Base Support|Array Support|Full Support|Note|
+    |---------------|---------------|-|-|-|-|
+    |`short`        |Int16          |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
+    |`ushort`       |UInt16         |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
+    |`int`          |Int32          |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
+    |`uint`         |UInt32         |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
+    |`long`         |Int64          |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
+    |`ulong`        |UInt64         |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
+    |`float`        |Single         |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
+    |`double`       |Double         |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
+    |`bool`         |Boolean        |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
+    |`byte`         |Byte           |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
+    |`sbyte`        |SByte          |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
+    |~              |Color          |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
+    |~              |Color32        |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
+    |~              |Quarternion    |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
+    |~              |Vector2        |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
+    |~              |Vector2Int     |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
+    |~              |Vector3        |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
+    |~              |Vector3Int     |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
+    |~              |Vector4        |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
+    |`decimal`      |Decimal        |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
+    |~              |VRCPlayerApi   |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
+    |`string`       |String         |<center>✔️</center>|<center>✔️</center>|<center>⚠️</center>|Need more check before be fully supported.
+    |`char`         |Char           |<center>✔️</center>|<center>✔️</center>|<center>⚠️</center>|Need more check before be fully supported.
 
 ### Debug
 
-* It's very easy to see log of TNLS in-game!
-1. Create a 2D Text
-2. Assign this 2D Text to the `TNLS Logging System`*, a child of `TNLS Manager`.*
-3. Activate debug mode in `TNLS Manager`.
+* To put in a text:
+    1. Create a 2D Text
+    2. Assign this 2D Text to the `TNLS Logging System`*, a child of `TNLS Manager`.*
+    3. Activate debug mode in `TNLS Manager`.
+* To activate the debug mode: *(for get more detail)*
+    1. Activate the `Debug Mode` in the `TNLS Settings`*, a child of `TNLS Manager`.*

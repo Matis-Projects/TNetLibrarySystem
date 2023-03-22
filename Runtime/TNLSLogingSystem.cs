@@ -21,6 +21,9 @@ namespace Tismatis.TNetLibrarySystem
 
         [Tooltip("If you want a debug text, put here your UnityEngine.Text .")]
         [SerializeField] private Text text;
+        [Tooltip("Put here the number of line before the auto clear .")]
+        [SerializeField] private int maxLine = 40;
+        [NonSerialized] private int currentLine;
 
         /// <summary>
         ///     Send into the log a debug message.
@@ -72,12 +75,21 @@ namespace Tismatis.TNetLibrarySystem
         {
             if(text != null)
             {
-                string v = "";
-                if (text.text != "")
+                currentLine++;
+                if(currentLine < maxLine)
                 {
-                    v = "\n";
+                    string v = "";
+                    if (text.text != "")
+                    {
+                        v = "\n";
+                    }
+                    text.text = $"{text.text}{v}{line}";
                 }
-                text.text = $"{text.text}{v}{line}";
+                else
+                {
+                    currentLine = 1;
+                    text.text = line;
+                }
             }
         }
     }

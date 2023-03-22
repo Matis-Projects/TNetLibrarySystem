@@ -112,6 +112,24 @@ namespace Tismatis.TNetLibrarySystem
             return tmp;
         }
         #endregion
+        #region SafeString
+        private string ProtectString(string str)
+        {
+            string final = str
+                .Replace("┴", "%(U+2534)%")
+                .Replace("█", "%(U+2588)%")
+                .Replace("▀", "%(U+2580)%");
+            return final;
+        }
+        private string UnProtectString(string str)
+        {
+            string final = str
+                .Replace("%(U+2534)%", "┴")
+                .Replace("%(U+2588)%", "█")
+                .Replace("%(U+2580)%", "▀");
+            return final;
+        }
+        #endregion SafeString
         #region SerializationSystem
         private string SerializeGetType(object obj)
         {
@@ -189,8 +207,74 @@ namespace Tismatis.TNetLibrarySystem
                 case "System.String":
                     final = "String";
                     break;
+                case "System.String[]":
+                    final = "String[]";
+                    break;
+                case "System.Char":
+                    final = "Char";
+                    break;
+                case "System.Char[]":
+                    final = "Char[]";
+                    break;
+                case "UnityEngine.Color":
+                    final = "Color";
+                    break;
+                case "UnityEngine.Color[]":
+                    final = "Color[]";
+                    break;
+                case "UnityEngine.Color32":
+                    final = "Color32";
+                    break;
+                case "UnityEngine.Color32[]":
+                    final = "Color32[]";
+                    break;
+                case "UnityEngine.Quaternion":
+                    final = "Quaternion";
+                    break;
+                case "UnityEngine.Quaternion[]":
+                    final = "Quaternion[]";
+                    break;
+                case "UnityEngine.Vector2":
+                    final = "Vector2";
+                    break;
+                case "UnityEngine.Vector2[]":
+                    final = "Vector2[]";
+                    break;
+                case "UnityEngine.Vector2Int":
+                    final = "Vector2Int";
+                    break;
+                case "UnityEngine.Vector2Int[]":
+                    final = "Vector2Int[]";
+                    break;
+                case "UnityEngine.Vector3":
+                    final = "Vector3";
+                    break;
+                case "UnityEngine.Vector3[]":
+                    final = "Vector3[]";
+                    break;
+                case "UnityEngine.Vector3Int":
+                    final = "Vector3Int";
+                    break;
+                case "UnityEngine.Vector3Int[]":
+                    final = "Vector3Int[]";
+                    break;
+                case "UnityEngine.Vector4":
+                    final = "Vector4";
+                    break;
+                case "UnityEngine.Vector4[]":
+                    final = "Vector4[]";
+                    break;
+                case "System.Decimal":
+                    final = "Decimal";
+                    break;
+                case "System.Decimal[]":
+                    final = "Decimal[]";
+                    break;
                 case "VRC.SDKBase.VRCPlayerApi":
                     final = "VRCPlayerApi";
+                    break;
+                case "VRC.SDKBase.VRCPlayerApi[]":
+                    final = "VRCPlayerApi[]";
                     break;
                 default:
                     final = "InvalidType";
@@ -464,15 +548,275 @@ namespace Tismatis.TNetLibrarySystem
                 }
                 break;
             case "String":
-                final = (string)obj;
+                final = ProtectString((string)obj);
+                break;
+            case "String[]":
+                rObjA = (string[])obj;
+
+                foreach (string Value in (string[])rObjA)
+                {
+                    // Transform value to string
+                    tmp = ProtectString(Value);
+
+                    // Add the transformed value into a 'array'
+                    if (final == "")
+                    {
+                        final = $"{tmp}";
+                    }
+                    else
+                    {
+                        final += $"┴{tmp}";
+                    }
+                }
+                break;
+            case "Char":
+                final = ProtectString(Convert.ToString(obj));
+                break;
+            case "Char[]":
+                rObjA = (char[])obj;
+
+                foreach (char Value in (char[])rObjA)
+                {
+                    // Transform value to string
+                    tmp = ProtectString(Convert.ToString(Value));
+
+                    // Add the transformed value into a 'array'
+                    if (final == "")
+                    {
+                        final = $"{tmp}";
+                    }
+                    else
+                    {
+                        final += $"┴{tmp}";
+                    }
+                }
+                break;
+            case "Color":
+                rObjA = (Color)obj;
+                final = $"{((Color)rObjA).a},{((Color)rObjA).r},{((Color)rObjA).g},{((Color)rObjA).b}";
+                break;
+            case "Color[]":
+                rObjA = (Color[])obj;
+                foreach (Color Value in (Color[])rObjA)
+                {
+                    // Transform value to string
+                    tmp = $"{Value.a},{Value.r},{Value.g},{Value.b}";
+
+                    // Add the transformed value into a 'array'
+                    if (final == "")
+                    {
+                        final = $"{tmp}";
+                    }
+                    else
+                    {
+                        final += $"┴{tmp}";
+                    }
+                }
+                break;
+            case "Color32":
+                rObjA = (Color32)obj;
+                final = $"{((Color32)rObjA).a},{((Color32)rObjA).r},{((Color32)rObjA).g},{((Color32)rObjA).b}";
+                break;
+            case "Color32[]":
+                rObjA = (Color32[])obj;
+                foreach (Color32 Value in (Color32[])rObjA)
+                {
+                    // Transform value to string
+                    tmp = $"{Value.a},{Value.r},{Value.g},{Value.b}";
+
+                    // Add the transformed value into a 'array'
+                    if (final == "")
+                    {
+                        final = $"{tmp}";
+                    }
+                    else
+                    {
+                        final += $"┴{tmp}";
+                    }
+                }
+                break;
+            case "Quaternion":
+                rObjA = (Quaternion)obj;
+                final = $"{((Quaternion)rObjA).eulerAngles.x},{((Quaternion)rObjA).eulerAngles.y},{((Quaternion)rObjA).eulerAngles.z}";
+                break;
+            case "Quaternion[]":
+                rObjA = (Quaternion[])obj;
+                foreach (Quaternion Value in (Quaternion[])rObjA)
+                {
+                    // Transform value to string
+                    tmp = $"{Value.eulerAngles.x},{Value.eulerAngles.y},{Value.eulerAngles.z}";
+
+                    // Add the transformed value into a 'array'
+                    if (final == "")
+                    {
+                        final = $"{tmp}";
+                    }
+                    else
+                    {
+                        final += $"┴{tmp}";
+                    }
+                }
+                break;
+            case "Vector2":
+                rObjA = (Vector2)obj;
+                final = $"{((Vector2)rObjA).x},{((Vector2)rObjA).y}";
+                break;
+            case "Vector2[]":
+                rObjA = (Vector2[])obj;
+                foreach (Vector2 Value in (Vector2[])rObjA)
+                {
+                    // Transform value to string
+                    tmp = $"{Value.x},{Value.y}";
+
+                    // Add the transformed value into a 'array'
+                    if (final == "")
+                    {
+                        final = $"{tmp}";
+                    }
+                    else
+                    {
+                        final += $"┴{tmp}";
+                    }
+                }
+                break;
+            case "Vector2Int":
+                rObjA = (Vector2Int)obj;
+                final = $"{((Vector2Int)rObjA).x},{((Vector2Int)rObjA).y}";
+                break;
+            case "Vector2Int[]":
+                rObjA = (Vector2Int[])obj;
+                foreach (Vector2Int Value in (Vector2Int[])rObjA)
+                {
+                    // Transform value to string
+                    tmp = $"{Value.x},{Value.y}";
+
+                    // Add the transformed value into a 'array'
+                    if (final == "")
+                    {
+                        final = $"{tmp}";
+                    }
+                    else
+                    {
+                        final += $"┴{tmp}";
+                    }
+                }
+                break;
+            case "Vector3":
+                rObjA = (Vector3)obj;
+                final = $"{((Vector3)rObjA).x},{((Vector3)rObjA).y},{((Vector3)rObjA).z}";
+                break;
+            case "Vector3[]":
+                rObjA = (Vector3[])obj;
+                foreach (Vector3 Value in (Vector3[])rObjA)
+                {
+                    // Transform value to string
+                    tmp = $"{Value.x},{Value.y},{Value.z}";
+
+                    // Add the transformed value into a 'array'
+                    if (final == "")
+                    {
+                        final = $"{tmp}";
+                    }
+                    else
+                    {
+                        final += $"┴{tmp}";
+                    }
+                }
+                break;
+            case "Vector3Int":
+                rObjA = (Vector3Int)obj;
+                final = $"{((Vector3Int)rObjA).x},{((Vector3Int)rObjA).y},{((Vector3Int)rObjA).z}";
+                break;
+            case "Vector3Int[]":
+                rObjA = (Vector3Int[])obj;
+                foreach (Vector3Int Value in (Vector3Int[])rObjA)
+                {
+                    // Transform value to string
+                    tmp = $"{Value.x},{Value.y},{Value.z}";
+
+                    // Add the transformed value into a 'array'
+                    if (final == "")
+                    {
+                        final = $"{tmp}";
+                    }
+                    else
+                    {
+                        final += $"┴{tmp}";
+                    }
+                }
+                break;
+            case "Vector4":
+                rObjA = (Vector4)obj;
+                final = $"{((Vector4)rObjA).x},{((Vector4)rObjA).y},{((Vector4)rObjA).z},{((Vector4)rObjA).w}";
+                break;
+            case "Vector4[]":
+                rObjA = (Vector4[])obj;
+                foreach (Vector4 Value in (Vector4[])rObjA)
+                {
+                    // Transform value to string
+                    tmp = $"{Value.x},{Value.y},{Value.z},{Value.w}";
+
+                    // Add the transformed value into a 'array'
+                    if (final == "")
+                    {
+                        final = $"{tmp}";
+                    }
+                    else
+                    {
+                        final += $"┴{tmp}";
+                    }
+                }
+                break;
+            case "Decimal":
+                // Transform value to string
+                rObj = (Decimal)obj;
+                final = rObj.ToString();
+                break;
+            case "Decimal[]":
+                rObjA = (Decimal[])obj;
+
+                foreach (Decimal Value in (Decimal[])rObjA)
+                {
+                    // Transform value to string
+                    tmp = Value.ToString();
+
+                    // Add the transformed value into a 'array'
+                    if (final == "")
+                    {
+                        final = $"{tmp}";
+                    }
+                    else
+                    {
+                        final += $"┴{tmp}";
+                    }
+                }
                 break;
             case "VRCPlayerApi":
                 VRCPlayerApi ply = (VRCPlayerApi)obj;
                 final = VRCPlayerApi.GetPlayerId(ply).ToString();
                 break;
+            case "VRCPlayerApi[]":
+                rObjA = (VRCPlayerApi[])obj;
+
+                foreach (VRCPlayerApi Value in (VRCPlayerApi[])rObjA)
+                {
+                    // Transform value to string
+                    tmp = VRCPlayerApi.GetPlayerId(Value).ToString();
+
+                        // Add the transformed value into a 'array'
+                    if (final == "")
+                    {
+                        final = $"{tmp}";
+                    }
+                    else
+                    {
+                        final += $"┴{tmp}";
+                    }
+                }
+                break;
             default:
                 TNLSManager.TNLSLogingSystem.ErrorMessage($"Can't support that type. '{type}'");
-                    break;
+                break;
             }
 
             return final;
@@ -644,12 +988,188 @@ namespace Tismatis.TNetLibrarySystem
             }
             else if(type.Equals("String"))
             {
-                final = Convert.ToString(strObj);
+                final = UnProtectString(Convert.ToString(strObj));
+            }
+            else if (type.Equals("String[]"))
+            {
+                string[] tmp = new string[0];
+                string[] Objs = strObj.Split('┴');
+                foreach (string obj in Objs)
+                {
+                    tmp = tmp.Add(UnProtectString(Convert.ToString(obj)));
+                }
+                final = tmp;
+            }
+            else if (type.Equals("Char"))
+            {
+                final = Convert.ToChar(UnProtectString(Convert.ToString(strObj)));
+            }
+            else if (type.Equals("Char[]"))
+            {
+                char[] tmp = new char[0];
+                string[] Objs = strObj.Split('┴');
+                foreach (string obj in Objs)
+                {
+                    tmp = tmp.Add(Convert.ToChar(UnProtectString(Convert.ToString(obj))));
+                }
+                final = tmp;
+            }
+            else if (type.Equals("Color"))
+            {
+                string[] tmp = strObj.Split(',');
+                final = new Color(Convert.ToInt32(tmp[1]), Convert.ToInt32(tmp[2]), Convert.ToInt32(tmp[3]), Convert.ToInt32(tmp[0]));
+            }
+            else if (type.Equals("Color[]"))
+            {
+                Color[] tmp = new Color[0];
+                string[] Objs = strObj.Split('┴');
+                foreach (string obj in Objs)
+                {
+                    string[] color = obj.Split(',');
+                    tmp.Add(new Color(Convert.ToInt32(color[1]), Convert.ToInt32(color[2]), Convert.ToInt32(color[3]), Convert.ToInt32(color[0])));
+                }
+                final = tmp;
+            }
+            else if (type.Equals("Color32"))
+            {
+                string[] tmp = strObj.Split(',');
+                final = new Color32(Convert.ToByte(tmp[1]), Convert.ToByte(tmp[2]), Convert.ToByte(tmp[3]), Convert.ToByte(tmp[0]));
+            }
+            else if (type.Equals("Color32[]"))
+            {
+                Color32[] tmp = new Color32[0];
+                string[] Objs = strObj.Split('┴');
+                foreach (string obj in Objs)
+                {
+                    string[] color = obj.Split(',');
+                    tmp.Add(new Color32(Convert.ToByte(color[1]), Convert.ToByte(color[2]), Convert.ToByte(color[3]), Convert.ToByte(color[0])));
+                }
+                final = tmp;
+            }
+            else if (type.Equals("Quaternion"))
+            {
+                string[] tmp = strObj.Split(',');
+                final = Quaternion.Euler(Convert.ToSingle(tmp[0]), Convert.ToSingle(tmp[1]), Convert.ToSingle(tmp[2]));
+            }
+            else if (type.Equals("Quaternion[]"))
+            {
+                Quaternion[] tmp = new Quaternion[0];
+                string[] Objs = strObj.Split('┴');
+                foreach (string obj in Objs)
+                {
+                    string[] quaternion = obj.Split(',');
+                    tmp.Add(Quaternion.Euler(Convert.ToSingle(quaternion[0]), Convert.ToSingle(quaternion[1]), Convert.ToSingle(quaternion[2])));
+                }
+                final = tmp;
+            }
+            else if (type.Equals("Vector2"))
+            {
+                string[] tmp = strObj.Split(',');
+                final = new Vector2(Convert.ToSingle(tmp[0]), Convert.ToSingle(tmp[1]));
+            }
+            else if (type.Equals("Vector2[]"))
+            {
+                Vector2[] tmp = new Vector2[0];
+                string[] Objs = strObj.Split('┴');
+                foreach (string obj in Objs)
+                {
+                    string[] vector = obj.Split(',');
+                    tmp.Add(new Vector2(Convert.ToSingle(vector[0]), Convert.ToSingle(vector[1])));
+                }
+                final = tmp;
+            }
+            else if (type.Equals("Vector2Int"))
+            {
+                string[] tmp = strObj.Split(',');
+                final = new Vector2Int(Convert.ToInt32(tmp[0]), Convert.ToInt32(tmp[1]));
+            }
+            else if (type.Equals("Vector2Int[]"))
+            {
+                Vector2Int[] tmp = new Vector2Int[0];
+                string[] Objs = strObj.Split('┴');
+                foreach (string obj in Objs)
+                {
+                    string[] vector = obj.Split(',');
+                    tmp.Add(new Vector2Int(Convert.ToInt32(vector[0]), Convert.ToInt32(vector[1])));
+                }
+                final = tmp;
+            }
+            else if (type.Equals("Vector3"))
+            {
+                string[] tmp = strObj.Split(',');
+                final = new Vector3(Convert.ToSingle(tmp[0]), Convert.ToSingle(tmp[1]), Convert.ToSingle(tmp[2]));
+            }
+            else if (type.Equals("Vector3[]"))
+            {
+                Vector3[] tmp = new Vector3[0];
+                string[] Objs = strObj.Split('┴');
+                foreach (string obj in Objs)
+                {
+                    string[] vector = obj.Split(',');
+                    tmp.Add(new Vector3(Convert.ToSingle(vector[0]), Convert.ToSingle(vector[1]), Convert.ToSingle(vector[2])));
+                }
+                final = tmp;
+            }
+            else if (type.Equals("Vector3Int"))
+            {
+                string[] tmp = strObj.Split(',');
+                final = new Vector3Int(Convert.ToInt32(tmp[0]), Convert.ToInt32(tmp[1]), Convert.ToInt32(tmp[2]));
+            }
+            else if (type.Equals("Vector3Int[]"))
+            {
+                Vector3Int[] tmp = new Vector3Int[0];
+                string[] Objs = strObj.Split('┴');
+                foreach (string obj in Objs)
+                {
+                    string[] vector = obj.Split(',');
+                    tmp.Add(new Vector3Int(Convert.ToInt32(vector[0]), Convert.ToInt32(vector[1]), Convert.ToInt32(vector[2])));
+                }
+                final = tmp;
+            }
+            else if (type.Equals("Vector4"))
+            {
+                string[] tmp = strObj.Split(',');
+                final = new Vector4(Convert.ToSingle(tmp[0]), Convert.ToSingle(tmp[1]), Convert.ToSingle(tmp[2]), Convert.ToSingle(tmp[3]));
+            }
+            else if (type.Equals("Vector4[]"))
+            {
+                Vector4[] tmp = new Vector4[0];
+                string[] Objs = strObj.Split('┴');
+                foreach (string obj in Objs)
+                {
+                    string[] vector = obj.Split(',');
+                    tmp.Add(new Vector4(Convert.ToSingle(vector[0]), Convert.ToSingle(vector[1]), Convert.ToSingle(vector[2]), Convert.ToSingle(vector[3])));
+                }
+                final = tmp;
+            }
+            else if (type.Equals("Decimal"))
+            {
+                final = Convert.ToDecimal(strObj);
+            }
+            else if (type.Equals("Decimal[]"))
+            {
+                Decimal[] tmp = new Decimal[0];
+                string[] Objs = strObj.Split('┴');
+                foreach (string obj in Objs)
+                {
+                    tmp = tmp.Add(Convert.ToDecimal(obj));
+                }
+                final = tmp;
             }
             else if (type.Equals("VRCPlayerApi"))
             {
                 VRCPlayerApi ply = VRCPlayerApi.GetPlayerById(Convert.ToInt32(strObj));
                 final = ply;
+            }
+            else if (type.Equals("VRCPlayerApi[]"))
+            {
+                VRCPlayerApi[] tmp = new VRCPlayerApi[0];
+                string[] Objs = strObj.Split('┴');
+                foreach (string obj in Objs)
+                {
+                    tmp = tmp.Add(VRCPlayerApi.GetPlayerById(Convert.ToInt32(obj)));
+                }
+                final = tmp;
             }
             else
             {

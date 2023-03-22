@@ -22,6 +22,7 @@ namespace Tismatis.TNetLibrarySystem
         [NonSerialized] public bool executingMethod = false;
         [NonSerialized] public bool sendingMethod = false;
         [NonSerialized] public bool waitSerialization = false;
+        [NonSerialized] public bool tryingToTransfert = false;
         [NonSerialized] public string lastMethodEncoded = "";
 
         #region TheRealMotorOfThatSystem
@@ -87,10 +88,17 @@ namespace Tismatis.TNetLibrarySystem
             TNLSManager.TNLSLogingSystem.DebugMessage("Received a deserialization request");
             if (methodEncoded != "")
             {
-                TNLSManager.TNLSLogingSystem.InfoMessage($"Executing the method '{methodEncoded}'");
+                if(TNLSManager.hasFullyBoot)
+                {
+                    TNLSManager.TNLSLogingSystem.InfoMessage($"Executing the method '{methodEncoded}'");
 
-                Receive(methodEncoded);
-                methodEncoded = "";
+                    Receive(methodEncoded);
+                    methodEncoded = "";
+                }
+                else
+                {
+                    methodEncoded = "";
+                }
             }
             waitSerialization = false;
         }
@@ -102,9 +110,21 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public override bool OnOwnershipRequest(VRCPlayerApi requester, VRCPlayerApi newOwner)
         {
-            waitSerialization = true;
-            TNLSManager.TNLSLogingSystem.DebugMessage("We accept the OwnershipRequest.");
-            return true;
+            VRCPlayerApi currentOwner = Networking.GetOwner(gameObject);
+            if(!TNLSManager.TNLSQueue.queueIsExecuting && !executingMethod && !waitSerialization || !Networking.LocalPlayer.Equals(currentOwner))
+            {
+                if(currentOwner.Equals(Networking.LocalPlayer))
+                {
+                    tryingToTransfert = true;
+                }
+                TNLSManager.TNLSLogingSystem.DebugMessage($"We accept the OwnershipRequest. (requester: {requester.displayName}, newOwner: {newOwner.displayName})");
+                return true;
+            }
+            else
+            {
+                TNLSManager.TNLSLogingSystem.DebugMessage("We can't accept the OwnershipRequest because someone is executing something.");
+                return false;
+            }
         }
 
         /// <summary>
@@ -113,8 +133,13 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public override void OnOwnershipTransferred(VRCPlayerApi player)
         {
+            if(tryingToTransfert) { tryingToTransfert = false; }
+            TNLSManager.TNLSLogingSystem.DebugMessage($"We got the OnOwnershipTransferred from {player.displayName}!");
+        }
+
+        public override void OnPreSerialization()
+        {
             waitSerialization = true;
-            TNLSManager.TNLSLogingSystem.DebugMessage("We got the OnOwnershipTransferred!");
         }
 
         /// <summary>

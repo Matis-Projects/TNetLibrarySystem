@@ -17,6 +17,7 @@ namespace Tismatis.TNetLibrarySystem
         [NonSerialized] public bool queueIsRunning = false;
         [NonSerialized] public object[][] queueItems = new object[0][];
         [NonSerialized] public bool queueIsExecuting = false;
+        [NonSerialized] public int numberOfTry = 0;
 
         /// <summary>
         ///     <para>Insert in the queue a networked method.</para>
@@ -53,7 +54,7 @@ namespace Tismatis.TNetLibrarySystem
         {
             if (queueItems.Length != 0)
             {
-                if(!TNLSManager.TNLS.executingMethod && !TNLSManager.TNLS.sendingMethod && !TNLSManager.TNLS.waitSerialization && !queueIsExecuting)
+                if(!TNLSManager.TNLS.executingMethod && !TNLSManager.TNLS.sendingMethod && !TNLSManager.TNLS.waitSerialization && !queueIsExecuting && !TNLSManager.TNLS.tryingToTransfert)// || numberOfTry >= 10 && !TNLSManager.TNLS.executingMethod && TNLSManager.TNLS.sendingMethod && !TNLSManager.TNLS.waitSerialization && !queueIsExecuting)
                 {
                     queueIsExecuting = true;
 
@@ -64,20 +65,30 @@ namespace Tismatis.TNetLibrarySystem
                         TNLSManager.TNLSLogingSystem.InfoMessage($"QUEUE-NOTIFICATION --> Processing '{(string)current[0]}'...");
                         TNLSManager.TNLSLogingSystem.DebugMessage("QUEUE-NOTIFICATION --> Transfering to us.");
 
-                        if(TNLSManager.TNLS.CAAOwner())
+                        TNLSManager.TNLS.CAAOwner();
+
+                        if (Networking.IsOwner(Networking.LocalPlayer, TNLSManager.TNLS.gameObject))
                         {
                             queueItems = queueItems.Remove(0);
 
                             TNLSManager.TNLS.methodEncoded = (string)current[0];
                             TNLSManager.TNLS.lastMethodEncoded = (string)current[0];
 
-                            TNLSManager.TNLSLogingSystem.DebugMessage("QUEUE-NOTIFICATION --> Sending to everyone");
+                            TNLSManager.TNLSLogingSystem.DebugMessage($"QUEUE-NOTIFICATION --> Sending to everyone (or retry: {numberOfTry})");
                             TNLSManager.TNLS.sendingMethod = true;
                             TNLSManager.TNLS.RequestSerialization();
 
-                            TNLSManager.TNLSLogingSystem.InfoMessage($"QUEUE-NOTIFICATION --> Executing in local the method.");
-                            TNLSManager.TNLS.executingMethod = true;
-                            TNLSManager.TNLS.Receive((string)current[0]);
+                            
+                            if (numberOfTry == 0)
+                            {
+                                TNLSManager.TNLSLogingSystem.InfoMessage($"QUEUE-NOTIFICATION --> Executing in local the method.");
+                                TNLSManager.TNLS.executingMethod = true;
+                                TNLSManager.TNLS.Receive((string)current[0]);
+                            }
+                            else
+                            {
+                                numberOfTry = 0;
+                            }
                         }
                         else
                         {
@@ -93,7 +104,8 @@ namespace Tismatis.TNetLibrarySystem
                 }
                 else
                 {
-                    TNLSManager.TNLSLogingSystem.DebugMessage($"QUEUE-NOTIFICATION --> Can't execute now the method because the older one hasn't finished to be executed or synced! (eM: {TNLSManager.TNLS.executingMethod} sM: {TNLSManager.TNLS.sendingMethod} wS: {TNLSManager.TNLS.waitSerialization})");
+                    numberOfTry++;
+                    TNLSManager.TNLSLogingSystem.DebugMessage($"QUEUE-NOTIFICATION --> Can't execute now the method because the older one hasn't finished to be executed or synced! (eM: {TNLSManager.TNLS.executingMethod} sM: {TNLSManager.TNLS.sendingMethod} wS: {TNLSManager.TNLS.waitSerialization} qIE: {queueIsExecuting} tTT: {TNLSManager.TNLS.tryingToTransfert})");
                 }
             }
 
