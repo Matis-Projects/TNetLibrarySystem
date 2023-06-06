@@ -45,10 +45,22 @@ namespace Tismatis.TNetLibrarySystem
 
 
 
+        [Header("Security")]
+
+        [Tooltip("If this is turn true, any request before the first one (from TNLS) will not be readed.")]
+        [SerializeField] public bool lockBeforeFullyBooted = true;
+
+
         [Header("Debug Mode")]
+
+        [Tooltip("Turn on the print of log, That is required for see debug message and others. WARNING: EVERYONE CAN SEE LOGS!")]
+        [SerializeField] public bool enableLog = true;
 
         [Tooltip("Turn on the debug mode permit to see every debug's message in the console.")]
         [SerializeField] public bool debugMode;
+
+        [Tooltip("Whitelist with displayname. Put nothing to remove the whitelist mode.")]
+        [SerializeField] public string[] debugWhitelist = new string[0];
 
 
 
@@ -67,8 +79,8 @@ namespace Tismatis.TNetLibrarySystem
             }
             else
             {
-                TNLSManager.TNLSLogingSystem.ErrorMessage("The value entered for numberOfTickPerSecond is not valid.");
-                TNLSManager.TNLSLogingSystem.InfoMessage("Passing into 10 ticks per second.");
+                TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultError, logAuthorList.settingsInitialiaztion, "The value entered for numberOfTickPerSecond is not valid.");
+                TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultInfo, logAuthorList.settingsInitialiaztion, "Passing into 10 ticks per second.");
             }
         }
     }

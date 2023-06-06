@@ -8,6 +8,44 @@ using VRC.Udon;
 
 namespace Tismatis.TNetLibrarySystem
 {
+    public enum messageType
+    {
+        debugInfo,
+        debugError,
+        debugSuccess,
+        debugWarn,
+        debugUnknown,
+        defaultInfo,
+        defaultError,
+        defaultSuccess,
+        defaultWarn,
+        defaultUnknown
+    }
+    public enum logAuthorList
+    {
+        tnlsReceive,
+        tnlsGetParameters,
+        tnlsOnDeserialization,
+        tnlsOnOwnershipRequest,
+        tnlsOnOwnershipTransferred,
+        tnlsOnPreSerialization,
+        tnlsOnPostDeserialization,
+        tnlsCAAOwner,
+        tnlsUnlockService,
+        managerStart,
+        managerPlayerJoin,
+        managerCNNS,
+        queueIITQ,
+        queueUpdate,
+        scriptManagerAANS,
+        scriptManagerPlayerJoin,
+        serializationSetParameters,
+        serializationGetParameters,
+        serializationSerializeGetValue,
+        serializationDeserializeObject,
+        anstnStart,
+        settingsInitialiaztion
+    }
     /// <summary>
     ///     <para>The LoggingSystem of the Networking system</para>
     ///     <para>He is the loging system</para>
@@ -16,56 +54,80 @@ namespace Tismatis.TNetLibrarySystem
     public class TNLSLogingSystem : UdonSharpBehaviour
     {
         [Header("Manager")]
+
         [Tooltip("This is the TNLS Manager, he is required for make this library working.")]
         [SerializeField] private TNLSManager TNLSManager;
 
+
+        [Header("External Log")]
+
         [Tooltip("If you want a debug text, put here your UnityEngine.Text .")]
         [SerializeField] private Text text;
+
         [Tooltip("Put here the number of line before the auto clear .")]
         [SerializeField] private int maxLine = 40;
-        [NonSerialized] private int currentLine;
 
-        /// <summary>
-        ///     Send into the log a debug message.
-        /// </summary>
-        public void DebugMessage(string message)
+        [NonSerialized] private int currentLine;
+        [NonSerialized] private bool allowDebug;
+
+        public void Start()
         {
-            string text = $"#<color=#e132ff>DEBUG</color> <color=#3264ff>[TNLS]</color> {message}";
-            UpdateText(text);
-            if (TNLSManager.TNLSSettings.debugMode)
+            if(TNLSManager.TNLSSettings.debugWhitelist.Length > 0)
             {
-                Debug.Log(text);
+                string localName = Networking.LocalPlayer.displayName;
+                foreach(string whitelistItem in TNLSManager.TNLSSettings.debugWhitelist)
+                {
+                    if(localName == whitelistItem)
+                    {
+                        allowDebug = true;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                allowDebug = true;
             }
         }
 
         /// <summary>
-        ///     Send into the log a info message.
+        ///     Send into the log.
+        ///     
         /// </summary>
-        public void InfoMessage(string message)
+        public void sendLog(messageType type, logAuthorList author, string message)
         {
-            string text = $"#<color=#5032ff>INFO</color> <color=#3264ff>[TNLS]</color> {message}";
-            UpdateText(text);
-            Debug.Log(text);
-        }
+            if(TNLSManager.TNLSSettings.enableLog)
+            {
+                string text = "";
+                string tmp = "";
 
-        /// <summary>
-        ///     Send into the log a error message.
-        /// </summary>
-        public void ErrorMessage(string message)
-        {
-            string text = $"#<color=#ff3232>ERROR</color> <color=#3264ff>[TNLS]</color> {message}";
-            UpdateText(text);
-            Debug.LogError(text);
-        }
-
-        /// <summary>
-        ///     Send into the log a warn message.
-        /// </summary>
-        public void WarnMessage(string message)
-        {
-            string text = $"#<color=#ff9632>WARN</color> <color=#3264ff>[TNLS]</color> {message}";
-            UpdateText(text);
-            Debug.LogWarning(text);
+                int typeInt = Convert.ToInt32(type);
+                if(typeInt <= 4)
+                {
+                    if(typeInt == 0) { tmp = "<color=#5032ff>INFO</color>"; }else
+                    if (typeInt == 1) { tmp = "<color=#ff3232>ERROR</color>"; }else
+                    if (typeInt == 2) { tmp = "<color=#4dff32>SUCCESS</color>"; }else
+                    if (typeInt == 3) { tmp = "<color=#ff9632>WARN</color>"; }else
+                    if (typeInt == 4) { tmp = "<color=#464646>UNKNOWN</color>"; }
+                    text = $"<color=#3264ff>[</color><color=#e132ff>DEBUG</color><color=#3264ff>~</color>{tmp}<color=#3264ff>]</color>";
+                    if (TNLSManager.TNLSSettings.debugMode && allowDebug)
+                    {
+                        Debug.Log($"#{text} <color=#3264ff>[TNLS~{author}]</color> {message}");
+                    }
+                    UpdateText($"#{text} <color=#3264ff>[TNLS~{author}]</color> {message}");
+                }
+                else
+                {
+                    if (typeInt == 5) { tmp = "<color=#5032ff>INFO</color>"; }else
+                    if (typeInt == 6) { tmp = "<color=#ff3232>ERROR</color>"; }else
+                    if (typeInt == 7) { tmp = "<color=#4dff32>SUCCESS</color>"; }else
+                    if (typeInt == 8) { tmp = "<color=#ff9632>WARN</color>"; }else
+                    if (typeInt == 9) { tmp = "<color=#464646>UNKNOWN</color>"; }
+                    text = $"{tmp}";
+                    Debug.Log($"#{text} <color=#3264ff>[TNLS~{author}]</color> {message}");
+                    UpdateText($"#{text} <color=#3264ff>[TNLS~{author}]</color> {message}");
+                }
+            }
         }
 
         /// <summary>

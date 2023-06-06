@@ -46,13 +46,13 @@ namespace Tismatis.TNetLibrarySystem
                     }else{
                         listParams = listParams.Add("InvalidType");
                         varsParams = varsParams.Add("false");
-                        TNLSManager.TNLSLogingSystem.WarnMessage("Don't support this type ! Skipping...");
+                        TNLSManager.TNLSLogingSystem.sendLog(messageType.debugWarn, logAuthorList.serializationSetParameters, "Don't support this type ! Skipping...");
                     }
 
                     i++;
                 }
             }else{
-                TNLSManager.TNLSLogingSystem.ErrorMessage("Can't set parameters ! You have more parameters than the maximum defined. Check the Manager configuration.");
+                TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultError, logAuthorList.serializationSetParameters, "Can't set parameters ! You have more parameters than the maximum defined. Check the Manager configuration.");
             }
 
             final[0] = listParams;
@@ -71,13 +71,21 @@ namespace Tismatis.TNetLibrarySystem
             int i = 0;
             while(i < listParams.Length)
             {
-                string obj = varsParams[i];
-                string type = listParams[i];
-                
-                final = final.Add(DeserializeObject(type, obj));
+                if(i <= (listParams.Length - 1))
+                {
+                    string obj = varsParams[i];
+                    string type = listParams[i];
 
-                // Add 1 to Index
-                i++;
+                    final = final.Add(DeserializeObject(type, obj));
+
+                    // Add 1 to Index
+                    i++;
+                }
+                else
+                {
+                    TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultError, logAuthorList.serializationGetParameters, "Can't receive all parameters, please contact an administrator and check the debug log.");
+                    TNLSManager.TNLSLogingSystem.sendLog(messageType.debugError, logAuthorList.serializationGetParameters, $"lP: {listParams.Length} ; vP: {varsParams.Length} i: {i}");
+                }
             }
             return final;
         }
@@ -815,7 +823,7 @@ namespace Tismatis.TNetLibrarySystem
                 }
                 break;
             default:
-                TNLSManager.TNLSLogingSystem.ErrorMessage($"Can't support that type. '{type}'");
+                TNLSManager.TNLSLogingSystem.sendLog(messageType.debugWarn, logAuthorList.serializationSerializeGetValue, $"Can't support that type. '{type}'");
                 break;
             }
 
@@ -1017,7 +1025,7 @@ namespace Tismatis.TNetLibrarySystem
             else if (type.Equals("Color"))
             {
                 string[] tmp = strObj.Split(',');
-                final = new Color(Convert.ToInt32(tmp[1]), Convert.ToInt32(tmp[2]), Convert.ToInt32(tmp[3]), Convert.ToInt32(tmp[0]));
+                final = new Color(Convert.ToSingle(tmp[1]), Convert.ToSingle(tmp[2]), Convert.ToSingle(tmp[3]), Convert.ToSingle(tmp[0]));
             }
             else if (type.Equals("Color[]"))
             {
@@ -1026,7 +1034,7 @@ namespace Tismatis.TNetLibrarySystem
                 foreach (string obj in Objs)
                 {
                     string[] color = obj.Split(',');
-                    tmp.Add(new Color(Convert.ToInt32(color[1]), Convert.ToInt32(color[2]), Convert.ToInt32(color[3]), Convert.ToInt32(color[0])));
+                    tmp.Add(new Color(Convert.ToSingle(color[1]), Convert.ToSingle(color[2]), Convert.ToSingle(color[3]), Convert.ToSingle(color[0])));
                 }
                 final = tmp;
             }
@@ -1173,7 +1181,7 @@ namespace Tismatis.TNetLibrarySystem
             }
             else
             {
-                TNLSManager.TNLSLogingSystem.WarnMessage($"Can't transform the type '{type}'!");
+                TNLSManager.TNLSLogingSystem.sendLog(messageType.debugWarn, logAuthorList.serializationDeserializeObject, $"Can't transform the type '{type}'!");
             }
             return final;
         }

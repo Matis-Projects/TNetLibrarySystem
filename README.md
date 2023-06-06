@@ -48,7 +48,6 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
 |Complex target (All/Only Master/Local)|<center>✔️</center>|<center>✔️</center>|<center>✔️</center>
 |Support all basics types of c# *(string,ushort,byte)*|<center>⚠️¹</center>|<center>✔️</center>|<center>✔️</center>
 |Support all basics types of Unity *(Quaternion/Vector)*|<center>⚠️¹</center>|<center>⚠️²</center>|<center>✔️</center>
-|Support more types|<center>✔️</center>|<center>❌</center>|<center>⏲️³</center>
 |De-centralized networked script file|<center>❌</center>|<center>❌</center>|<center>✔️</center>
 |Easy to setup & use|<center>❌</center>|<center>✔️</center>|<center>✔️</center>
 |With a queue system|<center>❌</center>|<center>✔️</center>|<center>✔️</center>
@@ -68,10 +67,18 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
 
 ### Preparation of the Networked script
 
-1. Add in the same gameobject a `AssignNewScriptToNetwork` component.
-2. Change the scriptName to what you want.
-3. Assign the `TNLS Manager` and your Networked script in the new component.
-3. Change the syncronization method of your script to `Manual`.
+* Automatic mode
+    1. Add in the same gameobject a `AssignNewScriptToNetwork` component.
+    2. Change the scriptName to what you want.
+    3. Assign the `TNLS Manager` and your Networked script in the new component.
+    4. The Serialization Method can't be in `None` but put the same value in the `AssignNewScriptToNetwork`.
+* Legacy mode
+    1. Your script Syncronization Method can't be in `None` or he can't receive any networked method. 
+    2. Declare under your `UdonSharpBehaviour` class the TNLS: `[SerializeField] private TNLSManager TNLSManager;` *(can be private or public)*
+        * In case you have a script link to all your scripts, you can declare it into the this one and not re-declare it all times.
+    3. Declare the ScriptName:
+        * Use the following method to transform that script into a networked script: `TNLSManager.AddANamedNetworkedScript("<the name>", this);`
+        *  ***WARNING** It's one name per instance of script.*
 
 ### Call a method
 
@@ -127,8 +134,8 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
     |~              |Vector4        |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
     |`decimal`      |Decimal        |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
     |~              |VRCPlayerApi   |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
-    |`string`       |String         |<center>✔️</center>|<center>✔️</center>|<center>⚠️</center>|Need more check before be fully supported.
-    |`char`         |Char           |<center>✔️</center>|<center>✔️</center>|<center>⚠️</center>|Need more check before be fully supported.
+    |`string`       |String         |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
+    |`char`         |Char           |<center>✔️</center>|<center>✔️</center>|<center>✔️</center>|
 
 ### Debug
 

@@ -59,10 +59,10 @@ namespace Tismatis.TNetLibrarySystem
                 scriptList = scriptList.Add(script);
                 netList = netList.Add(name);
                 idNetList = idNetList.Add(scriptId);
-                TNLSManager.TNLSLogingSystem.InfoMessage($"Added '{name}' to the NetworkedList with Name");
+                TNLSManager.TNLSLogingSystem.sendLog(messageType.debugSuccess, logAuthorList.scriptManagerAANS, $"Added '{name}' to the NetworkedList with Name");
                 return scriptId;
             }else{
-                TNLSManager.TNLSLogingSystem.ErrorMessage($"Can't add one more NetworkedScript! ({netList.Length+1}>MaxNetList)");
+                TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultError, logAuthorList.scriptManagerAANS, $"Can't add one more NetworkedScript! ({netList.Length+1}>MaxNetList)");
                 return -1;
             }
         }
