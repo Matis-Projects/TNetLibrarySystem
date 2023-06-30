@@ -18,6 +18,7 @@ namespace Tismatis.TNetLibrarySystem
         [NonSerialized] public string[] queueItems = new string[0];
         [NonSerialized] public bool queueIsExecuting = false;
         [NonSerialized] public long queueExecutionTime = 0;
+        [NonSerialized] public long lastExecutionTime = 0;
         [NonSerialized] public int numberOfTry = 0;
 
         /// <summary>
@@ -57,98 +58,157 @@ namespace Tismatis.TNetLibrarySystem
             {
                 if (!TNLSManager.TNLS.tryingToSend && !TNLSManager.TNLS.inSerialization && !TNLSManager.TNLS.ownershipLock && !TNLSManager.TNLS.localExecution && !queueIsExecuting && !TNLSManager.TNLS.waitSerialization)
                 {
-                    queueIsExecuting = true;
-
-                    string current = queueItems[0];
-
-                    string[] methodDecoded = current.ToString().Split('█');
-                    
-                    if(TNLSManager.TNLS.lastMethodEncoded != current || TNLSManager.TNLSSettings.autorizeDuplicate)
+                    if(TNLSManager.TNLS.isFullyReceived)
                     {
-                        TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultInfo, logAuthorList.queueUpdate, $"Processing '{methodDecoded[0]}'...");
-                        
-                        TNLSManager.TNLSLogingSystem.sendLog(messageType.debugInfo, logAuthorList.queueUpdate, "Transfering to us.");
+                        queueIsExecuting = true;
 
-                        if(numberOfTry == 0) {
-                            queueExecutionTime = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeMilliseconds();
-                        }
+                        string current = queueItems[0];
 
-                        if (methodDecoded[2] != "Local")
+                        string[] methodDecoded = current.ToString().Split('█');
+
+                        if (TNLSManager.TNLS.lastMethodEncoded != current || TNLSManager.TNLSSettings.autorizeDuplicate)
                         {
-                            TNLSManager.TNLS.lockAfterGetIt = true;
-                            if (TNLSManager.TNLS.CAAOwner())
+                            TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultInfo, logAuthorList.queueUpdate, $"Processing '{current}'...");
+
+                            TNLSManager.TNLSLogingSystem.sendLog(messageType.debugInfo, logAuthorList.queueUpdate, "Transfering to us.");
+
+                            if (numberOfTry == 0)
+                            {
+                                queueExecutionTime = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeMilliseconds();
+                            }
+
+                            if (methodDecoded[2] != "Local")
+                            {
+                                TNLSManager.TNLS.lockAfterGetIt = true;
+                                if (TNLSManager.TNLS.CAAOwner())
+                                {
+                                    queueItems = queueItems.Remove(0);
+
+                                    TNLSManager.TNLS.tryingToSend = true;
+
+                                    TNLSManager.TNLS.methodEncoded = current;
+                                    TNLSManager.TNLS.lastMethodEncoded = current;
+
+                                    TNLSManager.TNLSLogingSystem.sendLog(messageType.debugInfo, logAuthorList.queueUpdate, $"Sending to everyone (or retry: {numberOfTry})");
+                                    TNLSManager.TNLS.waitSerialization = true;
+                                    TNLSManager.TNLS.RequestSerialization();
+
+                                    numberOfTry = 0;
+
+                                    if (TNLSManager.TNLS.checkIfPlayerCanReceive(Networking.LocalPlayer, methodDecoded[2]))
+                                    {
+                                        TNLSManager.TNLSLogingSystem.sendLog(messageType.debugInfo, logAuthorList.queueUpdate, $"Executing in local the method.");
+                                        TNLSManager.TNLS.localExecution = true;
+                                        TNLSManager.TNLS.Receive(current);
+                                    }
+                                }
+                                else
+                                {
+                                    TNLSManager.TNLSLogingSystem.sendLog(messageType.debugWarn, logAuthorList.queueUpdate, "Can't process now, gonna retry at next tick.");
+                                }
+                            }
+                            else
                             {
                                 queueItems = queueItems.Remove(0);
-
-                                TNLSManager.TNLS.tryingToSend = true;
 
                                 TNLSManager.TNLS.methodEncoded = current;
                                 TNLSManager.TNLS.lastMethodEncoded = current;
 
+                                numberOfTry = 0;
+
+                                TNLSManager.TNLSLogingSystem.sendLog(messageType.debugInfo, logAuthorList.queueUpdate, $"Executing in local the method.");
+                                TNLSManager.TNLS.localExecution = true;
+                                TNLSManager.TNLS.Receive(current);
+                            }
+                        }
+                        else
+                        {
+                            TNLSManager.TNLSLogingSystem.sendLog(messageType.debugWarn, logAuthorList.queueUpdate, $"Same than last call, skipping.");
+                        }
+
+                        queueIsExecuting = false;
+                    }
+                    else
+                    {
+                        if (TNLSManager.TNLSSettings.timeBeforeLCexpire != -1 && TNLSManager.TNLSOthers.CurTime() > TNLSManager.TNLS.receiveTimeout && TNLSManager.TNLS.receiveTimeout != 0)
+                        {
+                            TNLSManager.TNLS.isFullyReceived = true;
+                            TNLSManager.TNLS.receiveTimeout = 0;
+                            TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultWarn, logAuthorList.queueUpdate, $"{TNLSManager.TNLS.receiveCountTarget - TNLSManager.TNLS.receiveCount} players didn't receive the current method! We skip it and execute at the next tick another method.");
+                        }else if (TNLSManager.TNLSSettings.timeBeforeLCexpire == -1 && TNLSManager.TNLSOthers.CurTime() > (TNLSManager.TNLS.receiveTimeout + 30000) && TNLSManager.TNLS.receiveTimeout != 0)
+                        {
+                            TNLSManager.TNLS.isFullyReceived = true;
+                            TNLSManager.TNLS.receiveTimeout = 0;
+                            TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultWarn, logAuthorList.queueUpdate, $"[HARDLIMIT] {TNLSManager.TNLS.receiveCountTarget - TNLSManager.TNLS.receiveCount} players didn't receive the current method! We skip it and execute at the next tick another method.");
+                        }else if (TNLSManager.TNLS.receiveTimeout == 0)
+                        {
+                            TNLSManager.TNLS.isFullyReceived = true;
+                            TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultError, logAuthorList.queueUpdate, $"A player received it but an unknown bug occured!");
+                        }
+                        else
+                        {
+                            TNLSManager.TNLSLogingSystem.sendLog(messageType.debugWarn, logAuthorList.queueUpdate, $"Not everyone received it! Waiting...");
+                        }
+                    }
+                }
+                else
+                {
+                    if(TNLSManager.TNLS.isFullyReceived)
+                    {
+                        if (numberOfTry == 0)
+                        {
+                            TNLSManager.TNLSLogingSystem.sendLog(messageType.debugError, logAuthorList.queueUpdate, $"isOwner?: {TNLSManager.TNLS.ownershipIsFuckingMine} tTS: {TNLSManager.TNLS.tryingToSend} iS: {TNLSManager.TNLS.inSerialization} oL: {TNLSManager.TNLS.ownershipLock} lE: {TNLSManager.TNLS.localExecution} qIE: {queueIsExecuting} qIR: {queueIsRunning} wS: {TNLSManager.TNLS.waitSerialization} iFR: {TNLSManager.TNLS.isFullyReceived}");
+                        }
+
+                        if (numberOfTry >= 20 && !TNLSManager.TNLS.ownershipIsFuckingMine && TNLSManager.TNLS.tryingToSend && TNLSManager.TNLS.waitSerialization && !TNLSManager.TNLS.inSerialization && !TNLSManager.TNLS.ownershipLock)
+                        {
+                            TNLSManager.TNLSLogingSystem.sendLog(messageType.debugInfo, logAuthorList.queueUpdate, "We retry now...");
+                            if (TNLSManager.TNLS.CAAOwner())
+                            {
+                                TNLSManager.TNLS.methodEncoded = TNLSManager.TNLS.lastMethodEncoded;
+
                                 TNLSManager.TNLSLogingSystem.sendLog(messageType.debugInfo, logAuthorList.queueUpdate, $"Sending to everyone (or retry: {numberOfTry})");
-                                TNLSManager.TNLS.waitSerialization = true;
                                 TNLSManager.TNLS.RequestSerialization();
 
                                 numberOfTry = 0;
-
-                                if (TNLSManager.TNLS.checkIfPlayerCanReceive(Networking.LocalPlayer, methodDecoded[2]))
-                                {
-                                    TNLSManager.TNLSLogingSystem.sendLog(messageType.debugInfo, logAuthorList.queueUpdate, $"Executing in local the method.");
-                                    TNLSManager.TNLS.localExecution = true;
-                                    TNLSManager.TNLS.Receive(current);
-                                }
                             }
                             else
                             {
                                 TNLSManager.TNLSLogingSystem.sendLog(messageType.debugWarn, logAuthorList.queueUpdate, "Can't process now, gonna retry at next tick.");
                             }
                         }
-                        else {
-                            queueItems = queueItems.Remove(0);
-
-                            TNLSManager.TNLS.methodEncoded = current;
-                            TNLSManager.TNLS.lastMethodEncoded = current;
-
-                            numberOfTry = 0;
-
-                            TNLSManager.TNLSLogingSystem.sendLog(messageType.debugInfo, logAuthorList.queueUpdate, $"Executing in local the method.");
-                            TNLSManager.TNLS.localExecution = true;
-                            TNLSManager.TNLS.Receive(current);
-                        }
+                        numberOfTry++;
+                        TNLSManager.TNLSLogingSystem.sendLog(messageType.debugError, logAuthorList.queueUpdate, $"Can't execute now the method because the older one hasn't finished to be executed or synced!");
                     }
                     else
                     {
-                        TNLSManager.TNLSLogingSystem.sendLog(messageType.debugWarn, logAuthorList.queueUpdate, $"Same than last call, skipping.");
-                    }
-                    
-                    queueIsExecuting = false;
-                }
-                else
-                {
-                    if (numberOfTry == 0)
-                    {
-                        TNLSManager.TNLSLogingSystem.sendLog(messageType.debugError, logAuthorList.queueUpdate, $"isOwner?: {TNLSManager.TNLS.ownershipIsFuckingMine} tTS: {TNLSManager.TNLS.tryingToSend} iS: {TNLSManager.TNLS.inSerialization} oL: {TNLSManager.TNLS.ownershipLock} lE: {TNLSManager.TNLS.localExecution} qIE: {queueIsExecuting} qIR: {queueIsRunning} wS: {TNLSManager.TNLS.waitSerialization}");
-                    }
-
-                    if(numberOfTry >= 20 && !TNLSManager.TNLS.ownershipIsFuckingMine && TNLSManager.TNLS.tryingToSend && TNLSManager.TNLS.waitSerialization && !TNLSManager.TNLS.inSerialization && !TNLSManager.TNLS.ownershipLock)
-                    {
-                        TNLSManager.TNLSLogingSystem.sendLog(messageType.debugInfo, logAuthorList.queueUpdate, "We retry now...");
-                        if (TNLSManager.TNLS.CAAOwner())
+                        if (TNLSManager.TNLSSettings.timeBeforeLCexpire != -1 && TNLSManager.TNLSOthers.CurTime() > TNLSManager.TNLS.receiveTimeout && TNLSManager.TNLS.receiveTimeout != 0)
                         {
-                            TNLSManager.TNLS.methodEncoded = TNLSManager.TNLS.lastMethodEncoded;
-
-                            TNLSManager.TNLSLogingSystem.sendLog(messageType.debugInfo, logAuthorList.queueUpdate, $"Sending to everyone (or retry: {numberOfTry})");
-                            TNLSManager.TNLS.RequestSerialization();
-
-                            numberOfTry = 0;
+                            TNLSManager.TNLS.isFullyReceived = true;
+                            TNLSManager.TNLS.receiveTimeout = 0;
+                            TNLSManager.TNLS.receiveCount = 0;
+                            TNLSManager.TNLS.receiveCountTarget = 0;
+                            TNLSManager.TNLS.idMaxCount = 0;
+                            TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultWarn, logAuthorList.queueUpdate, $"{TNLSManager.TNLS.receiveCountTarget - TNLSManager.TNLS.receiveCount} players didn't receive the current method! We skip it and execute at the next tick another method.");
+                        }else if (TNLSManager.TNLSSettings.timeBeforeLCexpire == -1 && TNLSManager.TNLSOthers.CurTime() > (TNLSManager.TNLS.receiveTimeout + 30000) && TNLSManager.TNLS.receiveTimeout != 0)
+                        {
+                            TNLSManager.TNLS.isFullyReceived = true;
+                            TNLSManager.TNLS.receiveTimeout = 0;
+                            TNLSManager.TNLS.receiveCount = 0;
+                            TNLSManager.TNLS.receiveCountTarget = 0;
+                            TNLSManager.TNLS.idMaxCount = 0;
+                            TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultWarn, logAuthorList.queueUpdate, $"[HARDLIMIT] {TNLSManager.TNLS.receiveCountTarget - TNLSManager.TNLS.receiveCount} players didn't receive the current method! We skip it and execute at the next tick another method.");
+                        }
+                        else if (TNLSManager.TNLS.receiveTimeout == 0)
+                        {
+                            TNLSManager.TNLS.isFullyReceived = true;
+                            TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultError, logAuthorList.queueUpdate, $"A player received it but an unknown bug occured!");
                         }
                         else
                         {
-                            TNLSManager.TNLSLogingSystem.sendLog(messageType.debugWarn, logAuthorList.queueUpdate, "Can't process now, gonna retry at next tick.");
+                            TNLSManager.TNLSLogingSystem.sendLog(messageType.debugWarn, logAuthorList.queueUpdate, $"Not everyone received it! Waiting...");
                         }
                     }
-                    numberOfTry++;
-                    TNLSManager.TNLSLogingSystem.sendLog(messageType.debugError, logAuthorList.queueUpdate, $"Can't execute now the method because the older one hasn't finished to be executed or synced!");
                 }
             }
 

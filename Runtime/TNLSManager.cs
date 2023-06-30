@@ -38,9 +38,14 @@ namespace Tismatis.TNetLibrarySystem
         [Tooltip("This is the queue of the system.")]
         [SerializeField] public TNLSQueue TNLSQueue;
 
-        [NonSerialized] public string currentVersion = "03/04/2023 at (UTC)21:20";
-        [NonSerialized] public string currentBranch = "dev";
-        [NonSerialized] public string descriptionVersion = "Another patch to fix every bugs with ownership.";
+        [Header("Others")]
+        [Tooltip("This is the class required for make working the system.")]
+        [SerializeField] public TNLSOthers TNLSOthers;
+
+        [Header("Version")] // RAPPEL: Para alterar a versao, você deve passar pela funçao inicial do script. Le boloss qui traduit ça pour passer au travers des mises à jours, je fais du carglouch avec sa tête.
+        [NonSerialized] public string currentVersion = "";
+        [NonSerialized] public string currentBranch = "";
+        [NonSerialized] public string descriptionVersion = "";
         [NonSerialized] public bool hasFullyBoot = false;
 
         #region Initialization
@@ -50,7 +55,11 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public void Start()
         {
-            if(TNLSSettings != null && TNLS != null && TNLSLogingSystem != null && TNLSScriptManager && TNLSSerialization != null)
+            currentVersion = "30/06/2023 at (UTC)23:48";
+            currentBranch = "dev";
+            descriptionVersion = "LAST PATCH FOR THE PROBLEM OF SKIP.";
+
+            if(TNLSSettings != null && TNLS != null && TNLSLogingSystem != null && TNLSScriptManager && TNLSSerialization != null && TNLSOthers != null)
             {
                 TNLSLogingSystem.sendLog(messageType.defaultInfo, logAuthorList.managerStart, "Loading settings...");
                 TNLSSettings.Initialize();
@@ -72,15 +81,20 @@ namespace Tismatis.TNetLibrarySystem
                 hasFullyBoot = true;
 
                 TNLSLogingSystem.sendLog(messageType.defaultInfo, logAuthorList.managerStart, $"The current version is from the {currentVersion} in the branch {currentBranch}!");
-                if(currentBranch == "beta")
+                switch(currentBranch.ToUpper())
                 {
-                    TNLSLogingSystem.sendLog(messageType.defaultWarn, logAuthorList.managerStart, "This branch isn't very stable, please think about switch to the release branch.");
-                }else if(currentBranch == "dev")
-                {
-                    TNLSLogingSystem.sendLog(messageType.defaultWarn, logAuthorList.managerStart, "This branch is a dev one, please switch to the release branch when you can.");
-                }else if(currentBranch == "release")
-                {
-                    TNLSLogingSystem.sendLog(messageType.defaultSuccess, logAuthorList.managerStart, "You are on the more stable branch!");
+                    case "BETA":
+                        TNLSLogingSystem.sendLog(messageType.defaultWarn, logAuthorList.managerStart, "This branch isn't very stable, please think about switch to the release branch.");
+                        break;
+                    case "DEV":
+                        TNLSLogingSystem.sendLog(messageType.defaultWarn, logAuthorList.managerStart, "This branch is a dev one, please switch to the release branch when you can.");
+                        break;
+                    case "RELEASE":
+                        TNLSLogingSystem.sendLog(messageType.defaultSuccess, logAuthorList.managerStart, "You are on the more stable branch!");
+                        break;
+                    default:
+                        TNLSLogingSystem.sendLog(messageType.defaultError, logAuthorList.managerStart, "Your branch can't be define! Please check if you are using the version from the github.");
+                        break;
                 }
                 TNLSLogingSystem.sendLog(messageType.defaultUnknown, logAuthorList.managerStart, $"Description of that version: {descriptionVersion}");
             }else{

@@ -50,6 +50,9 @@ namespace Tismatis.TNetLibrarySystem
         [Tooltip("If this is turn true, any request before the first one (from TNLS) will not be readed.")]
         [SerializeField] public bool lockBeforeFullyBooted = true;
 
+        [Tooltip("Times before the \"last chance\" of sync expire and pass to the next request. (in ms)")]
+        [SerializeField] public int timeBeforeLCexpire = 500;
+
 
         [Header("Debug Mode")]
 

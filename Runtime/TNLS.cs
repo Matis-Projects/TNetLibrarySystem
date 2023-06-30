@@ -1,10 +1,10 @@
 ﻿
 using System;
-using System.Collections.Specialized;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon.Common;
+using VRC.Udon.Common.Interfaces;
 
 namespace Tismatis.TNetLibrarySystem
 {
@@ -29,6 +29,13 @@ namespace Tismatis.TNetLibrarySystem
         [NonSerialized] public bool inSerialization = false;
         [NonSerialized] public bool lockAfterGetIt = false;
         [NonSerialized] public bool ownershipIsFuckingMine = false;
+
+        [NonSerialized] public bool isFullyReceived = true;
+        [NonSerialized] public int receiveCount = 0;
+        [NonSerialized] public int receiveCountTarget = 0;
+        [NonSerialized] public long receiveTimeout = 0;
+
+        [NonSerialized] public int idMaxCount = 0;
 
         [NonSerialized] public bool unlockService = false;
 
@@ -105,16 +112,17 @@ namespace Tismatis.TNetLibrarySystem
             TNLSManager.TNLSLogingSystem.sendLog(messageType.debugInfo, logAuthorList.tnlsOnDeserialization, "Received a deserialization request");
             if (TNLSManager.hasFullyBoot)
             {
-                if (methodEncoded != "")
+                if (methodEncoded == "")
                 {
+                    TNLSManager.TNLSLogingSystem.sendLog(messageType.debugInfo, logAuthorList.tnlsOnDeserialization, "The methodEncoded length is 0, ignoring...");
+                }
+                else
+                {
+                    SendCustomNetworkEvent(NetworkEventTarget.Owner, "ConfirmWeReceiveIt");
                     TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultInfo, logAuthorList.tnlsOnDeserialization, $"Executing a method");
                     TNLSManager.TNLSLogingSystem.sendLog(messageType.debugInfo, logAuthorList.tnlsOnDeserialization, $"The method executed: '{methodEncoded}'");
                     Receive(methodEncoded);
                     methodEncoded = "";
-                }
-                else
-                {
-                    TNLSManager.TNLSLogingSystem.sendLog(messageType.debugInfo, logAuthorList.tnlsOnDeserialization, "The methodEncoded length is 0, ignoring...");
                 }
             }
             else
@@ -134,13 +142,13 @@ namespace Tismatis.TNetLibrarySystem
 
             //TNLSManager.TNLSLogingSystem.sendLog(messageType.debugUnknown, logAuthorList.tnlsOnOwnershipRequest, $"tTS: {tryingToSend} iS: {inSerialization} oL: {ownershipLock} lE: {localExecution} qIE: {TNLSManager.TNLSQueue.queueIsExecuting} qIR: {TNLSManager.TNLSQueue.queueIsRunning} newOwner=LocalPlayer {newOwner.Equals(Networking.LocalPlayer)} currentOwner=LocalPlayer: {currentOwner.Equals(Networking.LocalPlayer)} wS: {TNLSManager.TNLS.waitSerialization}");
 
-            if (currentOwner.Equals(Networking.LocalPlayer) && !tryingToSend && !inSerialization && !ownershipLock && !localExecution && !TNLSManager.TNLSQueue.queueIsExecuting && !waitSerialization || !currentOwner.Equals(Networking.LocalPlayer))
+            if (currentOwner == Networking.LocalPlayer && !tryingToSend && !inSerialization && !ownershipLock && !localExecution && !TNLSManager.TNLSQueue.queueIsExecuting && !waitSerialization || currentOwner != Networking.LocalPlayer)
             {
                 TNLSManager.TNLSLogingSystem.sendLog(messageType.debugInfo, logAuthorList.tnlsOnOwnershipRequest, $"We accept the OwnershipRequest. (requester: {requester.displayName}, newOwner: {newOwner.displayName})");
-                if (newOwner.Equals(Networking.LocalPlayer))
+                if (newOwner == Networking.LocalPlayer)
                 {
                     ownershipLock = true;
-                }else if(currentOwner.Equals(Networking.LocalPlayer))
+                }else if(currentOwner == Networking.LocalPlayer)
                 {
                     ownershipIsFuckingMine = false;
                 }
@@ -163,7 +171,7 @@ namespace Tismatis.TNetLibrarySystem
             {
                 ownershipLock = false;
             }
-            ownershipIsFuckingMine = Networking.GetOwner(gameObject).Equals(Networking.LocalPlayer);
+            ownershipIsFuckingMine = Networking.GetOwner(gameObject) == Networking.LocalPlayer;
             TNLSManager.TNLSLogingSystem.sendLog(messageType.debugSuccess, logAuthorList.tnlsOnOwnershipTransferred, $"We got the OnOwnershipTransferred!");
         }
 
@@ -180,13 +188,55 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public override void OnPostSerialization(SerializationResult result)
         {
+            isFullyReceived = false;
+            receiveCount = 0;
+            receiveCountTarget = VRCPlayerApi.GetPlayerCount();
+            idMaxCount = TNLSManager.TNLSOthers.GetPlayerId(TNLSManager.TNLSOthers.GetAllPlayers()[TNLSManager.TNLSOthers.GetPlayerCount() - 1]);
+
             TNLSManager.TNLSLogingSystem.sendLog(messageType.debugUnknown, logAuthorList.tnlsOnPostDeserialization, "OnPostSerialization called!");
             methodEncoded = "";
             lockAfterGetIt = false;
             inSerialization = false;
             waitSerialization = false;
             tryingToSend = false;
-            TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultSuccess, logAuthorList.tnlsReceive, $"Successfuly finished the sync! {((DateTimeOffset)DateTime.UtcNow).ToUnixTimeMilliseconds() - TNLSManager.TNLSQueue.queueExecutionTime}ms");
+            SendCustomNetworkEvent(NetworkEventTarget.All, "ConfirmWeReceiveIt");
+            receiveTimeout = TNLSManager.TNLSOthers.CurTime() + TNLSManager.TNLSSettings.timeBeforeLCexpire;
+            long curTime = TNLSManager.TNLSOthers.CurTime();
+            TNLSManager.TNLSQueue.lastExecutionTime = curTime - TNLSManager.TNLSQueue.queueExecutionTime;
+            TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultSuccess, logAuthorList.tnlsReceive, $"Successfuly finished the sync! {TNLSManager.TNLSQueue.lastExecutionTime}ms");
+        }
+
+        public void ConfirmWeReceiveIt()
+        {
+            if(Networking.GetOwner(gameObject) == Networking.LocalPlayer)
+            {
+                receiveCount++;
+                int tg = TNLSManager.TNLSOthers.GetPlayerCount();
+                if (0 >= (tg - receiveCount))
+                {
+                    isFullyReceived = true;
+                    receiveTimeout = 0;
+                    TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultSuccess, logAuthorList.confirmWeReceiveIt, $"Everyone has received the current method!");
+                    TNLSManager.TNLSLogingSystem.sendLog(messageType.debugUnknown, logAuthorList.confirmWeReceiveIt, $"tg: {tg}, rC: {receiveCount}, total: {tg - receiveCount}");
+                }
+                else if (TNLSManager.TNLSSettings.timeBeforeLCexpire != -1 && TNLSManager.TNLSOthers.CurTime() > receiveTimeout && receiveTimeout != 0)
+                {
+                    isFullyReceived = true;
+                    receiveTimeout = 0;
+                    TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultWarn, logAuthorList.confirmWeReceiveIt, $"{tg - receiveCount} players didn't receive the current method! We skip it.");
+                }
+                else if (TNLSManager.TNLSSettings.timeBeforeLCexpire == -1 && TNLSManager.TNLSOthers.CurTime() > (receiveTimeout + 30000) && receiveTimeout != 0)
+                {
+                    isFullyReceived = true;
+                    receiveTimeout = 0;
+                    TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultError, logAuthorList.confirmWeReceiveIt, $"HARD LIMIT TOUCHED! {tg - receiveCount} players didn't receive the current method! We skip it.");
+                }
+                else if(receiveTimeout == 0 && isFullyReceived)
+                {
+                    TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultError, logAuthorList.confirmWeReceiveIt, $"Some magic made one player send it after everything!");
+                }
+                //TNLSManager.TNLSLogingSystem.sendLog(messageType.debugInfo, logAuthorList.confirmWeReceiveIt, $"RECEIVED FOR {lastMethodEncoded}");
+            }
         }
         #endregion
 
@@ -196,24 +246,22 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public bool CAAOwner()
         {
-            if (!Networking.IsOwner(gameObject))
-            {
-                TNLSManager.TNLSLogingSystem.sendLog(messageType.debugInfo, logAuthorList.tnlsCAAOwner, "Transfering the owner to us.");
-                Networking.SetOwner(Networking.LocalPlayer, gameObject);
-                if(Networking.IsOwner(gameObject) )
-                {
-                    TNLSManager.TNLSLogingSystem.sendLog(messageType.debugSuccess, logAuthorList.tnlsCAAOwner, "Transfered the owner to us.");
-                }
-                else
-                {
-                    TNLSManager.TNLSLogingSystem.sendLog(messageType.debugError, logAuthorList.tnlsCAAOwner, "Transferring failed!");
-                }
-            }
-            else
+            if (Networking.IsOwner(gameObject))
             {
                 TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultUnknown, logAuthorList.tnlsCAAOwner, "Why transferring the owning to the LP when LP = Owner?");
             }
-            ownershipIsFuckingMine = Networking.GetOwner(gameObject).Equals(Networking.LocalPlayer);
+            else {
+                TNLSManager.TNLSLogingSystem.sendLog(messageType.debugInfo, logAuthorList.tnlsCAAOwner, "Transfering the owner to us.");
+                Networking.SetOwner(Networking.LocalPlayer, gameObject);
+                if (Networking.IsOwner(gameObject))
+                {
+                    TNLSManager.TNLSLogingSystem.sendLog(messageType.debugSuccess, logAuthorList.tnlsCAAOwner, "Transfered the owner to us.");
+                }
+                else {
+                    TNLSManager.TNLSLogingSystem.sendLog(messageType.debugError, logAuthorList.tnlsCAAOwner, "Transferring failed!");
+                }
+            }
+            ownershipIsFuckingMine = Networking.GetOwner(gameObject) == Networking.LocalPlayer;
             return Networking.IsOwner(gameObject);
         }
 
@@ -222,14 +270,14 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public void UnlockService()
         {
-            if (!unlockService)
+            if (unlockService)
             {
-                unlockService = true;
-                TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultSuccess, logAuthorList.tnlsUnlockService, "TNLS has been successfuly unlocked!");
+                TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultWarn, logAuthorList.tnlsUnlockService, "No need to unlock TNLS, he is already unlocked!");
             }
             else
             {
-                TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultWarn, logAuthorList.tnlsUnlockService, "No need to unlock TNLS, he is already unlocked!");
+                unlockService = true;
+                TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultSuccess, logAuthorList.tnlsUnlockService, "TNLS has been successfuly unlocked!");
             }
         }
 
@@ -238,12 +286,17 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public bool checkIfPlayerCanReceive(VRCPlayerApi player, string target)
         {
-            bool final = false;
-            if (target == "Local") { final = true; }else
-            if (target == "All") { final = true; }else
-            if (target == "Master" && player.isMaster) { final = true; }else
-            if (target.StartsWith("SelectPlayer=") && checkIfPlayerIsInTheCollection(player, target)) { final = true; }
-            return final;
+            switch(target.ToUpper())
+            {
+                case "LOCAL":
+                    return true;
+                case "ALL":
+                    return true;
+                case "MASTER":
+                    return player.isMaster;
+                default:
+                    return target.StartsWith("SelectPlayer=") && checkIfPlayerIsInTheCollection(player, target);
+            }
         }
 
         /// <summary>
@@ -252,45 +305,22 @@ namespace Tismatis.TNetLibrarySystem
         public bool checkIfPlayerIsInTheCollection(VRCPlayerApi player, string collection)
         {
             string[] collectString = collection.Replace("SelectPlayer=", "").Split('▀');
-            if(collectString.Length > 1 ) {
-                foreach(string id in collectString )
+            if (collectString.Length >= 1)
+            {
+                foreach (string id in collectString)
                 {
-                    if(Convert.ToInt32(id) == player.playerId)
+                    if (Convert.ToInt32(id) == player.playerId)
                     {
                         return true;
                     }
                 }
+                return false;
             }
-            else if(collectString.Length == 1)
+            else
             {
-                if (Convert.ToInt32(collectString[0]) == player.playerId)
-                {
-                    return true;
-                }
+                return false;
             }
-            return false;
         }
         #endregion
-    }
-}
-
-public static class TNLSArrayDefinitions
-{
-    public static bool Contains<T>(this T[] array, T item) => Array.IndexOf(array, item) != -1;
-
-    public static T[] Add<T>(this T[] array, T item)
-    {
-        T[] newArray = new T[array.Length + 1];
-        Array.Copy(array, newArray, array.Length);
-        newArray[array.Length] = item;
-        return newArray;
-    }
-
-    public static T[] Remove<T>(this T[] array, int index)
-    {
-        T[] newArray = new T[array.Length - 1];
-        Array.Copy(array, newArray, index);
-        Array.Copy(array, index + 1, newArray, index, newArray.Length - index);
-        return newArray;
     }
 }

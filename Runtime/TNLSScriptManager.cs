@@ -29,19 +29,16 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public int GetStats(string name)
         {
-            if(name == "scriptList")
+            switch(name.ToUpper())
             {
-                return scriptList.Length;
-            }else if(name == "netList")
-            {
-                return netList.Length;
-            }else if(name == "idNetList")
-            {
-                return idNetList.Length;
-            }
-            else
-            {
-                return -1;
+                case "SCRIPTLIST":
+                    return scriptList.Length;
+                case "NETLIST":
+                    return netList.Length;
+                case "IDNETLIST":
+                    return idNetList.Length;
+                default:
+                    return -1;
             }
         }
         #endregion GetStats
@@ -75,24 +72,7 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public UdonSharpBehaviour GetScriptById(int idOfScript)
         {
-            UdonSharpBehaviour script = null;
-            int k = 0;
-            foreach (UdonSharpBehaviour item in scriptList)
-            {
-                if (item != null)
-                {
-                    if (idOfScript == k)
-                    {
-                        script = item;
-                        break;
-                    }
-                    else
-                    {
-                        k++;
-                    }
-                }
-            }
-            return script;
+            return scriptList[idOfScript];
         }
 
         /// <summary>
@@ -101,18 +81,7 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public UdonSharpBehaviour GetScriptByName(string nameOfScript)
         {
-            UdonSharpBehaviour script = null;
-            int k = 0;
-            foreach(string currentName in netList)
-            {
-                if(currentName == nameOfScript)
-                {
-                    script = scriptList[k];
-                    break;
-                }
-                k++;
-            }
-            return script;
+            return scriptList[Array.IndexOf(netList, nameOfScript)];
         }
 
         /// <summary>
@@ -121,18 +90,7 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public int GetScriptIdByName(string nameOfScript)
         {
-            int scriptId = -1;
-            int k = 0;
-            foreach(string currentName in netList)
-            {
-                if(currentName == nameOfScript)
-                {
-                    scriptId = k;
-                    break;
-                }
-                k++;
-            }
-            return scriptId;
+            return Array.IndexOf(netList, nameOfScript);
         }
         #endregion
     }

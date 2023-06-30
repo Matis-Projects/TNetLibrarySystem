@@ -44,7 +44,8 @@ namespace Tismatis.TNetLibrarySystem
         serializationSerializeGetValue,
         serializationDeserializeObject,
         anstnStart,
-        settingsInitialiaztion
+        settingsInitialiaztion,
+        confirmWeReceiveIt
     }
     /// <summary>
     ///     <para>The LoggingSystem of the Networking system</para>
@@ -72,20 +73,19 @@ namespace Tismatis.TNetLibrarySystem
 
         public void Start()
         {
-            if(TNLSManager.TNLSSettings.debugWhitelist.Length > 0)
+            if (TNLSManager.TNLSSettings.debugWhitelist.Length > 0)
             {
                 string localName = Networking.LocalPlayer.displayName;
-                foreach(string whitelistItem in TNLSManager.TNLSSettings.debugWhitelist)
+                foreach (string whitelistItem in TNLSManager.TNLSSettings.debugWhitelist)
                 {
-                    if(localName == whitelistItem)
+                    if (localName == whitelistItem)
                     {
                         allowDebug = true;
                         break;
                     }
                 }
             }
-            else
-            {
+            else {
                 allowDebug = true;
             }
         }
@@ -96,35 +96,60 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public void sendLog(messageType type, logAuthorList author, string message)
         {
-            if(TNLSManager.TNLSSettings.enableLog)
+            if(TNLSManager.TNLSSettings.enableLog || author == logAuthorList.managerStart)
             {
                 string text = "";
                 string tmp = "";
 
                 int typeInt = Convert.ToInt32(type);
-                if(typeInt <= 4)
+                if (typeInt <= 4)
                 {
-                    if(typeInt == 0) { tmp = "<color=#5032ff>INFO</color>"; }else
-                    if (typeInt == 1) { tmp = "<color=#ff3232>ERROR</color>"; }else
-                    if (typeInt == 2) { tmp = "<color=#4dff32>SUCCESS</color>"; }else
-                    if (typeInt == 3) { tmp = "<color=#ff9632>WARN</color>"; }else
-                    if (typeInt == 4) { tmp = "<color=#464646>UNKNOWN</color>"; }
+                    switch (typeInt)
+                    {
+                        case 0:
+                            tmp = "<color=#5032ff>INFO</color>";
+                            break;
+                        case 1:
+                            tmp = "<color=#ff3232>ERROR</color>";
+                            break;
+                        case 2:
+                            tmp = "<color=#4dff32>SUCCESS</color>";
+                            break;
+                        case 3:
+                            tmp = "<color=#ff9632>WARN</color>";
+                            break;
+                        default:
+                            tmp = "<color=#464646>UNKNOWN</color>";
+                            break;
+                    }
                     text = $"<color=#3264ff>[</color><color=#e132ff>DEBUG</color><color=#3264ff>~</color>{tmp}<color=#3264ff>]</color>";
                     if (TNLSManager.TNLSSettings.debugMode && allowDebug)
                     {
-                        Debug.Log($"#{text} <color=#3264ff>[TNLS~{author}]</color> {message}");
+                        Debug.LogError($"#{text} <color=#3264ff>[TNLS~{author}]</color> {message}");
                     }
                     UpdateText($"#{text} <color=#3264ff>[TNLS~{author}]</color> {message}");
                 }
-                else
-                {
-                    if (typeInt == 5) { tmp = "<color=#5032ff>INFO</color>"; }else
-                    if (typeInt == 6) { tmp = "<color=#ff3232>ERROR</color>"; }else
-                    if (typeInt == 7) { tmp = "<color=#4dff32>SUCCESS</color>"; }else
-                    if (typeInt == 8) { tmp = "<color=#ff9632>WARN</color>"; }else
-                    if (typeInt == 9) { tmp = "<color=#464646>UNKNOWN</color>"; }
+                else {
+                    switch (typeInt)
+                    {
+                        case 5:
+                            tmp = "<color=#5032ff>INFO</color>";
+                            break;
+                        case 6:
+                            tmp = "<color=#ff3232>ERROR</color>";
+                            break;
+                        case 7:
+                            tmp = "<color=#4dff32>SUCCESS</color>";
+                            break;
+                        case 8:
+                            tmp = "<color=#ff9632>WARN</color>";
+                            break;
+                        default:
+                            tmp = "<color=#464646>UNKNOWN</color>";
+                            break;
+                    }
                     text = $"{tmp}";
-                    Debug.Log($"#{text} <color=#3264ff>[TNLS~{author}]</color> {message}");
+                    Debug.LogError($"#{text} <color=#3264ff>[TNLS~{author}]</color> {message}");
                     UpdateText($"#{text} <color=#3264ff>[TNLS~{author}]</color> {message}");
                 }
             }
@@ -138,7 +163,7 @@ namespace Tismatis.TNetLibrarySystem
             if(text != null)
             {
                 currentLine++;
-                if(currentLine < maxLine)
+                if (currentLine < maxLine)
                 {
                     string v = "";
                     if (text.text != "")
@@ -147,8 +172,7 @@ namespace Tismatis.TNetLibrarySystem
                     }
                     text.text = $"{text.text}{v}{line}";
                 }
-                else
-                {
+                else {
                     currentLine = 1;
                     text.text = line;
                 }

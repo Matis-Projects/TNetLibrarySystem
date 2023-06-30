@@ -52,9 +52,8 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
 |Easy to setup & use|<center>❌</center>|<center>✔️</center>|<center>✔️</center>
 |With a queue system|<center>❌</center>|<center>✔️</center>|<center>✔️</center>
 
-* *¹ → you need to transform it before send it by the network*
-* *² → not every Vector*
-* *³ → coming soon*
+* *¹ → you need to transform it into byte before send it by the network*
+* *² → not every types*
 
 # How to use TNetLibrarySystem
 
@@ -139,6 +138,7 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
 
 ### Debug
 
+* Now you need to enable `enableLog` in `Debug Mode`!
 * To put in a text:
     1. Create a 2D Text
     2. Assign this 2D Text to the `TNLS Logging System`*, a child of `TNLS Manager`.*
