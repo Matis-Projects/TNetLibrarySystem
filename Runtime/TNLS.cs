@@ -21,6 +21,7 @@ namespace Tismatis.TNetLibrarySystem
 
         [NonSerialized, UdonSynced] public string methodEncoded = "";
         [NonSerialized] public string lastMethodEncoded = "";
+        [NonSerialized] public int lastMethodId = 0;
 
         [NonSerialized] public bool ownershipLock = false;
         [NonSerialized] public bool tryingToSend = false;
@@ -29,13 +30,6 @@ namespace Tismatis.TNetLibrarySystem
         [NonSerialized] public bool inSerialization = false;
         [NonSerialized] public bool lockAfterGetIt = false;
         [NonSerialized] public bool ownershipIsFuckingMine = false;
-
-        [NonSerialized] public bool isFullyReceived = true;
-        [NonSerialized] public int receiveCount = 0;
-        [NonSerialized] public int receiveCountTarget = 0;
-        [NonSerialized] public long receiveTimeout = 0;
-
-        [NonSerialized] public int idMaxCount = 0;
 
         [NonSerialized] public bool unlockService = false;
 
@@ -81,7 +75,7 @@ namespace Tismatis.TNetLibrarySystem
         public void SendNetwork(string target, string networkName, string scriptId, object[] args)
         {
             string[][] newParams = TNLSManager.TNLSSerialization.SetParameters(args);
-            string methodPreparation = $"{networkName}█{scriptId}█{target}█{TNLSManager.TNLSSerialization.StringArrayToString(newParams[0])}█{TNLSManager.TNLSSerialization.StringArrayToString(newParams[1])}";
+            string methodPreparation = $"{networkName}█{scriptId}█{target}█{TNLSManager.TNLSSerialization.StringArrayToString(newParams[0])}█{TNLSManager.TNLSSerialization.StringArrayToString(newParams[1])}█{UnityEngine.Random.Range(100000, 999999)}";
 
             TNLSManager.TNLSQueue.InsertInTheQueue(methodPreparation);
         }
@@ -118,7 +112,7 @@ namespace Tismatis.TNetLibrarySystem
                 }
                 else
                 {
-                    SendCustomNetworkEvent(NetworkEventTarget.Owner, "ConfirmWeReceiveIt");
+                    TNLSManager.TNLSConfirmPool.broadcastReceive(int.Parse(methodEncoded.Split('█')[5]));
                     TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultInfo, logAuthorList.tnlsOnDeserialization, $"Executing a method");
                     TNLSManager.TNLSLogingSystem.sendLog(messageType.debugInfo, logAuthorList.tnlsOnDeserialization, $"The method executed: '{methodEncoded}'");
                     Receive(methodEncoded);
@@ -188,10 +182,7 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public override void OnPostSerialization(SerializationResult result)
         {
-            isFullyReceived = false;
-            receiveCount = 0;
-            receiveCountTarget = VRCPlayerApi.GetPlayerCount();
-            idMaxCount = TNLSManager.TNLSOthers.GetPlayerId(TNLSManager.TNLSOthers.GetAllPlayers()[TNLSManager.TNLSOthers.GetPlayerCount() - 1]);
+            TNLSManager.TNLSConfirmPool.passEveryoneToFalse();
 
             TNLSManager.TNLSLogingSystem.sendLog(messageType.debugUnknown, logAuthorList.tnlsOnPostDeserialization, "OnPostSerialization called!");
             methodEncoded = "";
@@ -199,44 +190,11 @@ namespace Tismatis.TNetLibrarySystem
             inSerialization = false;
             waitSerialization = false;
             tryingToSend = false;
-            SendCustomNetworkEvent(NetworkEventTarget.All, "ConfirmWeReceiveIt");
-            receiveTimeout = TNLSManager.TNLSOthers.CurTime() + TNLSManager.TNLSSettings.timeBeforeLCexpire;
             long curTime = TNLSManager.TNLSOthers.CurTime();
+            TNLSManager.TNLSConfirmPool.receiveTimeout = curTime + TNLSManager.TNLSSettings.timeBeforeLCexpire;
+            TNLSManager.TNLSConfirmPool.broadcastReceive(lastMethodId);
             TNLSManager.TNLSQueue.lastExecutionTime = curTime - TNLSManager.TNLSQueue.queueExecutionTime;
             TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultSuccess, logAuthorList.tnlsReceive, $"Successfuly finished the sync! {TNLSManager.TNLSQueue.lastExecutionTime}ms");
-        }
-
-        public void ConfirmWeReceiveIt()
-        {
-            if(Networking.GetOwner(gameObject) == Networking.LocalPlayer)
-            {
-                receiveCount++;
-                int tg = TNLSManager.TNLSOthers.GetPlayerCount();
-                if (0 >= (tg - receiveCount))
-                {
-                    isFullyReceived = true;
-                    receiveTimeout = 0;
-                    TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultSuccess, logAuthorList.confirmWeReceiveIt, $"Everyone has received the current method!");
-                    TNLSManager.TNLSLogingSystem.sendLog(messageType.debugUnknown, logAuthorList.confirmWeReceiveIt, $"tg: {tg}, rC: {receiveCount}, total: {tg - receiveCount}");
-                }
-                else if (TNLSManager.TNLSSettings.timeBeforeLCexpire != -1 && TNLSManager.TNLSOthers.CurTime() > receiveTimeout && receiveTimeout != 0)
-                {
-                    isFullyReceived = true;
-                    receiveTimeout = 0;
-                    TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultWarn, logAuthorList.confirmWeReceiveIt, $"{tg - receiveCount} players didn't receive the current method! We skip it.");
-                }
-                else if (TNLSManager.TNLSSettings.timeBeforeLCexpire == -1 && TNLSManager.TNLSOthers.CurTime() > (receiveTimeout + 30000) && receiveTimeout != 0)
-                {
-                    isFullyReceived = true;
-                    receiveTimeout = 0;
-                    TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultError, logAuthorList.confirmWeReceiveIt, $"HARD LIMIT TOUCHED! {tg - receiveCount} players didn't receive the current method! We skip it.");
-                }
-                else if(receiveTimeout == 0 && isFullyReceived)
-                {
-                    TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultError, logAuthorList.confirmWeReceiveIt, $"Some magic made one player send it after everything!");
-                }
-                //TNLSManager.TNLSLogingSystem.sendLog(messageType.debugInfo, logAuthorList.confirmWeReceiveIt, $"RECEIVED FOR {lastMethodEncoded}");
-            }
         }
         #endregion
 

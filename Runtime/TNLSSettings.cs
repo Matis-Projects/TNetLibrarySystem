@@ -85,6 +85,12 @@ namespace Tismatis.TNetLibrarySystem
                 TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultError, logAuthorList.settingsInitialiaztion, "The value entered for numberOfTickPerSecond is not valid.");
                 TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultInfo, logAuthorList.settingsInitialiaztion, "Passing into 10 ticks per second.");
             }
+
+            if(timeBeforeLCexpire == -1)
+            {
+                timeBeforeLCexpire = 30000;
+                TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultInfo, logAuthorList.settingsInitialiaztion, "You put -1 at TBLCe, we passing at 30s.");
+            }
         }
     }
 }

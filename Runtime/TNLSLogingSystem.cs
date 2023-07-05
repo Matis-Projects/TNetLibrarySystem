@@ -45,7 +45,11 @@ namespace Tismatis.TNetLibrarySystem
         serializationDeserializeObject,
         anstnStart,
         settingsInitialiaztion,
-        confirmWeReceiveIt
+        confirmInitialize,
+        confirmActualizeList,
+        confirmEveryoneReceived,
+        confirmPassEveryoneToFalse,
+        confirmBroadcastReceive
     }
     /// <summary>
     ///     <para>The LoggingSystem of the Networking system</para>

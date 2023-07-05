@@ -38,6 +38,10 @@ namespace Tismatis.TNetLibrarySystem
         [Tooltip("This is the queue of the system.")]
         [SerializeField] public TNLSQueue TNLSQueue;
 
+        [Header("ConfirmPool")]
+        [Tooltip("This is the pool for confirm we received the request.")] // btw, a potential switch into byte will conduct us to create another pool for had multiple line of network (Oh spoilers ^^')
+        [SerializeField] public TNLSConfirmPool TNLSConfirmPool;
+
         [Header("Others")]
         [Tooltip("This is the class required for make working the system.")]
         [SerializeField] public TNLSOthers TNLSOthers;
@@ -55,9 +59,9 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public void Start()
         {
-            currentVersion = "30/06/2023 at (UTC)23:48";
+            currentVersion = "01/07/2023 at (UTC)20:45";
             currentBranch = "dev";
-            descriptionVersion = "LAST PATCH FOR THE PROBLEM OF SKIP.";
+            descriptionVersion = "Removed RPC to pool.";
 
             if(TNLSSettings != null && TNLS != null && TNLSLogingSystem != null && TNLSScriptManager && TNLSSerialization != null && TNLSOthers != null)
             {
@@ -65,7 +69,11 @@ namespace Tismatis.TNetLibrarySystem
                 TNLSSettings.Initialize();
                 TNLSLogingSystem.sendLog(messageType.defaultSuccess, logAuthorList.managerStart, "Loaded settings!");
 
-                if(TNLSSettings.lockBeforeFullyBooted)
+                TNLSLogingSystem.sendLog(messageType.defaultInfo, logAuthorList.managerStart, "Creating pool...");
+                TNLSConfirmPool.Initialize();
+                TNLSLogingSystem.sendLog(messageType.defaultSuccess, logAuthorList.managerStart, "The pool has been created!");
+
+                if (TNLSSettings.lockBeforeFullyBooted)
                 {
                     TNLSLogingSystem.sendLog(messageType.defaultInfo, logAuthorList.managerStart, "Adding TNLS to the script list...");
                     AddANamedNetworkedScript("TNLS", TNLS);

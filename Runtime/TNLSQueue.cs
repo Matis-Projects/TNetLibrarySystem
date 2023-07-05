@@ -58,7 +58,7 @@ namespace Tismatis.TNetLibrarySystem
             {
                 if (!TNLSManager.TNLS.tryingToSend && !TNLSManager.TNLS.inSerialization && !TNLSManager.TNLS.ownershipLock && !TNLSManager.TNLS.localExecution && !queueIsExecuting && !TNLSManager.TNLS.waitSerialization)
                 {
-                    if(TNLSManager.TNLS.isFullyReceived)
+                    if(TNLSManager.TNLSConfirmPool.everyoneReceived(TNLSManager.TNLS.lastMethodId))
                     {
                         queueIsExecuting = true;
 
@@ -88,6 +88,7 @@ namespace Tismatis.TNetLibrarySystem
 
                                     TNLSManager.TNLS.methodEncoded = current;
                                     TNLSManager.TNLS.lastMethodEncoded = current;
+                                    TNLSManager.TNLS.lastMethodId = int.Parse(methodDecoded[5]);
 
                                     TNLSManager.TNLSLogingSystem.sendLog(messageType.debugInfo, logAuthorList.queueUpdate, $"Sending to everyone (or retry: {numberOfTry})");
                                     TNLSManager.TNLS.waitSerialization = true;
@@ -113,6 +114,7 @@ namespace Tismatis.TNetLibrarySystem
 
                                 TNLSManager.TNLS.methodEncoded = current;
                                 TNLSManager.TNLS.lastMethodEncoded = current;
+                                TNLSManager.TNLS.lastMethodId = int.Parse(methodDecoded[5]);
 
                                 numberOfTry = 0;
 
@@ -130,34 +132,16 @@ namespace Tismatis.TNetLibrarySystem
                     }
                     else
                     {
-                        if (TNLSManager.TNLSSettings.timeBeforeLCexpire != -1 && TNLSManager.TNLSOthers.CurTime() > TNLSManager.TNLS.receiveTimeout && TNLSManager.TNLS.receiveTimeout != 0)
-                        {
-                            TNLSManager.TNLS.isFullyReceived = true;
-                            TNLSManager.TNLS.receiveTimeout = 0;
-                            TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultWarn, logAuthorList.queueUpdate, $"{TNLSManager.TNLS.receiveCountTarget - TNLSManager.TNLS.receiveCount} players didn't receive the current method! We skip it and execute at the next tick another method.");
-                        }else if (TNLSManager.TNLSSettings.timeBeforeLCexpire == -1 && TNLSManager.TNLSOthers.CurTime() > (TNLSManager.TNLS.receiveTimeout + 30000) && TNLSManager.TNLS.receiveTimeout != 0)
-                        {
-                            TNLSManager.TNLS.isFullyReceived = true;
-                            TNLSManager.TNLS.receiveTimeout = 0;
-                            TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultWarn, logAuthorList.queueUpdate, $"[HARDLIMIT] {TNLSManager.TNLS.receiveCountTarget - TNLSManager.TNLS.receiveCount} players didn't receive the current method! We skip it and execute at the next tick another method.");
-                        }else if (TNLSManager.TNLS.receiveTimeout == 0)
-                        {
-                            TNLSManager.TNLS.isFullyReceived = true;
-                            TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultError, logAuthorList.queueUpdate, $"A player received it but an unknown bug occured!");
-                        }
-                        else
-                        {
-                            TNLSManager.TNLSLogingSystem.sendLog(messageType.debugWarn, logAuthorList.queueUpdate, $"Not everyone received it! Waiting...");
-                        }
+                        //TNLSManager.TNLSLogingSystem.sendLog(messageType.debugWarn, logAuthorList.queueUpdate, $"Not everyone received it! Waiting...");
                     }
                 }
                 else
                 {
-                    if(TNLSManager.TNLS.isFullyReceived)
+                    if(TNLSManager.TNLSConfirmPool.everyoneReceived(TNLSManager.TNLS.lastMethodId))
                     {
                         if (numberOfTry == 0)
                         {
-                            TNLSManager.TNLSLogingSystem.sendLog(messageType.debugError, logAuthorList.queueUpdate, $"isOwner?: {TNLSManager.TNLS.ownershipIsFuckingMine} tTS: {TNLSManager.TNLS.tryingToSend} iS: {TNLSManager.TNLS.inSerialization} oL: {TNLSManager.TNLS.ownershipLock} lE: {TNLSManager.TNLS.localExecution} qIE: {queueIsExecuting} qIR: {queueIsRunning} wS: {TNLSManager.TNLS.waitSerialization} iFR: {TNLSManager.TNLS.isFullyReceived}");
+                            TNLSManager.TNLSLogingSystem.sendLog(messageType.debugError, logAuthorList.queueUpdate, $"isOwner?: {TNLSManager.TNLS.ownershipIsFuckingMine} tTS: {TNLSManager.TNLS.tryingToSend} iS: {TNLSManager.TNLS.inSerialization} oL: {TNLSManager.TNLS.ownershipLock} lE: {TNLSManager.TNLS.localExecution} qIE: {queueIsExecuting} qIR: {queueIsRunning} wS: {TNLSManager.TNLS.waitSerialization} iFR: {true}");
                         }
 
                         if (numberOfTry >= 20 && !TNLSManager.TNLS.ownershipIsFuckingMine && TNLSManager.TNLS.tryingToSend && TNLSManager.TNLS.waitSerialization && !TNLSManager.TNLS.inSerialization && !TNLSManager.TNLS.ownershipLock)
@@ -182,32 +166,7 @@ namespace Tismatis.TNetLibrarySystem
                     }
                     else
                     {
-                        if (TNLSManager.TNLSSettings.timeBeforeLCexpire != -1 && TNLSManager.TNLSOthers.CurTime() > TNLSManager.TNLS.receiveTimeout && TNLSManager.TNLS.receiveTimeout != 0)
-                        {
-                            TNLSManager.TNLS.isFullyReceived = true;
-                            TNLSManager.TNLS.receiveTimeout = 0;
-                            TNLSManager.TNLS.receiveCount = 0;
-                            TNLSManager.TNLS.receiveCountTarget = 0;
-                            TNLSManager.TNLS.idMaxCount = 0;
-                            TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultWarn, logAuthorList.queueUpdate, $"{TNLSManager.TNLS.receiveCountTarget - TNLSManager.TNLS.receiveCount} players didn't receive the current method! We skip it and execute at the next tick another method.");
-                        }else if (TNLSManager.TNLSSettings.timeBeforeLCexpire == -1 && TNLSManager.TNLSOthers.CurTime() > (TNLSManager.TNLS.receiveTimeout + 30000) && TNLSManager.TNLS.receiveTimeout != 0)
-                        {
-                            TNLSManager.TNLS.isFullyReceived = true;
-                            TNLSManager.TNLS.receiveTimeout = 0;
-                            TNLSManager.TNLS.receiveCount = 0;
-                            TNLSManager.TNLS.receiveCountTarget = 0;
-                            TNLSManager.TNLS.idMaxCount = 0;
-                            TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultWarn, logAuthorList.queueUpdate, $"[HARDLIMIT] {TNLSManager.TNLS.receiveCountTarget - TNLSManager.TNLS.receiveCount} players didn't receive the current method! We skip it and execute at the next tick another method.");
-                        }
-                        else if (TNLSManager.TNLS.receiveTimeout == 0)
-                        {
-                            TNLSManager.TNLS.isFullyReceived = true;
-                            TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultError, logAuthorList.queueUpdate, $"A player received it but an unknown bug occured!");
-                        }
-                        else
-                        {
-                            TNLSManager.TNLSLogingSystem.sendLog(messageType.debugWarn, logAuthorList.queueUpdate, $"Not everyone received it! Waiting...");
-                        }
+                        //TNLSManager.TNLSLogingSystem.sendLog(messageType.debugWarn, logAuthorList.queueUpdate, $"Not everyone received it! Waiting...");
                     }
                 }
             }

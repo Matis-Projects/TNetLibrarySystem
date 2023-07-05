@@ -1,5 +1,7 @@
 ﻿
 using System;
+using System.Collections;
+using System.Linq;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
@@ -13,6 +15,7 @@ namespace Tismatis.TNetLibrarySystem
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class TNLSOthers : UdonSharpBehaviour
     {
+        [SerializeField] private TNLSManager TNLSManager;
         [NonSerialized] private VRCPlayerApi[] AllPlayers = new VRCPlayerApi[0];
 
         #region Player
@@ -45,7 +48,54 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public int GetPlayerIdLocal(VRCPlayerApi player)
         {
-            return Array.IndexOf(AllPlayers, player);
+            return Array.IndexOf(GetAllPlayers(), player);
+        }
+
+        /// <summary>
+        ///     <para>Sert à trouver un joueur par son ID networked</para>
+        /// </summary>
+        public VRCPlayerApi GetPlayerById(int id)
+        {
+            return VRCPlayerApi.GetPlayerById(id);
+        }
+
+        /// <summary>
+        ///     <para>Get the player id from collection.</para>
+        /// </summary>
+        public void ResortAllValue()
+        {
+            VRCPlayerApi[] sorted = new VRCPlayerApi[GetPlayerCount()];
+            int[] ids = new int[GetPlayerCount()];
+
+            int k = 0;
+            foreach (VRCPlayerApi i in AllPlayers)
+            {
+                ids[k] = GetPlayerId(i);
+                k++;
+            }
+
+            k = 0;
+            for (int i = 0; i <= ids.Length - 1; i++)
+            {
+                for (int j = i + 1; j < ids.Length; j++)
+                {
+                    if (ids[i] > ids[j])
+                    {
+                        k = ids[i];
+                        ids[i] = ids[j];
+                        ids[j] = k;
+                    }
+                }
+            }
+
+            k = 0;
+            foreach (int i in ids)
+            {
+                sorted[k] = GetPlayerById(i);
+                k++;
+            }
+
+            AllPlayers = sorted;
         }
         #endregion Player
 
@@ -63,6 +113,10 @@ namespace Tismatis.TNetLibrarySystem
         public override void OnPlayerJoined(VRCPlayerApi player)
         {
             AllPlayers = AllPlayers.Add(player);
+
+            ResortAllValue();
+
+            TNLSManager.TNLSConfirmPool.actualizeList();
         }
 
         public override void OnPlayerLeft(VRCPlayerApi player)
@@ -72,6 +126,10 @@ namespace Tismatis.TNetLibrarySystem
             {
                 AllPlayers = AllPlayers.Remove(idLocal);
             }
+
+            ResortAllValue();
+
+            TNLSManager.TNLSConfirmPool.actualizeList();
         }
         #endregion Others
     }
@@ -94,6 +152,28 @@ public static class TNLSArrayDefinitions
         T[] newArray = new T[array.Length - 1];
         Array.Copy(array, newArray, index);
         Array.Copy(array, index + 1, newArray, index, newArray.Length - index);
+        return newArray;
+    }
+
+    public static T[] Insert<T>(this T[] array, int index, T item)
+    {
+        int length = array.Length;
+        index = Mathf.Clamp(index, 0, length);
+        T[] newArray = new T[length + 1];
+        newArray.SetValue(item, index);
+        if (index == 0)
+        {
+            Array.Copy(array, 0, newArray, 1, length);
+        }
+        else if (index == length)
+        {
+            Array.Copy(array, 0, newArray, 0, length);
+        }
+        else
+        {
+            Array.Copy(array, 0, newArray, 0, index);
+            Array.Copy(array, index, newArray, index + 1, length - index);
+        }
         return newArray;
     }
 }
