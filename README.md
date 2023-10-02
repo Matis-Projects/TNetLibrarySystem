@@ -59,29 +59,25 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
 
 ### Preparation of the world
 
-1. Put the prefab named `TNLS Manager` in your world
-2. **UNPACK THE PREFAB** ! Without unpack, this will just break the entire system.
-3. Put the prefab at the top of the world. *That can fix a lot of issues.*
-4. All settings are in the `TNLS Settings`*, a child of `TNLS Manager`*.
+1. Select in the Menu Bar `TNetLibrarySystem`.
+2. Click on `Import prefab in the scene` and select the line count.
+* We recommends to use 16 lines.
 
-### Preparation of the Networked script
+### Coding with TNLS.
 
-* Automatic mode
-    1. Add in the same gameobject a `AssignNewScriptToNetwork` component.
-    2. Change the scriptName to what you want.
-    3. Assign the `TNLS Manager` and your Networked script in the new component.
-    4. The Serialization Method can't be in `None` but put the same value in the `AssignNewScriptToNetwork`.
-* Legacy mode
-    1. Your script Syncronization Method can't be in `None` or he can't receive any networked method. 
-    2. Declare under your `UdonSharpBehaviour` class the TNLS: `[SerializeField] private TNLSManager TNLSManager;` *(can be private or public)*
-        * In case you have a script link to all your scripts, you can declare it into the this one and not re-declare it all times.
-    3. Declare the ScriptName:
-        * Use the following method to transform that script into a networked script: `TNLSManager.AddANamedNetworkedScript("<the name>", this);`
-        *  ***WARNING** It's one name per instance of script.*
+*   **Warning**, all old method for adding the script automaticly to TNLS is outdated, that include `AssignNewScriptToNetwork` due to the new update.
+1. Import `Tismatis.TNetLibrarySystem.Coding` in the class.
+2. Just put the inherent class as `NetworkedClass` and not `UdonSharpBehaviour` by default.
+3. Set by the `Inspector` in Unity to modify the `scriptName` value.
+* *You can set `scriptName` by overriding `void Start()` **but you need to change the value before the `base.Start();`**.*
+* When you use the `void Start()`, make sure you override the one of `NetworkedClass` and you added `base.Start();` at the first line.
 
 ### Call a method
 
-*   In case of you want use the name of the script: `TNLSManager.CallNamedNetworkedScript("All/Local", "<Your Void Name>", "<The ScriptName destination>", <parameters>);`
+*   In the case the script where you start the call is in a NetworkedClass:
+    * You call the script himself: `SendNetworkedEvent("All/Local", "<Your Void Name>", "<The ScriptName destination>", <parameters>);`
+    * You call another script than the one you use to call: `SendExternalNetworkedEvent("All/Local", "<Your Void Name>", "<The ScriptName destination>", <parameters>);`
+*   In the case the script where you start the call is not in a NetworkedClass: `TNLSManager.CallNamedNetworkedScript("All/Local", "<Your Void Name>", "<The ScriptName destination>", <parameters>);`
 
 ### Call method by UI Button with arguments
 
@@ -98,8 +94,7 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
 
 ### Receive Parameters
 
-* Create a object array and set the value with the method `TNLSManager.GetParameters()`.
-    * `object[] parameters = TNLSManager.GetParameters();`
+* Now you need to declare ddirectly in yours parameters an array of object like this: `void MyNetworkedMethod(object[] parameters)`.
 
 ### Parameters
 

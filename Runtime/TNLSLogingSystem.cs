@@ -21,35 +21,37 @@ namespace Tismatis.TNetLibrarySystem
         defaultWarn,
         defaultUnknown
     }
+
     public enum logAuthorList
     {
-        tnlsReceive,
-        tnlsGetParameters,
-        tnlsOnDeserialization,
-        tnlsOnOwnershipRequest,
-        tnlsOnOwnershipTransferred,
-        tnlsOnPreSerialization,
-        tnlsOnPostDeserialization,
-        tnlsCAAOwner,
-        tnlsUnlockService,
         managerStart,
-        managerPlayerJoin,
         managerCNNS,
         queueIITQ,
         queueUpdate,
         scriptManagerAANS,
-        scriptManagerPlayerJoin,
         serializationSetParameters,
         serializationGetParameters,
         serializationSerializeGetValue,
         serializationDeserializeObject,
         anstnStart,
-        settingsInitialiaztion,
-        confirmInitialize,
-        confirmActualizeList,
-        confirmEveryoneReceived,
-        confirmPassEveryoneToFalse,
-        confirmBroadcastReceive
+        settingsInitialize,
+        confirmPoolInitialize,
+        confirmPoolActualizeList,
+        confirmPoolEveryoneReceived,
+        confirmPoolPassEveryoneToFalse,
+        confirmPoolBroadcastReceive,
+        linePoolInitialize,
+        linePoolCAAOwner,
+        linePoolReceive,
+        lineOnDeserialization,
+        lineOnOwnershipRequest,
+        lineOnOwnershipTransferred,
+        lineOnPreSerialization,
+        lineOnPostDeserialization,
+        buildFileRebuildAllFiles,
+        buildFileImplementFile,
+        buildFileAutoSelectManager,
+        buildFileDetectUncompatibleComponent
     }
     /// <summary>
     ///     <para>The LoggingSystem of the Networking system</para>
@@ -58,10 +60,7 @@ namespace Tismatis.TNetLibrarySystem
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class TNLSLogingSystem : UdonSharpBehaviour
     {
-        [Header("Manager")]
-
-        [Tooltip("This is the TNLS Manager, he is required for make this library working.")]
-        [SerializeField] private TNLSManager TNLSManager;
+        [SerializeField] public TNLSManager TNLSManager;
 
 
         [Header("External Log")]
@@ -104,57 +103,20 @@ namespace Tismatis.TNetLibrarySystem
             {
                 string text = "";
                 string tmp = "";
-
-                int typeInt = Convert.ToInt32(type);
-                if (typeInt <= 4)
+                
+                if (((int)type) <= 4)
                 {
-                    switch (typeInt)
-                    {
-                        case 0:
-                            tmp = "<color=#5032ff>INFO</color>";
-                            break;
-                        case 1:
-                            tmp = "<color=#ff3232>ERROR</color>";
-                            break;
-                        case 2:
-                            tmp = "<color=#4dff32>SUCCESS</color>";
-                            break;
-                        case 3:
-                            tmp = "<color=#ff9632>WARN</color>";
-                            break;
-                        default:
-                            tmp = "<color=#464646>UNKNOWN</color>";
-                            break;
-                    }
-                    text = $"<color=#3264ff>[</color><color=#e132ff>DEBUG</color><color=#3264ff>~</color>{tmp}<color=#3264ff>]</color>";
+                    text = TNLSLog.LogFormat(type, author, message);
                     if (TNLSManager.TNLSSettings.debugMode && allowDebug)
                     {
-                        Debug.LogError($"#{text} <color=#3264ff>[TNLS~{author}]</color> {message}");
+                        Debug.Log(text);
                     }
-                    UpdateText($"#{text} <color=#3264ff>[TNLS~{author}]</color> {message}");
+                    UpdateText(text);
                 }
                 else {
-                    switch (typeInt)
-                    {
-                        case 5:
-                            tmp = "<color=#5032ff>INFO</color>";
-                            break;
-                        case 6:
-                            tmp = "<color=#ff3232>ERROR</color>";
-                            break;
-                        case 7:
-                            tmp = "<color=#4dff32>SUCCESS</color>";
-                            break;
-                        case 8:
-                            tmp = "<color=#ff9632>WARN</color>";
-                            break;
-                        default:
-                            tmp = "<color=#464646>UNKNOWN</color>";
-                            break;
-                    }
-                    text = $"{tmp}";
-                    Debug.LogError($"#{text} <color=#3264ff>[TNLS~{author}]</color> {message}");
-                    UpdateText($"#{text} <color=#3264ff>[TNLS~{author}]</color> {message}");
+                    text = TNLSLog.LogFormat(type, author, message);
+                    Debug.Log(text);
+                    UpdateText(text);
                 }
             }
         }
@@ -181,6 +143,104 @@ namespace Tismatis.TNetLibrarySystem
                     text.text = line;
                 }
             }
+        }
+    }
+
+    public class TNLSLog
+    {
+        public static string LogFormat(messageType messageType, logAuthorList logAuthor, string message)
+        {
+            switch (messageType)
+            {
+                case messageType.defaultInfo:
+                    return $"#<color=#0037DA>INFO</color> [<color=#3B78FF>TNLS~{getAuthor(logAuthor)}</color>] {message}";
+                case messageType.defaultError:
+                    return $"#<color=#C50F1F>ERROR</color> [<color=#3B78FF>TNLS~{getAuthor(logAuthor)}</color>] {message}";
+                case messageType.defaultSuccess:
+                    return $"#<color=#16C60C>SUCCESS</color> [<color=#3B78FF>TNLS~{getAuthor(logAuthor)}</color>] {message}";
+                case messageType.defaultWarn:
+                    return $"#<color=#C19C00>WARN</color> [<color=#3B78FF>TNLS~{getAuthor(logAuthor)}</color>] {message}";
+                case messageType.debugInfo:
+                    return $"#<color=#B4009E>INFO</color> [<color=#3B78FF>TNLS~{getAuthor(logAuthor)}</color>] {message}";
+                case messageType.debugError:
+                    return $"#<color=#B4009E>ERROR</color> [<color=#3B78FF>TNLS~{getAuthor(logAuthor)}</color>] {message}";
+                case messageType.debugSuccess:
+                    return $"#<color=#B4009E>SUCCESS</color> [<color=#3B78FF>TNLS~{getAuthor(logAuthor)}</color>] {message}";
+                case messageType.debugWarn:
+                    return $"#<color=#B4009E>WARN</color> [<color=#3B78FF>TNLS~{getAuthor(logAuthor)}</color>] {message}";
+                case messageType.debugUnknown:
+                    return $"#<color=#B4009E>UNKNOWN</color> [<color=#3B78FF>TNLS~{getAuthor(logAuthor)}</color>] {message}";
+                default:
+                    return $"#<color=#767676>UNKNOWN</color> [<color=#3B78FF>TNLS~{getAuthor(logAuthor)}</color>] {message}";
+            }
+        }
+
+        public static string getAuthor(logAuthorList author)
+        {
+            switch (author)
+            {
+                case logAuthorList.managerStart:
+                    return "manager~Start";
+                case logAuthorList.managerCNNS:
+                    return "manager~CallNamedNetworkedScript";
+                case logAuthorList.queueIITQ:
+                    return "queue~InsertInTheQueue";
+                case logAuthorList.queueUpdate:
+                    return "queue~UpdateTheQueue";
+                case logAuthorList.scriptManagerAANS:
+                    return "scriptManager~AddANetworkedScript";
+                case logAuthorList.serializationSetParameters:
+                    return "serialization~SetParameters";
+                case logAuthorList.serializationGetParameters:
+                    return "serialization~GetParameters";
+                case logAuthorList.serializationSerializeGetValue:
+                    return "serialization~SerializeGetValue";
+                case logAuthorList.serializationDeserializeObject:
+                    return "serialization~DeserializeObject";
+                case logAuthorList.anstnStart:
+                    return "anstn~Start";
+                case logAuthorList.settingsInitialize:
+                    return "settings~Initialize";
+                case logAuthorList.confirmPoolInitialize:
+                    return "confirmPool~Initialize";
+                case logAuthorList.confirmPoolActualizeList:
+                    return "confirmPool~ActualizeList";
+                case logAuthorList.confirmPoolEveryoneReceived:
+                    return "confirmPool~EveryoneReceived";
+                case logAuthorList.confirmPoolPassEveryoneToFalse:
+                    return "confirmPool~PassEveryoneToFalse";
+                case logAuthorList.confirmPoolBroadcastReceive:
+                    return "confirmPool~BroadcastReceive";
+                case logAuthorList.linePoolInitialize:
+                    return "linePool~Initialize";
+                case logAuthorList.linePoolCAAOwner:
+                    return "linePool~CAAOwner";
+                case logAuthorList.linePoolReceive:
+                    return "linePool~Receive";
+                case logAuthorList.lineOnDeserialization:
+                    return "line~OnDeserialization";
+                case logAuthorList.lineOnOwnershipRequest:
+                    return "line~OnOwnershipRequest";
+                case logAuthorList.lineOnOwnershipTransferred:
+                    return "line~OnOwnershipTransferred";
+                case logAuthorList.lineOnPreSerialization:
+                    return "line~OnPreSerialization";
+                case logAuthorList.lineOnPostDeserialization:
+                    return "line~OnPostDeserialization";
+                case logAuthorList.buildFileRebuildAllFiles:
+                    return "buildFile~RebuildAllFiles";
+                case logAuthorList.buildFileImplementFile:
+                    return "buildFile~ImplementFile";
+                case logAuthorList.buildFileAutoSelectManager:
+                    return "buildFile~AutoSelectManager";
+                default:
+                    return "Unknown~Unknown";
+            }
+        }
+
+        public static void SendLog(messageType messageType, logAuthorList logAuthor, string message)
+        {
+            Debug.Log(LogFormat(messageType, logAuthor, message));
         }
     }
 }

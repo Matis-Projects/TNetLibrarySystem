@@ -14,9 +14,7 @@ namespace Tismatis.TNetLibrarySystem
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class TNLSScriptManager : UdonSharpBehaviour
     {
-        [Header("Manager")]
-        [Tooltip("This is the TNLS Manager, he is required for make this library working.")]
-        [SerializeField] private TNLSManager TNLSManager;
+        [SerializeField] public TNLSManager TNLSManager;
 
         [NonSerialized] private UdonSharpBehaviour[] scriptList = new UdonSharpBehaviour[0];
         [NonSerialized] private string[] netList = new string[0];
@@ -50,7 +48,7 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public int AddANetworkedScript(string name, UdonSharpBehaviour script)
         {
-            if(netList.Length + 1 <= TNLSManager.TNLSSettings.maxNetList)
+            if (Array.IndexOf(netList, name) == -1)
             {
                 int scriptId = scriptList.Length + 1;
                 scriptList = scriptList.Add(script);
@@ -58,8 +56,10 @@ namespace Tismatis.TNetLibrarySystem
                 idNetList = idNetList.Add(scriptId);
                 TNLSManager.TNLSLogingSystem.sendLog(messageType.debugSuccess, logAuthorList.scriptManagerAANS, $"Added '{name}' to the NetworkedList with Name");
                 return scriptId;
-            }else{
-                TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultError, logAuthorList.scriptManagerAANS, $"Can't add one more NetworkedScript! ({netList.Length+1}>MaxNetList)");
+            }
+            else
+            {
+                TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultError, logAuthorList.scriptManagerAANS, $"Tried to add '{name}' but that name is already used.");
                 return -1;
             }
         }

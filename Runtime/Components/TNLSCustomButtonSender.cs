@@ -1,4 +1,6 @@
 ﻿
+using System;
+using System.Diagnostics.Tracing;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
@@ -15,7 +17,7 @@ namespace Tismatis.TNetLibrarySystem
     {
         [Header("Manager")]
         [Tooltip("This is the TNLS Manager, he is required for make this script working.")]
-        [SerializeField] private TNLSManager TNLSManager;
+        [NonSerialized] public TNLSManager TNLSManager;
 
 
         [Tooltip("Put here your target. All/Local")]

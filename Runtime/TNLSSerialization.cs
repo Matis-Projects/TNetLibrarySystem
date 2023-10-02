@@ -14,9 +14,7 @@ namespace Tismatis.TNetLibrarySystem
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class TNLSSerialization : UdonSharpBehaviour
     {
-        [Header("Manager")]
-        [Tooltip("This is the TNLS Manager, he is required for make this library working.")]
-        [SerializeField] private TNLSManager TNLSManager;
+        [SerializeField] public TNLSManager TNLSManager;
 
         #region Get/Set Parameters
         /// <summary>

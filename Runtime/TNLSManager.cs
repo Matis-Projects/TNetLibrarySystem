@@ -1,6 +1,7 @@
 ﻿
 using System;
 using UdonSharp;
+using UnityEditor;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
@@ -16,7 +17,7 @@ namespace Tismatis.TNetLibrarySystem
     {
         [Header("Networking")]
         [Tooltip("This is the networking part of the system.")]
-        [SerializeField] public TNLS TNLS;
+        [SerializeField] public TNLSLinePool TNLSLinePool;
 
         [Header("Loging System")]
         [Tooltip("This is the log part of the system.")]
@@ -47,9 +48,9 @@ namespace Tismatis.TNetLibrarySystem
         [SerializeField] public TNLSOthers TNLSOthers;
 
         [Header("Version")] // RAPPEL: Para alterar a versao, você deve passar pela funçao inicial do script. Le boloss qui traduit ça pour passer au travers des mises à jours, je fais du carglouch avec sa tête.
-        [NonSerialized] public string currentVersion = "";
-        [NonSerialized] public string currentBranch = "";
-        [NonSerialized] public string descriptionVersion = "";
+        [NonSerialized] public string currentVersion = TNLSVersion.getVersion();
+        [NonSerialized] public string currentBranch = TNLSVersion.getBranch();
+        [NonSerialized] public string descriptionVersion = TNLSVersion.getDescription();
         [NonSerialized] public bool hasFullyBoot = false;
 
         #region Initialization
@@ -59,37 +60,30 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public void Start()
         {
-            currentVersion = "01/07/2023 at (UTC)20:45";
-            currentBranch = "dev";
-            descriptionVersion = "Removed RPC to pool.";
+            currentVersion = TNLSVersion.getVersion();
+            currentBranch = TNLSVersion.getBranch();
+            descriptionVersion = TNLSVersion.getDescription();
 
-            if(TNLSSettings != null && TNLS != null && TNLSLogingSystem != null && TNLSScriptManager && TNLSSerialization != null && TNLSOthers != null)
+            if (TNLSSettings != null && TNLSLinePool != null && TNLSLogingSystem != null && TNLSScriptManager != null && TNLSSerialization != null && TNLSOthers != null && TNLSConfirmPool != null)
             {
                 TNLSLogingSystem.sendLog(messageType.defaultInfo, logAuthorList.managerStart, "Loading settings...");
                 TNLSSettings.Initialize();
                 TNLSLogingSystem.sendLog(messageType.defaultSuccess, logAuthorList.managerStart, "Loaded settings!");
 
-                TNLSLogingSystem.sendLog(messageType.defaultInfo, logAuthorList.managerStart, "Creating pool...");
-                TNLSConfirmPool.Initialize();
-                TNLSLogingSystem.sendLog(messageType.defaultSuccess, logAuthorList.managerStart, "The pool has been created!");
+                TNLSLogingSystem.sendLog(messageType.defaultInfo, logAuthorList.managerStart, "Creating line pool...");
+                TNLSLinePool.Initialize();
+                TNLSLogingSystem.sendLog(messageType.defaultSuccess, logAuthorList.managerStart, "The line pool has been created!");
 
-                if (TNLSSettings.lockBeforeFullyBooted)
-                {
-                    TNLSLogingSystem.sendLog(messageType.defaultInfo, logAuthorList.managerStart, "Adding TNLS to the script list...");
-                    AddANamedNetworkedScript("TNLS", TNLS);
-                    TNLSLogingSystem.sendLog(messageType.defaultSuccess, logAuthorList.managerStart, "Added TNLS to the script list!");
-                }
-                else
-                {
-                    TNLSLogingSystem.sendLog(messageType.defaultInfo, logAuthorList.managerStart, "You didn't toggle the security when someone join.");
-                }
+                TNLSLogingSystem.sendLog(messageType.defaultInfo, logAuthorList.managerStart, "Creating receiving pool...");
+                TNLSConfirmPool.Initialize();
+                TNLSLogingSystem.sendLog(messageType.defaultSuccess, logAuthorList.managerStart, "The receiving pool has been created!");
 
                 TNLSLogingSystem.sendLog(messageType.defaultSuccess, logAuthorList.managerStart, "The system has been started!");
 
                 hasFullyBoot = true;
 
                 TNLSLogingSystem.sendLog(messageType.defaultInfo, logAuthorList.managerStart, $"The current version is from the {currentVersion} in the branch {currentBranch}!");
-                switch(currentBranch.ToUpper())
+                switch (currentBranch.ToUpper())
                 {
                     case "BETA":
                         TNLSLogingSystem.sendLog(messageType.defaultWarn, logAuthorList.managerStart, "This branch isn't very stable, please think about switch to the release branch.");
@@ -105,31 +99,8 @@ namespace Tismatis.TNetLibrarySystem
                         break;
                 }
                 TNLSLogingSystem.sendLog(messageType.defaultUnknown, logAuthorList.managerStart, $"Description of that version: {descriptionVersion}");
-            }else{
+            } else {
                 Debug.LogError($"#<color=#ff3232>ERROR</color> <color=#3264ff>[TNLS~managerStart]</color> The system can't be start! (Check the prefab and check if all is linked)");
-            }
-        }
-
-        /// <summary>
-        ///     <para>Called when a player join the game</para>
-        ///     <para>Here we gonna call the first method to unlock TNLS</para>
-        /// </summary>
-        public override void OnPlayerJoined(VRCPlayerApi player)
-        {
-            if (hasFullyBoot)
-            {
-                if(TNLSSettings.lockBeforeFullyBooted)
-                {
-                    if (Networking.LocalPlayer.isMaster)
-                    {
-                        TNLSLogingSystem.sendLog(messageType.defaultInfo, logAuthorList.managerPlayerJoin, "Sent key to unlock a player.");
-                        CallNamedNetworkedScript($"SelectPlayer={player.playerId}", "UnlockService", "TNLS", new object[] { });
-                    }
-                }
-            }
-            else
-            {
-                TNLSLogingSystem.sendLog(messageType.defaultError, logAuthorList.managerPlayerJoin, "The player has join before TNLS has fully booted!");
             }
         }
         #endregion
@@ -159,7 +130,7 @@ namespace Tismatis.TNetLibrarySystem
         /// </summary>
         public void CallNetworkedScript(string target, string networkName, int scriptId, object[] args)
         {
-            TNLS.SendNetwork(target, networkName, scriptId.ToString(), args);
+            TNLSLinePool.SendNetwork(target, networkName, scriptId.ToString(), args);
         }
 
         /// <summary>
@@ -169,22 +140,31 @@ namespace Tismatis.TNetLibrarySystem
         public void CallNamedNetworkedScript(string target, string networkName, string scriptName, object[] args)
         {
             int ScriptId = TNLSScriptManager.GetScriptIdByName(scriptName);
-            if(ScriptId == -1)
+            if (ScriptId == -1)
             {
                 TNLSLogingSystem.sendLog(messageType.defaultError, logAuthorList.managerCNNS, $"Can't find the Script to call! ('{scriptName}')");
-            }else{
-                TNLS.SendNetwork(target, networkName, scriptName, args);
+            } else {
+                TNLSLinePool.SendNetwork(target, networkName, scriptName, args);
             }
         }
-
-        /// <summary>
-        ///     <strong>ALIAS</strong>
-        ///     <para>Return the parameters collections.</para>
-        /// </summary>
-        public object[] GetParameters()
-        {
-            return TNLS.GetParameters();
-        }
         #endregion
+    }
+
+    public class TNLSVersion
+    {
+        public static string getVersion()
+        {
+            return "14-07-2023";
+        }
+
+        public static string getBranch()
+        {
+            return "beta";
+        }
+
+        public static string getDescription()
+        {
+            return "MultiLining update.";
+        }
     }
 }

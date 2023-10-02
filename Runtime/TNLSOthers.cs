@@ -1,7 +1,5 @@
 ﻿
 using System;
-using System.Collections;
-using System.Linq;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
@@ -15,8 +13,51 @@ namespace Tismatis.TNetLibrarySystem
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class TNLSOthers : UdonSharpBehaviour
     {
-        [SerializeField] private TNLSManager TNLSManager;
+        [SerializeField] public TNLSManager TNLSManager;
         [NonSerialized] private VRCPlayerApi[] AllPlayers = new VRCPlayerApi[0];
+
+        #region Check Receive
+        /// <summary>
+        ///     <para>Can Receive</para>
+        /// </summary>
+        public bool checkIfPlayerCanReceive(VRCPlayerApi player, string target)
+        {
+            switch (target.ToUpper())
+            {
+                case "LOCAL":
+                    return true;
+                case "ALL":
+                    return true;
+                case "MASTER":
+                    return player.isMaster;
+                default:
+                    return target.StartsWith("SelectPlayer=") && checkIfPlayerIsInTheCollection(player, target);
+            }
+        }
+
+        /// <summary>
+        ///     <para>This method return a boolean</para>
+        /// </summary>
+        public bool checkIfPlayerIsInTheCollection(VRCPlayerApi player, string collection)
+        {
+            string[] collectString = collection.Replace("SelectPlayer=", "").Split('▀');
+            if (collectString.Length >= 1)
+            {
+                foreach (string id in collectString)
+                {
+                    if (Convert.ToInt32(id) == player.playerId)
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        #endregion Check Receive
 
         #region Player
         /// <summary>
@@ -114,20 +155,16 @@ namespace Tismatis.TNetLibrarySystem
         {
             AllPlayers = AllPlayers.Add(player);
 
-            ResortAllValue();
-
             TNLSManager.TNLSConfirmPool.actualizeList();
         }
 
         public override void OnPlayerLeft(VRCPlayerApi player)
         {
             int idLocal = GetPlayerIdLocal(player);
-            if(idLocal != -1)
+            if (idLocal != -1)
             {
                 AllPlayers = AllPlayers.Remove(idLocal);
             }
-
-            ResortAllValue();
 
             TNLSManager.TNLSConfirmPool.actualizeList();
         }

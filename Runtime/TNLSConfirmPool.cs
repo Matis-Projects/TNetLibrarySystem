@@ -10,9 +10,9 @@ namespace Tismatis.TNetLibrarySystem
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class TNLSConfirmPool : UdonSharpBehaviour
     {
-        [SerializeField] private PlayerConfirmReceived[] thePool = new PlayerConfirmReceived[82];
-        [SerializeField] private TNLSManager TNLSManager;
-        [NonSerialized] public long receiveTimeout;
+        [NonSerialized] private PlayerConfirmReceived[] thePool = new PlayerConfirmReceived[82];
+        [SerializeField] public TNLSManager TNLSManager;
+        [NonSerialized] public long receiveTimeout = -1;
 
         public void Initialize()
         {
@@ -20,11 +20,13 @@ namespace Tismatis.TNetLibrarySystem
             {
                 if(child.name.Contains("("))
                 {
-                    thePool[int.Parse(child.name.Replace("PlayerConfirmReceived (", "").Replace(")", ""))] = child.gameObject.GetComponent<PlayerConfirmReceived>();
+                    int idPool = int.Parse(child.name.Replace("PlayerConfirmReceived (", "").Replace(")", ""));
+                    thePool[idPool] = child.gameObject.GetComponent<PlayerConfirmReceived>();
+                    thePool[idPool].receivedLines = new ushort[TNLSManager.TNLSLinePool.GetLinesCount()];
                 }
             }
 
-            TNLSManager.TNLSLogingSystem.sendLog(messageType.debugSuccess, logAuthorList.confirmInitialize, $"Successfuly set {thePool.Length} items in the pool.");
+            TNLSManager.TNLSLogingSystem.sendLog(messageType.debugSuccess, logAuthorList.confirmPoolInitialize, $"Successfuly set {thePool.Length} items in the pool.");
         }
 
         public void actualizeList()
@@ -42,19 +44,19 @@ namespace Tismatis.TNetLibrarySystem
                 }
             }
 
-            TNLSManager.TNLSLogingSystem.sendLog(messageType.debugSuccess, logAuthorList.confirmActualizeList, "We actualized the list.");
+            TNLSManager.TNLSLogingSystem.sendLog(messageType.debugSuccess, logAuthorList.confirmPoolActualizeList, "We actualized the list.");
         }
 
-        public bool everyoneReceived(int idRequest)
+        public bool everyoneReceived(int idLine, ushort requestedMethodIdent)
         {
             if(TNLSManager.TNLSOthers.CurTime() > receiveTimeout && receiveTimeout != -1)
             {
                 receiveTimeout = -1;
-                TNLSManager.TNLSLogingSystem.sendLog(messageType.debugSuccess, logAuthorList.confirmEveryoneReceived, "Timeout! We skip that item.");
+                TNLSManager.TNLSLogingSystem.sendLog(messageType.debugSuccess, logAuthorList.confirmPoolEveryoneReceived, "Timeout! We skip that item.");
                 return true;
             }else if(receiveTimeout == -1)
             {
-                TNLSManager.TNLSLogingSystem.sendLog(messageType.debugSuccess, logAuthorList.confirmEveryoneReceived, "Called but already passed or not initialized.");
+                TNLSManager.TNLSLogingSystem.sendLog(messageType.debugSuccess, logAuthorList.confirmPoolEveryoneReceived, "Called but already passed or not initialized.");
                 return true;
             }
             else
@@ -63,7 +65,7 @@ namespace Tismatis.TNetLibrarySystem
 
                 foreach (VRCPlayerApi ply in TNLSManager.TNLSOthers.GetAllPlayers())
                 {
-                    if (thePool[TNLSManager.TNLSOthers.GetPlayerIdLocal(ply)].received)
+                    if (thePool[TNLSManager.TNLSOthers.GetPlayerIdLocal(ply)].receivedLines[idLine] == requestedMethodIdent)
                     {
                         confirmed++;
                     }
@@ -73,7 +75,7 @@ namespace Tismatis.TNetLibrarySystem
                 if(isReceived)
                 {
                     receiveTimeout = -1;
-                    TNLSManager.TNLSLogingSystem.sendLog(messageType.debugSuccess, logAuthorList.confirmEveryoneReceived, "The request passed successfuly.");
+                    TNLSManager.TNLSLogingSystem.sendLog(messageType.debugSuccess, logAuthorList.confirmPoolEveryoneReceived, "The request passed successfuly.");
                 }
                 else
                 {
@@ -83,24 +85,23 @@ namespace Tismatis.TNetLibrarySystem
             }
         }
 
-        public void passEveryoneToFalse()
+        public void passEveryoneToFalse(int idLine)
         {
             int k = 0;
             foreach (VRCPlayerApi ply in TNLSManager.TNLSOthers.GetAllPlayers())
             {
-                thePool[k].received = false;
+                thePool[k].receivedLines[idLine] = 0;
                 k++;
             }
-            TNLSManager.TNLSLogingSystem.sendLog(messageType.debugSuccess, logAuthorList.confirmPassEveryoneToFalse, "We reset everyone to false.");
+            TNLSManager.TNLSLogingSystem.sendLog(messageType.debugSuccess, logAuthorList.confirmPoolPassEveryoneToFalse, $"We reset everyone to false. {idLine}");
         }
 
-        public void broadcastReceive(int idRequest)
+        public void broadcastReceive(int idLine, ushort requestedMethodIdent)
         {
             int id = TNLSManager.TNLSOthers.GetPlayerIdLocal(Networking.LocalPlayer);
-            thePool[id].received = true;
-            thePool[id].lastRequest = idRequest;
+            thePool[id].receivedLines[idLine] = requestedMethodIdent;
             thePool[id].RequestSerialization();
-            TNLSManager.TNLSLogingSystem.sendLog(messageType.debugSuccess, logAuthorList.confirmBroadcastReceive, "We broadcasted we receive it!");
+            TNLSManager.TNLSLogingSystem.sendLog(messageType.debugSuccess, logAuthorList.confirmPoolBroadcastReceive, $"We broadcasted we receive! {requestedMethodIdent}");
         }
     }
 }

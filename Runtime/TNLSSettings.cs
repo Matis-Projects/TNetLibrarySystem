@@ -13,16 +13,11 @@ namespace Tismatis.TNetLibrarySystem
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class TNLSSettings : UdonSharpBehaviour
     {
-        [Header("Manager")]
-        [Tooltip("This is the TNLS Manager, he is required for make this library working.")]
-        [SerializeField] private TNLSManager TNLSManager;
+        [SerializeField] public TNLSManager TNLSManager;
 
 
 
         [Header("Script Networked Settings")]
-
-        [Tooltip("This is the limit before we don't accept new networked script in the list.\n\nFor disable that option, put -1.")]
-        [SerializeField] public int maxNetList = 50;
 
         [Tooltip("This is the limit who blocking any request with that number of params.\n\nFor disable that option, put -1.")]
         [SerializeField] public int maxParams = 25;
@@ -46,9 +41,6 @@ namespace Tismatis.TNetLibrarySystem
 
 
         [Header("Security")]
-
-        [Tooltip("If this is turn true, any request before the first one (from TNLS) will not be readed.")]
-        [SerializeField] public bool lockBeforeFullyBooted = true;
 
         [Tooltip("Times before the \"last chance\" of sync expire and pass to the next request. (in ms)")]
         [SerializeField] public int timeBeforeLCexpire = 500;
@@ -82,14 +74,14 @@ namespace Tismatis.TNetLibrarySystem
             }
             else
             {
-                TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultError, logAuthorList.settingsInitialiaztion, "The value entered for numberOfTickPerSecond is not valid.");
-                TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultInfo, logAuthorList.settingsInitialiaztion, "Passing into 10 ticks per second.");
+                TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultError, logAuthorList.settingsInitialize, "The value entered for numberOfTickPerSecond is not valid.");
+                TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultInfo, logAuthorList.settingsInitialize, "Passing into 10 ticks per second.");
             }
 
             if(timeBeforeLCexpire == -1)
             {
                 timeBeforeLCexpire = 30000;
-                TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultInfo, logAuthorList.settingsInitialiaztion, "You put -1 at TBLCe, we passing at 30s.");
+                TNLSManager.TNLSLogingSystem.sendLog(messageType.defaultInfo, logAuthorList.settingsInitialize, "You put -1 at TBLCe, we passing at 30s.");
             }
         }
     }
