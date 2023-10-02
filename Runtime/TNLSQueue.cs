@@ -102,6 +102,8 @@ namespace Tismatis.TNetLibrarySystem
                 }
                 else
                 {
+                    queueItems = queueItems.Remove(0);
+
                     TNLSManager.TNLSLogingSystem.sendLog(messageType.debugInfo, logAuthorList.queueUpdate, $"Executing a local method.");
                     TNLSManager.TNLSLinePool.Receive(current, null);
                 }

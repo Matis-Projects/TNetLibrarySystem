@@ -154,17 +154,17 @@ namespace Tismatis.TNetLibrarySystem
     {
         public static string getVersion()
         {
-            return "14-07-2023";
+            return "21-07-2023";
         }
 
         public static string getBranch()
         {
-            return "beta";
+            return "stable";
         }
 
         public static string getDescription()
         {
-            return "MultiLining update.";
+            return "MultiLanes fully added.";
         }
     }
 }
