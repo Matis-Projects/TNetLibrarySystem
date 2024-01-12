@@ -12,6 +12,12 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
 
 ---
 
+---
+
+# Warning! The current version is not stable and the latest one!
+
+---
+
 # How to install TNetLibrarySystem
 
 ### Prerequisites:
