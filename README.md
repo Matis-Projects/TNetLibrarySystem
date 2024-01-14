@@ -15,6 +15,7 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
 ---
 
 # Warning! The current version is not stable and the latest one!
+## This readme file need to be reviewed, this is an very old version and some stuff aren't updated today!
 
 ---
 
@@ -47,7 +48,7 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
 
 
 # Why use TNetLibrarySystem
-
+<!--
 |Fonctionnality|UNet|NetworkedEventCaller|T.N.L.S
 |--------------|-------|-|-|
 |Can call method with arguments|<center>✔️</center>|<center>✔️</center>|<center>✔️</center>
@@ -60,6 +61,8 @@ TNetLibrarySystem is a packages for make your Networking scripts more readable a
 
 * *¹ → you need to transform it into byte before send it by the network*
 * *² → not every types*
+-->
+* TODO: Remake this part
 
 # How to use TNetLibrarySystem
 
